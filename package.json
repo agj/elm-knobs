@@ -1,0 +1,10 @@
+{
+  "private": true,
+  "devDependencies": {
+    "elm-doc-preview": "^5.0.5"
+  },
+  "dependencies": {
+    "@lydell/elm": "0.19.1-12",
+    "elm-json": "^0.2.13"
+  }
+}
