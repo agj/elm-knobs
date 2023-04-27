@@ -1,10 +1,18 @@
 {
   "private": true,
-  "devDependencies": {
-    "elm-doc-preview": "^5.0.5"
+  "name": "@agj/elm-knobs",
+  "scripts": {
+    "docs": "elm-doc-preview",
+    "lint": "elm-format src --validate",
+    "test": "elm-test",
+    "validate": "npm run lint && npm run test && npm run validate:build && npm run validate:docs",
+    "validate:build": "elm make",
+    "validate:docs": "elm-doc-preview --output /dev/null"
   },
-  "dependencies": {
+  "devDependencies": {
     "@lydell/elm": "0.19.1-12",
-    "elm-json": "^0.2.13"
+    "elm-doc-preview": "^5.0.5",
+    "elm-format": "^0.8.7",
+    "elm-test": "0.19.1-revision9"
   }
 }

@@ -1,1 +1,4 @@
-node_modules/
+dist
+elm-stuff
+node_modules
+.DS_Store
