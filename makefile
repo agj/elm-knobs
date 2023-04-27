@@ -6,7 +6,7 @@ lint: ## Check for formatting errors.
 	pnpm exec elm-format src --validate
 
 test: ## Run tests.
- 	pnpm exec elm-test
+	pnpm exec elm-test
 
 validate: lint test validate-build validate-docs ## Run all validations.
 
