@@ -1,7 +1,7 @@
 module Knob exposing
     ( Knob
     , float, floatConstrained, floatSlider
-    , int
+    , int, intConstrained
     , view, styles
     , value
     , compose, stack
@@ -27,7 +27,7 @@ First up, within our app's `init` let's create a `Knob` and put it in the model.
 The following are the functions you can use to create basic knobs that map to a single primitive value.
 
 @docs float, floatConstrained, floatSlider
-@docs int
+@docs int, intConstrained
 
 
 # Displaying
@@ -182,6 +182,25 @@ int :
     -> Knob Int
 int { step, initial } =
     intInternal step (String.fromInt initial)
+
+
+{-| Creates an input field knob for manually entering integers within a specific range.
+The `step` argument specifies the amount the number will increase or decrease
+when pressing the up and down keys.
+`initial` is just the value it takes on first load.
+-}
+intConstrained :
+    { range : ( Int, Int )
+    , step : Int
+    , initial : Int
+    }
+    -> Knob Int
+intConstrained { range, step, initial } =
+    let
+        ( rangeLow, rangeHigh ) =
+            range
+    in
+    intConstrainedInternal ( rangeLow, rangeHigh ) step (String.fromInt initial)
 
 
 {-| Attaches a text description next to a knob, as a way to identify what the control is for.
@@ -432,6 +451,31 @@ intInternal step initial =
     in
     Knob
         { value = String.toInt initial |> Maybe.withDefault 0
+        , view = SingleView input
+        }
+
+
+intConstrainedInternal : ( Int, Int ) -> Int -> String -> Knob Int
+intConstrainedInternal ( rangeLow, rangeHigh ) step initial =
+    let
+        intValue =
+            String.toInt initial
+                |> Maybe.withDefault 0
+                |> max rangeLow
+                |> min rangeHigh
+
+        input () =
+            Html.input
+                [ Html.Attributes.type_ "number"
+                , Html.Attributes.value initial
+                , Html.Attributes.step (String.fromInt step)
+                , Html.Events.onInput (intConstrainedInternal ( rangeLow, rangeHigh ) step)
+                , Html.Events.onBlur (intConstrainedInternal ( rangeLow, rangeHigh ) step (String.fromInt intValue))
+                ]
+                []
+    in
+    Knob
+        { value = intValue
         , view = SingleView input
         }
 
