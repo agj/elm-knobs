@@ -1,7 +1,7 @@
 module Knob exposing
     ( Knob
     , float, floatConstrained, floatSlider
-    , int, intConstrained
+    , int, intConstrained, intSlider
     , view, styles
     , value
     , compose, stack
@@ -27,7 +27,7 @@ First up, within our app's `init` let's create a `Knob` and put it in the model.
 The following are the functions you can use to create basic knobs that map to a single primitive value.
 
 @docs float, floatConstrained, floatSlider
-@docs int, intConstrained
+@docs int, intConstrained, intSlider
 
 
 # Displaying
@@ -201,6 +201,53 @@ intConstrained { range, step, initial } =
             range
     in
     intConstrainedInternal ( rangeLow, rangeHigh ) step (String.fromInt initial)
+
+
+{-| Creates a slider knob useful for quickly tweaking integers when precision is not needed.
+Requires a `range = ( min, max )` to constrain the number it generates.
+`initial` is just the value it takes on first load.
+
+The `step` argument indicates the granularity of the values the slider will produce,
+so a step of `1` will produce a slider that shifts between values like `1`, `2`, `3` as you slide it to the right,
+whereas a step of `10` will produce one that shifts between values like `10`, `20`, `30`, etc.
+
+-}
+intSlider :
+    { range : ( Int, Int )
+    , step : Int
+    , initial : Int
+    }
+    -> Knob Int
+intSlider { range, step, initial } =
+    let
+        ( rangeLow, rangeHigh ) =
+            range
+
+        input () =
+            Html.div []
+                [ Html.input
+                    [ Html.Attributes.type_ "range"
+                    , Html.Attributes.value (String.fromInt initial)
+                    , Html.Attributes.min (String.fromInt rangeLow)
+                    , Html.Attributes.max (String.fromInt rangeHigh)
+                    , Html.Attributes.step (String.fromInt step)
+                    , Html.Events.onInput
+                        (\val ->
+                            intSlider
+                                { range = ( rangeLow, rangeHigh )
+                                , step = step
+                                , initial = String.toInt val |> Maybe.withDefault rangeLow
+                                }
+                        )
+                    ]
+                    []
+                , Html.div [] [ Html.text (String.fromInt initial) ]
+                ]
+    in
+    Knob
+        { value = initial
+        , view = SingleView input
+        }
 
 
 {-| Attaches a text description next to a knob, as a way to identify what the control is for.
