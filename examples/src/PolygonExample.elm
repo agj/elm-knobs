@@ -121,5 +121,7 @@ viewPolygon { sides, size, hue, saturation, luminance } =
 
 polygonPoint : Int -> Int -> Int -> ( Float, Float )
 polygonPoint sides size pointIndex =
-    ( toFloat size, 2 * pi / toFloat sides * toFloat pointIndex - (pi / 2) )
+    ( toFloat size
+    , (2 * pi / toFloat sides * toFloat pointIndex) - (pi / 2)
+    )
         |> fromPolar
