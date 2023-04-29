@@ -1,33 +1,60 @@
 module Knob exposing
     ( Knob
-    , float
-    , floatConstrained
-    , floatSlider
+    , float, floatConstrained, floatSlider
     , int
-    , label
-    , record
-    , stack
-    , stackLabel
-    , styles
-    , value
-    , view
+    , record, stack
+    , label, stackLabel
+    , view, styles, value
     )
+
+{-| Let's get started creating a control panel full of “knobs” to interactively tweak values in our application.
+
+When creating a knob, two considerations are important.
+The first is the type of the value you need to control.
+So far we don't have much, only numbers are available (`Int`s and `Float`s).
+The second important consideration is the interface you want to provide to manipulate that value,
+i.e. the control itself.
+This package's knobs are named putting the type first,
+so it's easier to find the one you want according to the value you need to produce.
+
+@docs Knob
+
+
+# Creating knobs for base values
+
+@docs float, floatConstrained, floatSlider
+@docs int
+
+
+# Composing knobs
+
+Most of the time you'll want to control multiple values, and therefore need multiple controls.
+That's what stacking is for.
+
+@docs record, stack
+
+
+# Organization
+
+@docs label, stackLabel
+
+
+# Displaying
+
+@docs view, styles, value
+
+-}
 
 import Html exposing (Html)
 import Html.Attributes
 import Html.Events
 
-{-|
-When creating a Knob, two considerations are important.
-The first is the type of the value you need to produce.
-The second is the interface you want to provide to manipulate that value.
-This package's knobs are named first by the type, so it's easier to find the one you want according to the value you need to produce.
 
-# Creation
-
-@docs float, floatConstrained
+{-| Represents one user-interactive control mapped to one value,
+which this package refers to as a “knob”.
+This is the base type used to create your knobs control panel!
+Normally you'll have one of these stored in your model.
 -}
-
 type Knob a
     = Knob (Config a)
 
@@ -121,6 +148,10 @@ floatSlider { range, step, initial } =
         }
 
 
+{-| Creates a field for manually inputting any integer.
+The `step` argument specifies the amount the number will increase or decrease
+when pressing the up and down keys.
+-}
 int :
     { step : Int
     , initial : Int
@@ -209,6 +240,8 @@ stackLabel text knob =
 -- ACCESSING
 
 
+{-| Extract the current value out of a knob.
+-}
 value : Knob a -> a
 value (Knob config) =
     config.value
