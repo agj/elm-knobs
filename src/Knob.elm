@@ -2,9 +2,10 @@ module Knob exposing
     ( Knob
     , float, floatConstrained, floatSlider
     , int
-    , record, stack
+    , view, styles
+    , value
+    , compose, stack
     , label, stackLabel
-    , view, styles, value
     )
 
 {-| Let's get started creating a control panel full of “knobs” to interactively tweak values in our application.
@@ -26,22 +27,32 @@ so it's easier to find the one you want according to the value you need to produ
 @docs int
 
 
+# Displaying
+
+@docs view, styles
+
+
+# Retrieving the value
+
+Of course, our knobs are of no use to us if we can't read the value entered by the user.
+
+@docs value
+
+
 # Composing knobs
 
-Most of the time you'll want to control multiple values, and therefore need multiple controls.
-That's what stacking is for.
+Most of the time you'll want to control multiple values.
+For that purpose we're going to “stack” our knobs together.
 
-@docs record, stack
+@docs compose, stack
 
 
 # Organization
 
+We could have a bunch of similar knobs in our panel and not know what each of them does,
+so let's make sure we do!
+
 @docs label, stackLabel
-
-
-# Displaying
-
-@docs view, styles, value
 
 -}
 
@@ -161,7 +172,12 @@ int { step, initial } =
     intInternal step (String.fromInt initial)
 
 
-{-| Attaches a text description to a knob.
+{-| Attaches a text description next to a knob, as a way to identify what the control is for.
+
+The following example will produce a [`float`](Knob#float) knob described as “x position”.
+
+    Knob.label "x position" (Knob.float 1 0)
+
 -}
 label : String -> Knob a -> Knob a
 label text (Knob config) =
@@ -178,26 +194,48 @@ label text (Knob config) =
         }
 
 
-{-| Creates a knob that maps a stack of multiple knobs to build up a record.
-Pipe (`|>`) the knobs into it using `stack` or `stackField`.
+{-| Creates a knob that joins multiple knobs to build up a record
+(or actually any data structure you want, depending on the `constructor` argument you pass it!).
+Used in conjunction with [`stack`](Knob#stack).
 
-    type alias MyKnob =
-        { someNumber : Float }
+Pipe ([`|>`](/packages/elm/core/latest/Basics#%7C%3E)) the knobs into it
+using [`stack`](Knob#stack) or [`stackLabel`](Knob#stackLabel).
+
+    type alias Controls =
+        { someNumber : Float
+        , anInteger : Int
+        }
 
     myKnob =
-        Knob.record MyKnob
+        Knob.compose Controls
+            -- This knob will map to `someNumber`:
             |> Knob.stack (Knob.float 1 0)
+            -- This one will map to `anInteger`:
+            |> Knob.stack (Knob.int 1 0)
+
+Here's how you use it to build up a different data structure, in this case a tuple.
+Notice that the number of arguments in the function matches the number of “stacks”.
+
+    myOtherKnob =
+        Knob.compose (\theFloat theInt -> ( theFloat, theInt ))
+            |> Knob.stack (Knob.float 1 0)
+            |> Knob.stack (Knob.int 1 0)
 
 -}
-record : (a -> b) -> Knob (a -> b)
-record constructor =
+compose : (a -> b) -> Knob (a -> b)
+compose constructor =
     Knob
         { value = constructor
         , view = StackView []
         }
 
 
-{-| Adds a knob into a `record` knob.
+{-| Adds a knob into a [`compose`](Knob#compose) knob.
+See the documentation for that for an example.
+
+This function is called “stack” because the order you compose your knobs does matter,
+as they will be displayed one on top of the other!
+
 -}
 stack : Knob a -> Knob (a -> b) -> Knob b
 stack (Knob config) (Knob pipe) =
@@ -228,8 +266,16 @@ stack (Knob config) (Knob pipe) =
         }
 
 
-{-| Convenience function that unifies the functionality of `stack` and `label`.
-Same as doing `stack (label "My label" myKnob)`.
+{-| Convenience function that unifies the functionality of [`stack`](Knob#stack) and [`label`](Knobs#label).
+
+The two examples below produce the same identical result:
+
+    -- The simplified way:
+    stackLabel "My label" myKnob
+
+    -- The regular way:
+    stack (label "My label" myKnob)
+
 -}
 stackLabel : String -> Knob a -> Knob (a -> b) -> Knob b
 stackLabel text knob =
@@ -241,6 +287,9 @@ stackLabel text knob =
 
 
 {-| Extract the current value out of a knob.
+
+    Knob.value myKnob
+
 -}
 value : Knob a -> a
 value (Knob config) =
@@ -252,6 +301,23 @@ value (Knob config) =
 
 
 {-| Converts a knob into HTML to put in your view.
+You should display a single [`Knob`](Knob#Knob) value at any which time,
+so if you need multiple knobs, make sure you [`compose`](Knob#compose) them into a single value!
+
+Knobs update themselves once they're put in the view,
+but for that you need to wire it up with a message,
+which is the first argument that this function takes.
+
+This produces plain HTML with no styles, so make sure you also include [`styles`](Knob#styles)
+in your page to make it display properly, or provide your own styles for it.
+
+    -- Prepare a message for your knob.
+    type Msg =
+        KnobUpdated Knob.Knob
+
+    -- Put this as an HTML node within your page.
+    Knob.view KnobUpdated myKnob
+
 -}
 view : (Knob a -> msg) -> Knob a -> Html msg
 view toMsg (Knob config) =
