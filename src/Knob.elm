@@ -12,10 +12,10 @@ module Knob exposing
 
 When creating a knob, two considerations are important.
 The first is the type of the value you need to control.
-So far we don't have much, only numbers are available (`Int`s and `Float`s).
+So far we don't have many options, as only knobs that control numbers (`Int`s and `Float`s) are available in this package.
 The second important consideration is the interface you want to provide to manipulate that value,
 i.e. the control itself.
-This package's knobs are named putting the type first,
+This package's knobs are named putting the value's type first,
 so it's easier to find the one you want according to the value you need to produce.
 
 @docs Knob
@@ -23,11 +23,16 @@ so it's easier to find the one you want according to the value you need to produ
 
 # Creating knobs for base values
 
+First up, within our app's `init` let's create a `Knob` and put it in the model.
+The following are the functions you can use to create basic knobs that map to a single primitive value.
+
 @docs float, floatConstrained, floatSlider
 @docs int
 
 
 # Displaying
+
+The next step is to actually show our knob in the page.
 
 @docs view, styles
 
@@ -85,9 +90,10 @@ type KnobView a
 -- CREATION
 
 
-{-| Creates a field for manually inputting any floating point number.
+{-| Creates an input field knob for manually entering any floating point number.
 The `step` argument specifies the amount the number will increase or decrease
 when pressing the up and down keys.
+`initial` is just the value it takes on first load.
 -}
 float :
     { step : Float
@@ -98,9 +104,10 @@ float { step, initial } =
     floatInternal step (String.fromFloat initial)
 
 
-{-| Creates a field for manually inputting numbers within a specific range.
+{-| Creates an input field knob for manually entering numbers within a specific range.
 The `step` argument specifies the amount the number will increase or decrease
 when pressing the up and down keys.
+`initial` is just the value it takes on first load.
 -}
 floatConstrained :
     { range : ( Float, Float )
@@ -117,9 +124,13 @@ floatConstrained { range, step, initial } =
 
 
 {-| Creates a slider knob useful for quickly tweaking numbers when precision is not needed.
-Requires a range to constrain the number it generates.
-The `step` argument specifies the amount the number will increase or decrease
-when pressing the up and down keys.
+Requires a `range = ( min, max )` to constrain the number it generates.
+`initial` is just the value it takes on first load.
+
+The `step` argument indicates the granularity of the values the slider will produce,
+so a step of `1` will produce a slider that shifts between values like `1`, `2`, `3` as you slide it to the right,
+whereas a step of `0.1` will produce one that shifts between values like `1.0`, `1.1`, `1.2`, etc.
+
 -}
 floatSlider :
     { range : ( Float, Float )
@@ -159,9 +170,10 @@ floatSlider { range, step, initial } =
         }
 
 
-{-| Creates a field for manually inputting any integer.
+{-| Creates an input field knob for manually entering any integer.
 The `step` argument specifies the amount the number will increase or decrease
 when pressing the up and down keys.
+`initial` is just the value it takes on first load.
 -}
 int :
     { step : Int
@@ -196,10 +208,9 @@ label text (Knob config) =
 
 {-| Creates a knob that joins multiple knobs to build up a record
 (or actually any data structure you want, depending on the `constructor` argument you pass it!).
-Used in conjunction with [`stack`](Knob#stack).
 
 Pipe ([`|>`](/packages/elm/core/latest/Basics#%7C%3E)) the knobs into it
-using [`stack`](Knob#stack) or [`stackLabel`](Knob#stackLabel).
+using [`stack`](Knob#stack) or [`stackLabel`](Knob#stackLabel) in order to provide the arguments.
 
     type alias Controls =
         { someNumber : Float
@@ -287,6 +298,7 @@ stackLabel text knob =
 
 
 {-| Extract the current value out of a knob.
+Use it in your view to affect what you display.
 
     Knob.value myKnob
 
@@ -304,19 +316,21 @@ value (Knob config) =
 You should display a single [`Knob`](Knob#Knob) value at any which time,
 so if you need multiple knobs, make sure you [`compose`](Knob#compose) them into a single value!
 
-Knobs update themselves once they're put in the view,
-but for that you need to wire it up with a message,
+Knobs keep track of their state once they're put in the view,
+but for that you need to wire them up with a message,
 which is the first argument that this function takes.
 
-This produces plain HTML with no styles, so make sure you also include [`styles`](Knob#styles)
-in your page to make it display properly, or provide your own styles for it.
+This function produces plain HTML with no styles, so make sure you also include [`styles`](Knob#styles)
+in your page to make it display properly, or provide your own custom styles.
 
-    -- Prepare a message for your knob.
+    -- Prepare a message for your knob:
     type Msg =
         KnobUpdated Knob.Knob
 
-    -- Put this as an HTML node within your page.
+    -- Put this as an HTML node within your page:
     Knob.view KnobUpdated myKnob
+
+Check the documentation for a full example on how to wire things up.
 
 -}
 view : (Knob a -> msg) -> Knob a -> Html msg
@@ -333,6 +347,10 @@ view toMsg (Knob config) =
 
 {-| Default styles for the knobs, provided as a `<style>` tag.
 Put this as a child somewhere in your view in order to use them.
+
+You could choose not to use these default styles and instead provide your own.
+I recommend you check the DOM output in your browser's inspector—the structure of the HTML produced is pretty simple!
+
 -}
 styles : Html msg
 styles =
