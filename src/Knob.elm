@@ -481,7 +481,6 @@ css =
     }
 
     .knobs .knobs-icon > * {
-        margin-top: 0.2em;
         font-size: 2em;
     }
 
