@@ -1,12 +1,13 @@
 module PolygonExample exposing (main)
 
 import Browser
+import Color
 import Html exposing (Html)
 import Html.Attributes exposing (style)
 import Knob exposing (Knob)
 import TypedSvg as Svg
 import TypedSvg.Attributes as SvgAttr
-import TypedSvg.Types exposing (px)
+import TypedSvg.Types exposing (Paint(..), px)
 
 
 main =
@@ -37,11 +38,41 @@ type Msg
 init =
     { controls =
         Knob.compose Controls
-            |> Knob.stackLabel "Sides" (Knob.intConstrained { range = ( 3, 100 ), step = 1, initial = 5 })
-            |> Knob.stackLabel "Size" (Knob.intSlider { range = ( 10, 250 ), step = 1, initial = 100 })
-            |> Knob.stackLabel "Hue" (Knob.floatSlider { range = ( 0, 1 ), step = 0.01, initial = 0 })
-            |> Knob.stackLabel "Saturation" (Knob.floatSlider { range = ( 0, 1 ), step = 0.01, initial = 0 })
-            |> Knob.stackLabel "Luminance" (Knob.floatSlider { range = ( 0, 1 ), step = 0.01, initial = 0 })
+            |> Knob.stackLabel "Sides"
+                (Knob.intConstrained
+                    { range = ( 3, 100 )
+                    , step = 1
+                    , initial = 5
+                    }
+                )
+            |> Knob.stackLabel "Size"
+                (Knob.intSlider
+                    { range = ( 10, 250 )
+                    , step = 1
+                    , initial = 100
+                    }
+                )
+            |> Knob.stackLabel "Color hue"
+                (Knob.floatSlider
+                    { range = ( 0, 1 )
+                    , step = 0.01
+                    , initial = 0.9
+                    }
+                )
+            |> Knob.stackLabel "Color saturation"
+                (Knob.floatSlider
+                    { range = ( 0, 1 )
+                    , step = 0.01
+                    , initial = 0.9
+                    }
+                )
+            |> Knob.stackLabel "Color luminance"
+                (Knob.floatSlider
+                    { range = ( 0, 1 )
+                    , step = 0.01
+                    , initial = 0.5
+                    }
+                )
     }
 
 
@@ -71,6 +102,9 @@ viewPolygon { sides, size, hue, saturation, luminance } =
         polygonPoints =
             List.range 0 (sides - 1)
                 |> List.map (polygonPoint sides size)
+
+        color =
+            Color.hsl hue saturation luminance
     in
     Svg.svg
         [ SvgAttr.width (px 500)
@@ -79,6 +113,7 @@ viewPolygon { sides, size, hue, saturation, luminance } =
         ]
         [ Svg.polygon
             [ SvgAttr.points polygonPoints
+            , SvgAttr.fill (Paint color)
             ]
             []
         ]
