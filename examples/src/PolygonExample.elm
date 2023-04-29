@@ -23,6 +23,7 @@ type alias Model =
 
 type alias Controls =
     { sides : Int
+    , size : Int
     , hue : Float
     , saturation : Float
     , luminance : Float
@@ -36,7 +37,8 @@ type Msg
 init =
     { controls =
         Knob.compose Controls
-            |> Knob.stackLabel "Sides" (Knob.intConstrained { range = ( 3, 10 ), step = 1, initial = 3 })
+            |> Knob.stackLabel "Sides" (Knob.intConstrained { range = ( 3, 100 ), step = 1, initial = 5 })
+            |> Knob.stackLabel "Size" (Knob.intSlider { range = ( 10, 250 ), step = 1, initial = 100 })
             |> Knob.stackLabel "Hue" (Knob.floatSlider { range = ( 0, 1 ), step = 0.01, initial = 0 })
             |> Knob.stackLabel "Saturation" (Knob.floatSlider { range = ( 0, 1 ), step = 0.01, initial = 0 })
             |> Knob.stackLabel "Luminance" (Knob.floatSlider { range = ( 0, 1 ), step = 0.01, initial = 0 })
@@ -64,13 +66,17 @@ view model =
 
 
 viewPolygon : Controls -> Html Msg
-viewPolygon { sides, hue, saturation, luminance } =
+viewPolygon { sides, size, hue, saturation, luminance } =
     let
         polygonPoints =
             List.range 0 (sides - 1)
-                |> List.map (polygonPoint sides)
+                |> List.map (polygonPoint sides size)
     in
-    Svg.svg [ SvgAttr.width (px 500), SvgAttr.height (px 500) ]
+    Svg.svg
+        [ SvgAttr.width (px 500)
+        , SvgAttr.height (px 500)
+        , SvgAttr.viewBox -250 -250 500 500
+        ]
         [ Svg.polygon
             [ SvgAttr.points polygonPoints
             ]
@@ -78,8 +84,7 @@ viewPolygon { sides, hue, saturation, luminance } =
         ]
 
 
-polygonPoint : Int -> Int -> ( Float, Float )
-polygonPoint sides pointIndex =
-    ( 100, 2 * pi / toFloat sides * toFloat pointIndex )
+polygonPoint : Int -> Int -> Int -> ( Float, Float )
+polygonPoint sides size pointIndex =
+    ( toFloat size, 2 * pi / toFloat sides * toFloat pointIndex - (pi / 2) )
         |> fromPolar
-        |> (\( x, y ) -> ( x + 100, y + 100 ))
