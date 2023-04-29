@@ -1,4 +1,4 @@
-module PolygonExample exposing (main)
+module BasicExample exposing (main)
 
 import Browser
 import Html
