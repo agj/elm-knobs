@@ -147,7 +147,6 @@ floatSlider { range, step, initial } =
             Html.div []
                 [ Html.input
                     [ Html.Attributes.type_ "range"
-                    , Html.Attributes.value (String.fromFloat initial)
                     , Html.Attributes.min (String.fromFloat rangeLow)
                     , Html.Attributes.max (String.fromFloat rangeHigh)
                     , Html.Attributes.step (String.fromFloat step)
@@ -159,6 +158,7 @@ floatSlider { range, step, initial } =
                                 , initial = String.toFloat val |> Maybe.withDefault rangeLow
                                 }
                         )
+                    , Html.Attributes.value (String.fromFloat initial)
                     ]
                     []
                 , Html.div [] [ Html.text (String.fromFloat initial) ]
@@ -227,7 +227,6 @@ intSlider { range, step, initial } =
             Html.div []
                 [ Html.input
                     [ Html.Attributes.type_ "range"
-                    , Html.Attributes.value (String.fromInt initial)
                     , Html.Attributes.min (String.fromInt rangeLow)
                     , Html.Attributes.max (String.fromInt rangeHigh)
                     , Html.Attributes.step (String.fromInt step)
@@ -239,6 +238,7 @@ intSlider { range, step, initial } =
                                 , initial = String.toInt val |> Maybe.withDefault rangeLow
                                 }
                         )
+                    , Html.Attributes.value (String.fromInt initial)
                     ]
                     []
                 , Html.div [] [ Html.text (String.fromInt initial) ]
