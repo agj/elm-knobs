@@ -251,26 +251,74 @@ intSlider { range, step, initial } =
         }
 
 
-{-| Attaches a text description next to a knob, as a way to identify what the control is for.
 
-The following example will produce a [`float`](Knob#float) knob described as “x position”.
+-- VIEW
 
-    Knob.label "x position" (Knob.float 1 0)
+
+{-| Converts a knob into HTML to put in your view.
+You should display a single [`Knob`](Knob#Knob) value at any which time,
+so if you need multiple knobs, make sure you [`compose`](Knob#compose) them into a single value!
+
+Knobs keep track of their state once they're put in the view,
+but for that you need to wire them up with a message,
+which is the first argument that this function takes.
+
+This function produces plain HTML with no styles, so make sure you also include [`styles`](Knob#styles)
+in your page to make it display properly, or provide your own custom styles.
+
+    -- Prepare a message for your knob:
+    type Msg =
+        KnobUpdated (Knob YourType)
+
+    -- Put this as an HTML node within your view:
+    Knob.view KnobUpdated yourKnob
+
+Check [the documentation's readme](https://package.elm-lang.org/packages/agj/elm-knobs/latest/) for a full demonstration on how to wire things up.
 
 -}
-label : String -> Knob a -> Knob a
-label text (Knob config) =
-    let
-        labeled () =
-            Html.label []
-                [ Html.text text
-                , viewInternal (label text) config
-                ]
-    in
-    Knob
-        { value = config.value
-        , view = SingleView labeled
-        }
+view : (Knob a -> msg) -> Knob a -> Html msg
+view toMsg (Knob config) =
+    Html.aside [ Html.Attributes.class "knobs" ]
+        [ Html.div [ Html.Attributes.class "knobs-icon" ]
+            [ Html.div []
+                [ Html.text "🎛" ]
+            ]
+        , Html.div []
+            [ viewInternal toMsg config ]
+        ]
+
+
+{-| Default styles for the knobs, provided as a `<style>` tag.
+Put this as a child somewhere in your view in order to use them.
+
+You could choose not to use these default styles and instead provide your own.
+I recommend you check the DOM output in your browser's inspector—the structure of the HTML produced is pretty simple!
+
+-}
+styles : Html msg
+styles =
+    Html.node "style"
+        []
+        [ Html.text css ]
+
+
+
+-- ACCESSING
+
+
+{-| Extract the current value out of a knob.
+Use it in your view to affect what you display.
+
+    Knob.value someKnob
+
+-}
+value : Knob a -> a
+value (Knob config) =
+    config.value
+
+
+
+-- COMPOSITION
 
 
 {-| Creates a knob that joins multiple knobs to build up a record
@@ -344,6 +392,32 @@ stack (Knob config) (Knob pipe) =
         }
 
 
+
+-- ORGANIZATION
+
+
+{-| Attaches a text description next to a knob, as a way to identify what the control is for.
+
+The following example will produce a [`float`](Knob#float) knob described as “x position”.
+
+    Knob.label "x position" (Knob.float 1 0)
+
+-}
+label : String -> Knob a -> Knob a
+label text (Knob config) =
+    let
+        labeled () =
+            Html.label []
+                [ Html.text text
+                , viewInternal (label text) config
+                ]
+    in
+    Knob
+        { value = config.value
+        , view = SingleView labeled
+        }
+
+
 {-| Convenience function that unifies the functionality of [`stack`](Knob#stack) and [`label`](Knob#label).
 
 The two examples below produce the same identical result:
@@ -358,72 +432,6 @@ The two examples below produce the same identical result:
 stackLabel : String -> Knob a -> Knob (a -> b) -> Knob b
 stackLabel text knob =
     stack (label text knob)
-
-
-
--- ACCESSING
-
-
-{-| Extract the current value out of a knob.
-Use it in your view to affect what you display.
-
-    Knob.value someKnob
-
--}
-value : Knob a -> a
-value (Knob config) =
-    config.value
-
-
-
--- VIEW
-
-
-{-| Converts a knob into HTML to put in your view.
-You should display a single [`Knob`](Knob#Knob) value at any which time,
-so if you need multiple knobs, make sure you [`compose`](Knob#compose) them into a single value!
-
-Knobs keep track of their state once they're put in the view,
-but for that you need to wire them up with a message,
-which is the first argument that this function takes.
-
-This function produces plain HTML with no styles, so make sure you also include [`styles`](Knob#styles)
-in your page to make it display properly, or provide your own custom styles.
-
-    -- Prepare a message for your knob:
-    type Msg =
-        KnobUpdated (Knob YourType)
-
-    -- Put this as an HTML node within your view:
-    Knob.view KnobUpdated yourKnob
-
-Check [the documentation's readme](https://package.elm-lang.org/packages/agj/elm-knobs/latest/) for a full demonstration on how to wire things up.
-
--}
-view : (Knob a -> msg) -> Knob a -> Html msg
-view toMsg (Knob config) =
-    Html.aside [ Html.Attributes.class "knobs" ]
-        [ Html.div [ Html.Attributes.class "knobs-icon" ]
-            [ Html.div []
-                [ Html.text "🎛" ]
-            ]
-        , Html.div []
-            [ viewInternal toMsg config ]
-        ]
-
-
-{-| Default styles for the knobs, provided as a `<style>` tag.
-Put this as a child somewhere in your view in order to use them.
-
-You could choose not to use these default styles and instead provide your own.
-I recommend you check the DOM output in your browser's inspector—the structure of the HTML produced is pretty simple!
-
--}
-styles : Html msg
-styles =
-    Html.node "style"
-        []
-        [ Html.text css ]
 
 
 
@@ -473,18 +481,6 @@ floatConstrainedInternal ( rangeLow, rangeHigh ) step initial =
         }
 
 
-viewInternal : (Knob a -> b) -> Config a -> Html b
-viewInternal mapper config =
-    case config.view of
-        SingleView v ->
-            Html.map mapper (v ())
-
-        StackView vs ->
-            vs
-                |> List.map (\v -> Html.map mapper (v ()))
-                |> Html.div [ Html.Attributes.class "knobs-stack" ]
-
-
 intInternal : Int -> String -> Knob Int
 intInternal step initial =
     let
@@ -526,6 +522,18 @@ intConstrainedInternal ( rangeLow, rangeHigh ) step initial =
         { value = intValue
         , view = SingleView input
         }
+
+
+viewInternal : (Knob a -> b) -> Config a -> Html b
+viewInternal mapper config =
+    case config.view of
+        SingleView v ->
+            Html.map mapper (v ())
+
+        StackView vs ->
+            vs
+                |> List.map (\v -> Html.map mapper (v ()))
+                |> Html.div [ Html.Attributes.class "knobs-stack" ]
 
 
 css =
