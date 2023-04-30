@@ -3,7 +3,7 @@
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/agj/elm-knobs/CI.yaml?branch=main&style=flat-square)](https://github.com/agj/elm-knobs/actions/workflows/CI.yaml)
 [![Elm package](https://img.shields.io/elm-package/v/agj/elm-knobs?style=flat-square)](https://package.elm-lang.org/packages/agj/elm-knobs/latest)
 
-![Example of this package in action](./examples/polygon-example.png)
+![Example of this package in action](https://raw.githubusercontent.com/agj/elm-knobs/3ea0194d043a6105ef15430369c5015e7993d00d/examples/polygon-example.png)
 
 This package was made as a way to easily tweak values interactively within an Elm app,
 using input controls mapping to values, which here we call “knobs”.
