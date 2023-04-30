@@ -14,26 +14,39 @@ main =
 
 
 type alias Model =
+    -- Put the knob in the model:
     { knob : Knob Int }
 
 
-type Msg
+type
+    Msg
+    -- Create a message for knob updates:
     = KnobUpdated (Knob Int)
 
 
 init =
-    { knob = Knob.int { step = 1, initial = 0 } }
+    -- Initialize the knob:
+    { knob =
+        Knob.int
+            { step = 1
+            , initial = 0
+            }
+    }
 
 
 update msg model =
     case msg of
+        -- Update the knob state:
         KnobUpdated knobState ->
             { knob = knobState }
 
 
 view model =
     Html.div []
+        -- Display the knob value somewhere within the view:
         [ Html.text (String.fromInt (Knob.value model.knob))
+
+        -- Display the knob controls:
         , Knob.view KnobUpdated model.knob
         , Knob.styles
         ]
