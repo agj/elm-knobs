@@ -66,7 +66,7 @@ import Html.Attributes
 import Html.Events
 
 
-{-| Represents one user-interactive control mapped to one value,
+{-| Represents one user-interactive control mapped to one value of type `a`,
 which this package refers to as a “knob”.
 This is the base type used to create your knobs control panel!
 Normally you'll have one of these stored in your model.
@@ -104,7 +104,8 @@ float { step, initial } =
     floatInternal step (String.fromFloat initial)
 
 
-{-| Creates an input field knob for manually entering numbers within a specific range.
+{-| Creates an input field knob for manually entering numbers within a specific range,
+where `range = ( min, max )`.
 The `step` argument specifies the amount the number will increase or decrease
 when pressing the up and down keys.
 `initial` is just the value it takes on first load.
@@ -124,12 +125,12 @@ floatConstrained { range, step, initial } =
 
 
 {-| Creates a slider knob useful for quickly tweaking numbers when precision is not needed.
-Requires a `range = ( min, max )` to constrain the number it generates.
+Requires a `range = ( min, max )` to set the boundaries of the slider control.
 `initial` is just the value it takes on first load.
 
-The `step` argument indicates the granularity of the values the slider will produce,
-so a step of `1` will produce a slider that shifts between values like `1`, `2`, `3` as you slide it to the right,
-whereas a step of `0.1` will produce one that shifts between values like `1.0`, `1.1`, `1.2`, etc.
+The `step` argument indicates the granularity of the values the slider will allow,
+so a step of `1` will produce a slider that jumps between values like `1`, `2`, `3` as you slide it to the right,
+whereas a step of `0.1` will produce one that allows setting values like `1.1` or `2.5`.
 
 -}
 floatSlider :
@@ -204,12 +205,12 @@ intConstrained { range, step, initial } =
 
 
 {-| Creates a slider knob useful for quickly tweaking integers when precision is not needed.
-Requires a `range = ( min, max )` to constrain the number it generates.
+Requires a `range = ( min, max )` to set the boundaries of the slider control.
 `initial` is just the value it takes on first load.
 
-The `step` argument indicates the granularity of the values the slider will produce,
-so a step of `1` will produce a slider that shifts between values like `1`, `2`, `3` as you slide it to the right,
-whereas a step of `10` will produce one that shifts between values like `10`, `20`, `30`, etc.
+The `step` argument indicates the granularity of the values the slider will allow,
+so a step of `1` will produce a slider that will set on any integer value as you slide it to the right,
+whereas a step of `10` will produce one that makes bigger jumps between `10`, `20`, `30`, etc.
 
 -}
 intSlider :
@@ -283,7 +284,7 @@ using [`stack`](Knob#stack) or [`stackLabel`](Knob#stackLabel) in order to provi
         , anInteger : Int
         }
 
-    myKnob =
+    aKnob =
         Knob.compose Controls
             -- This knob will map to `someNumber`:
             |> Knob.stack (Knob.float 1 0)
@@ -293,7 +294,7 @@ using [`stack`](Knob#stack) or [`stackLabel`](Knob#stackLabel) in order to provi
 Here's how you use it to build up a different data structure, in this case a tuple.
 Notice that the number of arguments in the function matches the number of “stacks”.
 
-    myOtherKnob =
+    anotherKnob =
         Knob.compose (\theFloat theInt -> ( theFloat, theInt ))
             |> Knob.stack (Knob.float 1 0)
             |> Knob.stack (Knob.int 1 0)
@@ -343,15 +344,15 @@ stack (Knob config) (Knob pipe) =
         }
 
 
-{-| Convenience function that unifies the functionality of [`stack`](Knob#stack) and [`label`](Knobs#label).
+{-| Convenience function that unifies the functionality of [`stack`](Knob#stack) and [`label`](Knob#label).
 
 The two examples below produce the same identical result:
 
     -- The simplified way:
-    stackLabel "My label" myKnob
+    Knob.stackLabel "Some label" someKnob
 
     -- The regular way:
-    stack (label "My label" myKnob)
+    Knob.stack (Knob.label "Some label" someKnob)
 
 -}
 stackLabel : String -> Knob a -> Knob (a -> b) -> Knob b
@@ -366,7 +367,7 @@ stackLabel text knob =
 {-| Extract the current value out of a knob.
 Use it in your view to affect what you display.
 
-    Knob.value myKnob
+    Knob.value someKnob
 
 -}
 value : Knob a -> a
@@ -391,12 +392,12 @@ in your page to make it display properly, or provide your own custom styles.
 
     -- Prepare a message for your knob:
     type Msg =
-        KnobUpdated Knob.Knob
+        KnobUpdated (Knob YourType)
 
-    -- Put this as an HTML node within your page:
-    Knob.view KnobUpdated myKnob
+    -- Put this as an HTML node within your view:
+    Knob.view KnobUpdated yourKnob
 
-Check the documentation for a full example on how to wire things up.
+Check [the documentation's readme](https://package.elm-lang.org/packages/agj/elm-knobs/latest/) for a full demonstration on how to wire things up.
 
 -}
 view : (Knob a -> msg) -> Knob a -> Html msg
