@@ -19,10 +19,14 @@ main =
 
 
 type alias Model =
+    -- We put the knob in the model.
+    -- Notice that there's only one value, despite having multiple controls.
+    -- All of the individual values are held in a single record.
     { controls : Knob Controls }
 
 
 type alias Controls =
+    -- This is the record type that we're using to hold the values.
     { sides : Int
     , size : Int
     , hue : Float
@@ -31,13 +35,21 @@ type alias Controls =
     }
 
 
-type Msg
+type
+    Msg
+    -- This is the message that will be emitted upon user interaction.
     = ControlsKnobUpdated (Knob Controls)
 
 
 init =
     { controls =
+        -- Here we initialize our knob.
+        -- We use `compose` to join multiple knobs into one.
         Knob.compose Controls
+            -- Below we use `stackLabel` to add controls one by one,
+            -- assigning a label that will be visible to the user.
+            -- Each stacked knob maps to one field in the `Controls` record,
+            -- and order here must match the order in the record definition.
             |> Knob.stackLabel "Sides"
                 (Knob.intConstrained
                     { range = ( 3, 100 )
@@ -78,6 +90,7 @@ init =
 
 update msg model =
     case msg of
+        -- We update the knob in the model.
         ControlsKnobUpdated knobState ->
             { controls = knobState }
 
@@ -90,7 +103,11 @@ view model =
         , style "height" "100vh"
         , style "width" "100vw"
         ]
+        -- In our view we use `value` to extract the current value of the knob,
+        -- and use that data to construct the polygon.
         [ viewPolygon (Knob.value model.controls)
+
+        -- We display the knobs panel using `view` and `styles`.
         , Knob.view ControlsKnobUpdated model.controls
         , Knob.styles
         ]
