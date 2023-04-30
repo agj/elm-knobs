@@ -63,7 +63,7 @@ update msg model =
 
 view model =
     Html.div []
-        -- Display the knob value somewhere within the view:
+        -- Use the knob value within the view:
         [ Html.text (String.fromInt (Knob.value model.knob))
 
         -- Display the knob controls:
