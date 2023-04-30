@@ -571,13 +571,13 @@ css =
         --size: 3.5em;
 
         align-items: center;
+        border-radius: 50%;
         display: flex;
         height: var(--size);
         justify-content: center;
         line-height: 1;
-        width: var(--size);
-        border-radius: 50%;
         margin: calc(1 * var(--separation));
+        width: var(--size);
     }
 
     .knobs .knobs-icon > * {
