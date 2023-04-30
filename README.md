@@ -5,12 +5,10 @@
 
 ![Example of this package in action](https://raw.githubusercontent.com/agj/elm-knobs/3ea0194d043a6105ef15430369c5015e7993d00d/examples/polygon-example.png)
 
-This package was made as a way to easily tweak values interactively within an Elm app,
-using input controls mapping to values, which here we call “knobs”.
+This package provides a way to easily tweak values interactively within an Elm app, using a panel of input controls that map to those values. We call these “knobs”.
 
 Sometimes it's hard to find the right value for something in your design,
-and having actual controls in the browser that instantly update the view helps tremendously
-in the development process.
+and having actual controls in the browser that instantly update the view helps tremendously in the development process.
 It also enables non-technical people to explore how things change when different values are used,
 with immediate feedback.
 
@@ -18,7 +16,7 @@ Since its main use case is aiding the development process,
 visual customization is not a priority,
 but you can still define your own CSS styles to define how you want the controls to look.
 
-Here's a very basic example of how it looks to use this package:
+Here's a very basic example of how it looks like to use this package:
 
 ```elm
 module BasicExample exposing (main)
