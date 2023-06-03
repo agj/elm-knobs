@@ -79,6 +79,8 @@ or [play with it directly in your browser][in-elm-editor] thanks to the magic of
 [in-github]: https://github.com/agj/elm-knobs
 [in-elm-editor]: https://elm-editor.com/?project-state=https://github.com/agj/elm-knobs
 
-## Acknowledgements
+## Not exactly what you were looking for?
 
-If elm-knobs doesn't meet your needs, definitely check out [avh4/elm-debug-controls](https://package.elm-lang.org/packages/avh4/elm-debug-controls/latest/), a library that has some conceptual overlap with this one, and whose source code inspired my approach to building this library.
+For a much more complete package that does much more than elm-knobs, at the cost of setup complexity, try [jamesgary/elm-config-ui](https://package.elm-lang.org/packages/jamesgary/elm-config-ui/latest/).
+
+Also check out [avh4/elm-debug-controls](https://package.elm-lang.org/packages/avh4/elm-debug-controls/latest/), a library with some overlap with this one, and whose source code inspired my approach to building this library.
