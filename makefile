@@ -3,7 +3,7 @@ init: ## Load a shell with all dependencies.
 	nix develop -c "$$SHELL"
 
 docs: ## Preview the documentation.
-	elm-doc-preview
+	elm-doc-preview --port 8001
 
 lint: ## Check for formatting errors.
 	elm-format src --validate
