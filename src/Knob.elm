@@ -2,6 +2,7 @@ module Knob exposing
     ( Knob
     , float, floatConstrained, floatSlider
     , int, intConstrained, intSlider
+    , select
     , view, styles
     , value
     , compose, stack
@@ -28,6 +29,7 @@ The following are the functions you can use to create basic knobs that map to a 
 
 @docs float, floatConstrained, floatSlider
 @docs int, intConstrained, intSlider
+@docs select
 
 
 # Displaying
@@ -248,6 +250,63 @@ intSlider { range, step, initial } =
     Knob
         { value = initial
         , view = SingleView input
+        }
+
+
+{-| Creates a dropdown select input for a custom type or any arbitrary value you wish.
+You'll need to provide a list of `String`s that represent each selectable option.
+You'll also need a `fromString` function that maps these strings to your type,
+and the reverse `toString` which converts a value of your type to one of the option strings.
+
+Here's a simple example mapping "yes" and "no" options to `Bool` values:
+
+    Knob.select
+        { options = [ "yes", "no" ]
+        , toString =
+            \value ->
+                case value of
+                    True ->
+                        "yes"
+
+                    False ->
+                        "no"
+        , fromString = \value -> text == "yes"
+        , initial = False
+        }
+
+-}
+select :
+    { options : List String
+    , toString : a -> String
+    , fromString : String -> a
+    , initial : a
+    }
+    -> Knob a
+select config =
+    let
+        optionElement : String -> Html (Knob a)
+        optionElement text =
+            let
+                parsed =
+                    config.fromString text
+            in
+            Html.option
+                [ Html.Attributes.value text
+                , Html.Attributes.selected (config.initial == parsed)
+                , Html.Events.onInput
+                    (\selectionString ->
+                        select { config | initial = config.fromString selectionString }
+                    )
+                ]
+                [ Html.text text ]
+
+        optionElements =
+            config.options
+                |> List.map optionElement
+    in
+    Knob
+        { value = config.initial
+        , view = SingleView (\() -> Html.select [] optionElements)
         }
 
 
