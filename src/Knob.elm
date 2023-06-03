@@ -2,6 +2,7 @@ module Knob exposing
     ( Knob
     , float, floatConstrained, floatSlider
     , int, intConstrained, intSlider
+    , boolCheckbox
     , select
     , view, styles
     , value
@@ -29,6 +30,7 @@ The following are the functions you can use to create basic knobs that map to a 
 
 @docs float, floatConstrained, floatSlider
 @docs int, intConstrained, intSlider
+@docs boolCheckbox
 @docs select
 
 
@@ -250,6 +252,26 @@ intSlider { range, step, initial } =
     Knob
         { value = initial
         , view = SingleView input
+        }
+
+
+{-| Creates a checkbox representing a boolean value.
+`initial` determines whether it will be initially checked or not.
+-}
+boolCheckbox : Bool -> Knob Bool
+boolCheckbox initial =
+    let
+        checkbox () =
+            Html.input
+                [ Html.Attributes.type_ "checkbox"
+                , Html.Attributes.checked initial
+                , Html.Events.onInput (\_ -> boolCheckbox (not initial))
+                ]
+                []
+    in
+    Knob
+        { value = initial
+        , view = SingleView checkbox
         }
 
 
@@ -657,6 +679,18 @@ css =
         display: flex;
         flex-direction: column;
         gap: var(--separation);
+    }
+
+    .knobs label:has(> input[type="checkbox"]) {
+        flex-direction: row;
+        align-items: center;
+    }
+
+    /* The following use of :has() is so that browsers that don't support that selector
+       may ignore this block.
+    */
+    .knobs label:has(> input) > input[type="checkbox"] {
+        order: -1;
     }
 
     .knobs input[type="range"] + * {
