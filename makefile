@@ -1,20 +1,23 @@
+init: ## Load a shell with all dependencies.
+	@echo "You may type 'exit' to return to the regular shell.\n"
+	nix develop -c "$$SHELL"
 
 docs: ## Preview the documentation.
-	pnpm exec elm-doc-preview
+	elm-doc-preview
 
 lint: ## Check for formatting errors.
-	pnpm exec elm-format src --validate
+	elm-format src --validate
 
 test: ## Run tests.
-	pnpm exec elm-test
+	elm-test
 
 validate: lint test validate-build validate-docs ## Run all validations.
 
 validate-build: ## Check for build errors.
-	pnpm exec elm make
+	elm make
 
 validate-docs: ## Check for documentation errors.
-	pnpm exec elm-doc-preview --output /dev/null
+	elm-doc-preview --output /dev/null
 
 
 
