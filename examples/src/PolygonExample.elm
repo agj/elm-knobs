@@ -27,7 +27,8 @@ type alias Model =
 
 type alias Controls =
     -- This is the record type that we're using to hold the values.
-    { sides : Int
+    { show : Bool
+    , sides : Int
     , size : Int
     , hue : Float
     , saturation : Float
@@ -50,6 +51,8 @@ init =
             -- assigning a label that will be visible to the user.
             -- Each stacked knob maps to one field in the `Controls` record,
             -- and order here must match the order in the record definition.
+            |> Knob.stackLabel "Show"
+                (Knob.boolCheckbox True)
             |> Knob.stackLabel "Sides"
                 (Knob.intConstrained
                     { range = ( 3, 100 )
@@ -114,26 +117,30 @@ view model =
 
 
 viewPolygon : Controls -> Html Msg
-viewPolygon { sides, size, hue, saturation, luminance } =
-    let
-        polygonPoints =
-            List.range 0 (sides - 1)
-                |> List.map (polygonPoint sides size)
+viewPolygon { show, sides, size, hue, saturation, luminance } =
+    if not show then
+        Html.text ""
 
-        color =
-            Color.hsl hue saturation luminance
-    in
-    Svg.svg
-        [ SvgAttr.width (px 500)
-        , SvgAttr.height (px 500)
-        , SvgAttr.viewBox -250 -250 500 500
-        ]
-        [ Svg.polygon
-            [ SvgAttr.points polygonPoints
-            , SvgAttr.fill (Paint color)
+    else
+        let
+            polygonPoints =
+                List.range 0 (sides - 1)
+                    |> List.map (polygonPoint sides size)
+
+            color =
+                Color.hsl hue saturation luminance
+        in
+        Svg.svg
+            [ SvgAttr.width (px 500)
+            , SvgAttr.height (px 500)
+            , SvgAttr.viewBox -250 -250 500 500
             ]
-            []
-        ]
+            [ Svg.polygon
+                [ SvgAttr.points polygonPoints
+                , SvgAttr.fill (Paint color)
+                ]
+                []
+            ]
 
 
 polygonPoint : Int -> Int -> Int -> ( Float, Float )
