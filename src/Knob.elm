@@ -659,7 +659,7 @@ css =
         gap: var(--separation);
     }
 
-    input[type="range"] + * {
+    .knobs input[type="range"] + * {
         color: darkgray;
         text-align: center;
     }
