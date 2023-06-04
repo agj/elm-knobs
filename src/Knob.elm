@@ -317,20 +317,25 @@ select config =
             Html.option
                 [ Html.Attributes.value text
                 , Html.Attributes.selected (config.initial == parsed)
-                , Html.Events.onInput
-                    (\selectionString ->
-                        select { config | initial = config.fromString selectionString }
-                    )
                 ]
                 [ Html.text text ]
 
         optionElements =
             config.options
                 |> List.map optionElement
+
+        selectElement () =
+            Html.select
+                [ Html.Events.onInput
+                    (\selectionString ->
+                        select { config | initial = config.fromString selectionString }
+                    )
+                ]
+                optionElements
     in
     Knob
         { value = config.initial
-        , view = SingleView (\() -> Html.select [] optionElements)
+        , view = SingleView selectElement
         }
 
 
