@@ -4,6 +4,7 @@ module Knob exposing
     , int, intConstrained, intSlider
     , boolCheckbox
     , select
+    , custom
     , view, styles
     , value
     , compose, stack
@@ -32,6 +33,7 @@ The following are the functions you can use to create basic knobs that map to a 
 @docs int, intConstrained, intSlider
 @docs boolCheckbox
 @docs select
+@docs custom
 
 
 # Displaying
@@ -329,6 +331,107 @@ select config =
     Knob
         { value = config.initial
         , view = SingleView (\() -> Html.select [] optionElements)
+        }
+
+
+{-| Creates a knob for any type, using a custom HTML view that you supply.
+You can use this function if there is some kind of knob you need
+that is not available in this package.
+
+Knobs are comprised of a `value` of the appropriate type,
+and a `view` which listens to user input
+(typically the `Html.Events.onInput` event)
+and emits the updated knob, instead of a regular message like is normally done.
+In this sense, knobs are recursive, as their view needs to construct a new knob,
+typically by calling the very same constructor function that created it in the first place.
+
+Here's how the `boolCheckbox` knob would be created using `custom`:
+
+    ourBoolKnob : Bool -> Knob Bool
+    ourBoolKnob initial =
+        Knob.custom
+            { value = initial
+            , view =
+                \() ->
+                    Html.input
+                        [ Html.Attributes.type_ "checkbox"
+                        , Html.Attributes.checked initial
+                        , Html.Events.onInput (\_ -> ourBoolKnob (not initial))
+                        ]
+                        []
+            }
+
+Notice how `view` is a thunk—that is, a function that takes `()` (a placeholder value)
+and returns the view.
+The view is just some HTML that emits knobs instead of messages.
+Take a look at the line with `Html.Events.onInput` and make note of what we're doing:
+We're supplying a function that takes one argument
+(which we're ignoring in this case, but it's the updated value of the input)
+and returns a new `ourBoolKnob` but this time with the `initial` argument reversed
+(`True` ↔ `False`).
+This is how we're transforming the contained value when the user clicks.
+
+A thing to keep in mind: For cases in which you're taking unconstrained user input,
+such as a text field, you can wind up making it so that the user cannot input freely.
+This occurs if you're parsing the input into a different type in a lossy manner.
+
+Let's imagine we want to display a text field to map a `String` to a `Vegetable` type.
+In the naïve case, our knob's signature could look like this, taking `Vegetable`
+to set the initial value:
+
+    vegetableKnob : Vegetable -> Knob Vegetable
+
+It would convert the initial value to a `String`, and set that as the text field's text.
+Then, upon user input, we'd parse the input `String` into our type,
+and use that to construct the updated knob.
+
+The problem with this situation is that if the conversion from `String` to your type
+and then back into `String` is lossy (i.e., the result is not the same as what the user typed,)
+then the user won't be able to type some things, as they'll be changing every time
+they hit a key.
+
+    vegetableFromString : String -> Vegetable
+    vegetableFromString text =
+        case text of
+            "carrot" ->
+                Carrot
+
+            _ ->
+                Tomato
+
+If we're using the function above to parse user input into `Vegetable`,
+the user may want to type "carrot" and start typing "c",
+but as it's not yet a valid value, it will be parsed as `Tomato`
+and the text field's text will be reset to whatever the fallback value is.
+
+In order to prevent this behavior, set the unparsed input text as the text field's `value` property,
+and set the parsed result as the knob's `value`.
+This means that your knob will need to take a `String` as its initial value.
+
+    vegetableKnob : String -> Knob Vegetable
+    vegetableKnob initial =
+        Knob.custom
+            { value = vegetableFromString initial -- Parse here!
+            , view =
+                \() ->
+                    Html.input
+                        [ Html.Attributes.type_ "text"
+                        , Html.Attributes.value initial -- No parsing
+                        , Html.Events.onInput vegetableKnob
+                        ]
+                        []
+            }
+
+-}
+custom :
+    { value : a
+    , view : () -> Html (Knob a)
+    }
+    -> Knob a
+custom config =
+    Knob
+        { value = config.value
+        , view = SingleView config.view
         }
 
 
