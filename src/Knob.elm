@@ -291,14 +291,14 @@ Here's a simple example mapping "yes" and "no" options to `Bool` values:
     Knob.select
         { options = [ "yes", "no" ]
         , toString =
-            \value ->
-                case value of
+            \bool ->
+                case bool of
                     True ->
                         "yes"
 
                     False ->
                         "no"
-        , fromString = \value -> text == "yes"
+        , fromString = \string -> string == "yes"
         , initial = False
         }
 
