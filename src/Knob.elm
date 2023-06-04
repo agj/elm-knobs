@@ -33,6 +33,10 @@ The following are the functions you can use to create basic knobs that map to a 
 @docs int, intConstrained, intSlider
 @docs boolCheckbox
 @docs select
+
+
+## Custom knobs
+
 @docs custom
 
 
@@ -354,26 +358,27 @@ Here's how the `boolCheckbox` knob would be created using `custom`:
 
     ourBoolKnob : Bool -> Knob Bool
     ourBoolKnob initial =
+        let
+            view : () -> Html (Knob Bool)
+            view () =
+                Html.input
+                    [ Html.Attributes.type_ "checkbox"
+                    , Html.Attributes.checked initial
+                    , Html.Events.onChecked ourBoolKnob
+                    ]
+                    []
+        in
         Knob.custom
             { value = initial
-            , view =
-                \() ->
-                    Html.input
-                        [ Html.Attributes.type_ "checkbox"
-                        , Html.Attributes.checked initial
-                        , Html.Events.onInput (\_ -> ourBoolKnob (not initial))
-                        ]
-                        []
+            , view = view
             }
 
 Notice how `view` is a thunk—that is, a function that takes `()` (a placeholder value)
 and returns the view.
 The view is just some HTML that emits knobs instead of messages.
-Take a look at the line with `Html.Events.onInput` and make note of what we're doing:
-We're supplying a function that takes one argument
-(which we're ignoring in this case, but it's the updated value of the input)
-and returns a new `ourBoolKnob` but this time with the `initial` argument reversed
-(`True` ↔ `False`).
+Take a look at the line with `Html.Events.onChecked` and make note of what we're doing:
+We're directly passing in `ourBoolKnob` because it's a function that takes
+the new "checked" value and with it constructs the knob anew.
 This is how we're transforming the contained value when the user clicks.
 
 A thing to keep in mind: For cases in which you're taking unconstrained user input,
@@ -390,7 +395,7 @@ It would convert the initial value to a `String`, and set that as the text field
 Then, upon user input, we'd parse the input `String` into our type,
 and use that to construct the updated knob.
 
-The problem with this situation is that if the conversion from `String` to your type
+The problem with this situation is that if the conversion from `String` to `Vegetable`
 and then back into `String` is lossy (i.e., the result is not the same as what the user typed,)
 then the user won't be able to type some things, as they'll be changing every time
 they hit a key.
@@ -407,7 +412,7 @@ they hit a key.
 If we're using the function above to parse user input into `Vegetable`,
 the user may want to type "carrot" and start typing "c",
 but as it's not yet a valid value, it will be parsed as `Tomato`
-and the text field's text will be reset to whatever the fallback value is.
+and the text field's text will be reset to whatever the string value for `Tomato` is.
 
 In order to prevent this behavior, set the unparsed input text as the text field's `value` property,
 and set the parsed result as the knob's `value`.
