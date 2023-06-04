@@ -33,6 +33,7 @@ type alias Controls =
     , hue : Float
     , saturation : Float
     , luminance : Float
+    , sitOn : SitOn
     }
 
 
@@ -88,7 +89,40 @@ init =
                     , initial = 0.5
                     }
                 )
+            |> Knob.stackLabel "Sit on"
+                (Knob.select
+                    { options = [ "Vertex", "Edge" ]
+                    , toString = sitOnToString
+                    , fromString = sitOnFromString
+                    , initial = SitOnVertex
+                    }
+                )
     }
+
+
+type SitOn
+    = SitOnEdge
+    | SitOnVertex
+
+
+sitOnFromString : String -> SitOn
+sitOnFromString string =
+    case string of
+        "Edge" ->
+            SitOnEdge
+
+        _ ->
+            SitOnVertex
+
+
+sitOnToString : SitOn -> String
+sitOnToString sitOn =
+    case sitOn of
+        SitOnEdge ->
+            "Edge"
+
+        SitOnVertex ->
+            "Vertex"
 
 
 update msg model =
@@ -117,7 +151,7 @@ view model =
 
 
 viewPolygon : Controls -> Html Msg
-viewPolygon { show, sides, size, hue, saturation, luminance } =
+viewPolygon { show, sides, size, hue, saturation, luminance, sitOn } =
     if not show then
         Html.text ""
 
@@ -125,7 +159,7 @@ viewPolygon { show, sides, size, hue, saturation, luminance } =
         let
             polygonPoints =
                 List.range 0 (sides - 1)
-                    |> List.map (polygonPoint sides size)
+                    |> List.map (polygonPoint sitOn sides size)
 
             color =
                 Color.hsl hue saturation luminance
@@ -143,9 +177,18 @@ viewPolygon { show, sides, size, hue, saturation, luminance } =
             ]
 
 
-polygonPoint : Int -> Int -> Int -> ( Float, Float )
-polygonPoint sides size pointIndex =
+polygonPoint : SitOn -> Int -> Int -> Int -> ( Float, Float )
+polygonPoint sitOn sides size pointIndex =
+    let
+        angleOffset =
+            case sitOn of
+                SitOnEdge ->
+                    0
+
+                SitOnVertex ->
+                    pi / toFloat sides
+    in
     ( toFloat size
-    , (2 * pi / toFloat sides * toFloat pointIndex) - (pi / 2)
+    , (2 * pi / toFloat sides * toFloat pointIndex) + (pi / 2) + angleOffset
     )
         |> fromPolar
