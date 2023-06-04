@@ -267,7 +267,7 @@ boolCheckbox initial =
             Html.input
                 [ Html.Attributes.type_ "checkbox"
                 , Html.Attributes.checked initial
-                , Html.Events.onInput (\_ -> boolCheckbox (not initial))
+                , Html.Events.onCheck (\val -> boolCheckbox val)
                 ]
                 []
     in
