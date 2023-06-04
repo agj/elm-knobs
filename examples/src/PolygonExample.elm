@@ -183,10 +183,10 @@ polygonPoint sitOn sides size pointIndex =
         angleOffset =
             case sitOn of
                 SitOnEdge ->
-                    0
+                    pi / toFloat sides
 
                 SitOnVertex ->
-                    pi / toFloat sides
+                    0
     in
     ( toFloat size
     , (2 * pi / toFloat sides * toFloat pointIndex) + (pi / 2) + angleOffset
