@@ -154,6 +154,7 @@ floatSlider { range, step, initial } =
         ( rangeLow, rangeHigh ) =
             range
 
+        input : () -> Html (Knob Float)
         input () =
             Html.div []
                 [ Html.input
@@ -234,6 +235,7 @@ intSlider { range, step, initial } =
         ( rangeLow, rangeHigh ) =
             range
 
+        input : () -> Html (Knob Int)
         input () =
             Html.div []
                 [ Html.input
@@ -267,6 +269,7 @@ intSlider { range, step, initial } =
 boolCheckbox : Bool -> Knob Bool
 boolCheckbox initial =
     let
+        checkbox : () -> Html (Knob Bool)
         checkbox () =
             Html.input
                 [ Html.Attributes.type_ "checkbox"
@@ -324,10 +327,12 @@ select config =
                 ]
                 [ Html.text text ]
 
+        optionElements : List (Html (Knob a))
         optionElements =
             config.options
                 |> List.map optionElement
 
+        selectElement : () -> Html (Knob a)
         selectElement () =
             Html.select
                 [ Html.Events.onInput
@@ -560,6 +565,7 @@ as they will be displayed one on top of the other!
 stack : Knob a -> Knob (a -> b) -> Knob b
 stack (Knob config) (Knob pipe) =
     let
+        viewToList : KnobView c -> List (() -> Html (Knob c))
         viewToList view_ =
             case view_ of
                 SingleView v ->
@@ -571,6 +577,7 @@ stack (Knob config) (Knob pipe) =
         stackView replacement v () =
             Html.map replacement (v ())
 
+        stackedView : KnobView b
         stackedView =
             (viewToList pipe.view
                 |> List.map (stackView (\newPipe -> stack (Knob config) newPipe))
@@ -635,6 +642,7 @@ stackLabel text knob =
 floatInternal : Float -> String -> Knob Float
 floatInternal step initial =
     let
+        input : () -> Html (Knob Float)
         input () =
             Html.input
                 [ Html.Attributes.type_ "number"
@@ -659,6 +667,7 @@ floatConstrainedInternal ( rangeLow, rangeHigh ) step initial =
                 |> max rangeLow
                 |> min rangeHigh
 
+        input : () -> Html (Knob Float)
         input () =
             Html.input
                 [ Html.Attributes.type_ "number"
@@ -678,6 +687,7 @@ floatConstrainedInternal ( rangeLow, rangeHigh ) step initial =
 intInternal : Int -> String -> Knob Int
 intInternal step initial =
     let
+        input : () -> Html (Knob Int)
         input () =
             Html.input
                 [ Html.Attributes.type_ "number"
@@ -702,6 +712,7 @@ intConstrainedInternal ( rangeLow, rangeHigh ) step initial =
                 |> max rangeLow
                 |> min rangeHigh
 
+        input : () -> Html (Knob Int)
         input () =
             Html.input
                 [ Html.Attributes.type_ "number"
