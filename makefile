@@ -7,6 +7,11 @@ docs: ## Preview the documentation.
 
 lint: ## Check for formatting errors.
 	elm-format src --validate
+	elm-review src
+
+lint-fix: ## Fix linting errors.
+	elm-format src
+	elm-review src --fix
 
 test: ## Run tests.
 	elm-test

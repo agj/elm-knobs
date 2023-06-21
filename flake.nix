@@ -21,6 +21,7 @@
             elmPackages.elm-doc-preview
             elmPackages.elm-format
             elmPackages.elm-json
+            elmPackages.elm-review
             elmPackages.elm-test
             nodejs_20
           ];
