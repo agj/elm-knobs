@@ -5,6 +5,9 @@ init: ## Load a shell with all dependencies.
 docs: ## Preview the documentation.
 	elm-doc-preview --port 8001
 
+changelog: ## Preview the changelog.
+	$$SHELL scripts/changelog.sh
+
 lint: ## Check for formatting errors.
 	elm-format src --validate
 	elm-review src

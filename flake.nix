@@ -23,7 +23,9 @@
             elmPackages.elm-json
             elmPackages.elm-review
             elmPackages.elm-test
-            nodejs_20
+            entr
+            nodePackages.serve
+            pandoc
           ];
         };
       }
