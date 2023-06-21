@@ -318,6 +318,7 @@ select config =
         optionElement : String -> Html (Knob a)
         optionElement text =
             let
+                parsed : a
                 parsed =
                     config.fromString text
             in
@@ -574,8 +575,9 @@ stack (Knob config) (Knob pipe) =
                 StackView vs ->
                     vs
 
-        stackView replacement v () =
-            Html.map replacement (v ())
+        stackView : (c -> d) -> (() -> Html c) -> () -> Html d
+        stackView replacement view_ () =
+            Html.map replacement (view_ ())
 
         stackedView : KnobView b
         stackedView =
@@ -607,6 +609,7 @@ The following example will produce a [`float`](Knob#float) knob described as “
 label : String -> Knob a -> Knob a
 label text (Knob config) =
     let
+        labeled : () -> Html (Knob a)
         labeled () =
             Html.label []
                 [ Html.text text
@@ -661,6 +664,7 @@ floatInternal step initial =
 floatConstrainedInternal : ( Float, Float ) -> Float -> String -> Knob Float
 floatConstrainedInternal ( rangeLow, rangeHigh ) step initial =
     let
+        floatValue : Float
         floatValue =
             String.toFloat initial
                 |> Maybe.withDefault 0
@@ -706,6 +710,7 @@ intInternal step initial =
 intConstrainedInternal : ( Int, Int ) -> Int -> String -> Knob Int
 intConstrainedInternal ( rangeLow, rangeHigh ) step initial =
     let
+        intValue : Int
         intValue =
             String.toInt initial
                 |> Maybe.withDefault 0
@@ -741,6 +746,7 @@ viewInternal mapper config =
                 |> Html.div [ Html.Attributes.class "knobs-stack" ]
 
 
+css : String
 css =
     """
     .knobs {
