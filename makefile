@@ -9,19 +9,19 @@ lint: ## Check for formatting errors.
 	elm-format src --validate
 	elm-review src
 
-lint-fix: ## Fix linting errors.
-	elm-format src
+lint-fix: ## Automatically fix linting errors.
+	elm-format src --yes
 	elm-review src --fix
 
 test: ## Run tests.
 	elm-test
 
-validate: lint test validate-build validate-docs ## Run all validations.
+validate: validate-build test validate-docs lint ## Run all validations.
 
-validate-build: ## Check for build errors.
+validate-build: ## Make sure it builds.
 	elm make
 
-validate-docs: ## Check for documentation errors.
+validate-docs: ## Make sure the docs can be generated.
 	elm-doc-preview --output /dev/null
 
 
