@@ -1,7 +1,8 @@
-dist
-elm-stuff
-node_modules
-.vscode
+.temp/
+
 .DS_Store
-.direnv
-.temp
+elm-stuff/
+node_modules/
+.vscode/
+.direnv/
+.clj-kondo/
