@@ -1,6 +1,18 @@
-# Changelog
+# elm-knobs changelog
 
-## [1.0.0] - 2023-04-30
+Details on all elm-knobs releases. The format is roughly based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+
+## [Unreleased]
+
+[Unreleased]: https://github.com/agj/elm-knobs/compare/1.0.0..HEAD
+
+### Added
+
+- This changelog.
+
+---
+
+## [1.0.0] (2023-04-30)
 
 [1.0.0]: https://github.com/agj/elm-knobs/tree/1.0.0
 
