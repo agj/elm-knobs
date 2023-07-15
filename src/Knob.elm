@@ -9,6 +9,7 @@ module Knob exposing
     , value
     , compose, stack
     , label, stackLabel
+    , map
     )
 
 {-| Let's get started creating a control panel full of “knobs” to interactively tweak values in our application.
@@ -68,6 +69,11 @@ We could have a bunch of similar knobs in our panel and not know what each of th
 so let's make sure we do!
 
 @docs label, stackLabel
+
+
+# Transformation
+
+@docs map
 
 -}
 
@@ -705,6 +711,27 @@ The two examples below produce the same identical result:
 stackLabel : String -> Knob a -> Knob (a -> b) -> Knob b
 stackLabel text knob =
     stack (label text knob)
+
+
+{-| Map
+-}
+map : (a -> b) -> Knob a -> Knob b
+map f (Knob a) =
+    Knob
+        { value = f a.value
+        , view =
+            SingleView
+                (case a.view of
+                    SingleView v ->
+                        \() -> Html.map (map f) (v ())
+
+                    StackView vs ->
+                        \() ->
+                            vs
+                                |> List.map (\v -> Html.map (map f) (v ()))
+                                |> Html.div [ Html.Attributes.class "knobs-stack" ]
+                )
+        }
 
 
 
