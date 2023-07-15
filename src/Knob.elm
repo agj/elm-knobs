@@ -377,60 +377,12 @@ Below is an example mapping it into [avh4/elm-color](/packages/avh4/elm-color/la
 colorPicker : Color -> Knob Color
 colorPicker initial =
     let
-        fromString : String -> Color
-        fromString colorString =
-            case String.uncons colorString of
-                Just ( '#', rest ) ->
-                    let
-                        parse : String -> Float
-                        parse str =
-                            str
-                                |> Hex.fromString
-                                |> Result.withDefault 0
-                                |> (\n -> toFloat n / 255)
-                    in
-                    { red =
-                        rest
-                            |> String.left 2
-                            |> parse
-                    , green =
-                        rest
-                            |> String.dropLeft 2
-                            |> String.left 2
-                            |> parse
-                    , blue =
-                        rest
-                            |> String.dropLeft 4
-                            |> String.left 2
-                            |> parse
-                    }
-
-                _ ->
-                    initial
-
-        toString : Color -> String
-        toString color_ =
-            let
-                { red, green, blue } =
-                    color_
-
-                toHex : Float -> String
-                toHex num =
-                    floor (num * 255)
-                        |> Hex.toString
-                        |> String.padLeft 2 '0'
-
-                colorHex =
-                    toHex red ++ toHex green ++ toHex blue
-            in
-            "#" ++ colorHex
-
         picker : () -> Html (Knob Color)
         picker () =
             Html.input
                 [ Html.Attributes.type_ "color"
-                , Html.Attributes.value (toString initial)
-                , Html.Events.onInput (\colorString -> colorPicker (fromString colorString))
+                , Html.Attributes.value (colorToString initial)
+                , Html.Events.onInput (\colorString -> colorPicker (colorFromString initial colorString))
                 ]
                 []
     in
@@ -847,6 +799,56 @@ intConstrainedInternal ( rangeLow, rangeHigh ) step initial =
         { value = intValue
         , view = SingleView input
         }
+
+
+colorFromString : Color -> String -> Color
+colorFromString default colorString =
+    case String.uncons colorString of
+        Just ( '#', rest ) ->
+            let
+                parse : String -> Float
+                parse str =
+                    str
+                        |> Hex.fromString
+                        |> Result.withDefault 0
+                        |> (\n -> toFloat n / 255)
+            in
+            { red =
+                rest
+                    |> String.left 2
+                    |> parse
+            , green =
+                rest
+                    |> String.dropLeft 2
+                    |> String.left 2
+                    |> parse
+            , blue =
+                rest
+                    |> String.dropLeft 4
+                    |> String.left 2
+                    |> parse
+            }
+
+        _ ->
+            default
+
+
+colorToString : Color -> String
+colorToString color =
+    let
+        { red, green, blue } =
+            color
+
+        toHex : Float -> String
+        toHex num =
+            floor (num * 255)
+                |> Hex.toString
+                |> String.padLeft 2 '0'
+
+        colorHex =
+            toHex red ++ toHex green ++ toHex blue
+    in
+    "#" ++ colorHex
 
 
 viewInternal : (Knob a -> b) -> Config a -> Html b
