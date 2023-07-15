@@ -723,21 +723,10 @@ stackLabel text knob =
 {-| Map
 -}
 map : (a -> b) -> Knob a -> Knob b
-map f (Knob a) =
+map mapper (Knob a) =
     Knob
-        { value = f a.value
-        , view =
-            SingleView
-                (case a.view of
-                    SingleView v ->
-                        \() -> Html.map (map f) (v ())
-
-                    StackView vs ->
-                        \() ->
-                            vs
-                                |> List.map (\v -> Html.map (map f) (v ()))
-                                |> Html.div [ Html.Attributes.class "knobs-stack" ]
-                )
+        { value = mapper a.value
+        , view = SingleView (\() -> viewInternal (map mapper) a)
         }
 
 
