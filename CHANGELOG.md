@@ -8,7 +8,13 @@ Details on all elm-knobs releases. The format is roughly based on [Keep a Change
 
 ### Added
 
+- Knobs: `boolCheckbox`, `select`.
+- A way to create your own custom knob (`custom`.)
 - This changelog.
+
+### Fixed
+
+- Fix style leak for `<input type="range">` sibling elements.
 
 ---
 
