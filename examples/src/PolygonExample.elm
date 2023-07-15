@@ -1,7 +1,7 @@
 module PolygonExample exposing (main)
 
 import Browser
-import Color
+import Color exposing (Color)
 import Html exposing (Html)
 import Html.Attributes exposing (style)
 import Knob exposing (Knob)
@@ -30,9 +30,7 @@ type alias Controls =
     { show : Bool
     , sides : Int
     , size : Int
-    , hue : Float
-    , saturation : Float
-    , luminance : Float
+    , color : Color
     , sitOn : SitOn
     }
 
@@ -68,27 +66,8 @@ init =
                     , initial = 100
                     }
                 )
-            |> Knob.stackLabel "Color hue"
-                (Knob.floatSlider
-                    { range = ( 0, 1 )
-                    , step = 0.01
-                    , initial = 0.9
-                    }
-                )
-            |> Knob.stackLabel "Color saturation"
-                (Knob.floatSlider
-                    { range = ( 0, 1 )
-                    , step = 0.01
-                    , initial = 0.9
-                    }
-                )
-            |> Knob.stackLabel "Color luminance"
-                (Knob.floatSlider
-                    { range = ( 0, 1 )
-                    , step = 0.01
-                    , initial = 0.5
-                    }
-                )
+            |> Knob.stackLabel "Color"
+                (Knob.color Color.purple)
             |> Knob.stackLabel "Sit on"
                 (Knob.select
                     { options = [ "Vertex", "Edge" ]
@@ -151,7 +130,7 @@ view model =
 
 
 viewPolygon : Controls -> Html Msg
-viewPolygon { show, sides, size, hue, saturation, luminance, sitOn } =
+viewPolygon { show, sides, size, color, sitOn } =
     if not show then
         Html.text ""
 
@@ -160,9 +139,6 @@ viewPolygon { show, sides, size, hue, saturation, luminance, sitOn } =
             polygonPoints =
                 List.range 0 (sides - 1)
                     |> List.map (polygonPoint sitOn sides size)
-
-            color =
-                Color.hsl hue saturation luminance
         in
         Svg.svg
             [ SvgAttr.width (px 500)
