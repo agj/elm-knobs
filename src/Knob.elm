@@ -720,7 +720,20 @@ stackLabel text knob =
     stack (label text knob)
 
 
-{-| Map
+
+-- TRANSFORMATION
+
+
+{-| Analogous to `List.map` or other data structures' `map` function,
+you can use this `map` to convert the value produced by a Knob.
+
+The following example converts a knob that produces an `Int` (i.e. a `Knob Int`)
+into one that produces a `String` (i.e. a `Knob String`.) This is achieved
+because `String.fromInt` is a function with the type `Int -> String`.
+
+    Knob.int { step = 1, initial = 0 }
+        |> Knob.map String.fromInt
+
 -}
 map : (a -> b) -> Knob a -> Knob b
 map mapper (Knob a) =
