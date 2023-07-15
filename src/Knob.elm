@@ -3,7 +3,7 @@ module Knob exposing
     , float, floatConstrained, floatSlider
     , int, intConstrained, intSlider
     , boolCheckbox
-    , select
+    , select, color
     , custom
     , view, styles
     , value
@@ -358,27 +358,33 @@ color initial =
     let
         fromString : String -> Color
         fromString str =
-            Result.withDefault initial <|
-                case String.uncons str of
-                    Just ( '#', rest ) ->
-                        Hex.fromString rest
-                            |> Result.map
-                                (\num ->
-                                    let
-                                        red =
-                                            num // (16 * 16)
+            case String.uncons str of
+                Just ( '#', rest ) ->
+                    let
+                        red =
+                            rest
+                                |> String.left 2
+                                |> Hex.fromString
+                                |> Result.withDefault 0
 
-                                        green =
-                                            (num // 16) - red
+                        green =
+                            rest
+                                |> String.dropLeft 2
+                                |> String.left 2
+                                |> Hex.fromString
+                                |> Result.withDefault 0
 
-                                        blue =
-                                            num - green
-                                    in
-                                    Color.rgb255 red green blue
-                                )
+                        blue =
+                            rest
+                                |> String.dropLeft 4
+                                |> String.left 2
+                                |> Hex.fromString
+                                |> Result.withDefault 0
+                    in
+                    Color.rgb255 red green blue
 
-                    _ ->
-                        Result.Err ""
+                _ ->
+                    initial
 
         toString : Color -> String
         toString color_ =
@@ -390,8 +396,12 @@ color initial =
                 toHex num =
                     floor (num * 255)
                         |> Hex.toString
+                        |> String.padLeft 2 '0'
+
+                colorHex =
+                    toHex red ++ toHex green ++ toHex blue
             in
-            "#" ++ toHex red ++ toHex green ++ toHex blue
+            "#" ++ colorHex
 
         picker : () -> Html (Knob Color)
         picker () =
