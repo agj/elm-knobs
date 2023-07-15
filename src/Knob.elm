@@ -3,7 +3,7 @@ module Knob exposing
     , float, floatConstrained, floatSlider
     , int, intConstrained, intSlider
     , boolCheckbox
-    , select, color
+    , select, colorPicker
     , custom
     , view, styles
     , value
@@ -33,7 +33,7 @@ The following are the functions you can use to create basic knobs that map to a 
 @docs float, floatConstrained, floatSlider
 @docs int, intConstrained, intSlider
 @docs boolCheckbox
-@docs select, color
+@docs select, colorPicker
 
 
 ## Custom knobs
@@ -77,7 +77,6 @@ so let's make sure we do!
 
 -}
 
-import Color exposing (Color)
 import Hex
 import Html exposing (Html)
 import Html.Attributes
@@ -91,6 +90,13 @@ Normally you'll have one of these stored in your model.
 -}
 type Knob a
     = Knob (Config a)
+
+
+type alias Color =
+    { red : Float
+    , green : Float
+    , blue : Float
+    }
 
 
 type alias Config a =
@@ -359,35 +365,36 @@ select config =
 
 {-| Color
 -}
-color : Color -> Knob Color
-color initial =
+colorPicker : Color -> Knob Color
+colorPicker initial =
     let
         fromString : String -> Color
-        fromString str =
-            case String.uncons str of
+        fromString colorString =
+            case String.uncons colorString of
                 Just ( '#', rest ) ->
                     let
-                        red =
-                            rest
-                                |> String.left 2
+                        parse : String -> Float
+                        parse str =
+                            str
                                 |> Hex.fromString
                                 |> Result.withDefault 0
-
-                        green =
-                            rest
-                                |> String.dropLeft 2
-                                |> String.left 2
-                                |> Hex.fromString
-                                |> Result.withDefault 0
-
-                        blue =
-                            rest
-                                |> String.dropLeft 4
-                                |> String.left 2
-                                |> Hex.fromString
-                                |> Result.withDefault 0
+                                |> (\n -> toFloat n / 255)
                     in
-                    Color.rgb255 red green blue
+                    { red =
+                        rest
+                            |> String.left 2
+                            |> parse
+                    , green =
+                        rest
+                            |> String.dropLeft 2
+                            |> String.left 2
+                            |> parse
+                    , blue =
+                        rest
+                            |> String.dropLeft 4
+                            |> String.left 2
+                            |> parse
+                    }
 
                 _ ->
                     initial
@@ -396,7 +403,7 @@ color initial =
         toString color_ =
             let
                 { red, green, blue } =
-                    Color.toRgba color_
+                    color_
 
                 toHex : Float -> String
                 toHex num =
@@ -414,7 +421,7 @@ color initial =
             Html.input
                 [ Html.Attributes.type_ "color"
                 , Html.Attributes.value (toString initial)
-                , Html.Events.onInput (\colorString -> color (fromString colorString))
+                , Html.Events.onInput (\colorString -> colorPicker (fromString colorString))
                 ]
                 []
     in

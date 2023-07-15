@@ -42,6 +42,10 @@ type
 
 
 init =
+    let
+        { red, green, blue } =
+            Color.toRgba Color.purple
+    in
     { controls =
         -- Here we initialize our knob.
         -- We use `compose` to join multiple knobs into one.
@@ -67,7 +71,9 @@ init =
                     }
                 )
             |> Knob.stackLabel "Color"
-                (Knob.color Color.purple)
+                (Knob.colorPicker { red = red, green = green, blue = blue }
+                    |> Knob.map (\c -> Color.rgb c.red c.green c.blue)
+                )
             |> Knob.stackLabel "Sit on"
                 (Knob.select
                     { options = [ "Vertex", "Edge" ]
