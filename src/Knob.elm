@@ -3,13 +3,13 @@ module Knob exposing
     , float, floatConstrained, floatSlider
     , int, intConstrained, intSlider
     , boolCheckbox
-    , select, colorPicker
-    , custom
+    , select, Color, colorPicker
     , view, styles
     , value
     , compose, stack
     , label, stackLabel
     , map
+    , custom
     )
 
 {-| Let's get started creating a control panel full of “knobs” to interactively tweak values in our application.
@@ -33,12 +33,7 @@ The following are the functions you can use to create basic knobs that map to a 
 @docs float, floatConstrained, floatSlider
 @docs int, intConstrained, intSlider
 @docs boolCheckbox
-@docs select, colorPicker
-
-
-## Custom knobs
-
-@docs custom
+@docs select, Color, colorPicker
 
 
 # Displaying
@@ -75,6 +70,11 @@ so let's make sure we do!
 
 @docs map
 
+
+## Custom knobs
+
+@docs custom
+
 -}
 
 import Hex
@@ -90,13 +90,6 @@ Normally you'll have one of these stored in your model.
 -}
 type Knob a
     = Knob (Config a)
-
-
-type alias Color =
-    { red : Float
-    , green : Float
-    , blue : Float
-    }
 
 
 type alias Config a =
@@ -363,7 +356,23 @@ select config =
         }
 
 
-{-| Color
+{-| Represents an RGB color value. Each channel value is a `Float` between 0 and 1.
+-}
+type alias Color =
+    { red : Float
+    , green : Float
+    , blue : Float
+    }
+
+
+{-| Creates a color picker input.
+Colors are represented using a type alias `Color`,
+but it is easily [`map`](#map)pable into other color formats for your convenience.
+Below is an example mapping it into [avh4/elm-color](/packages/avh4/elm-color/latest/) format.
+
+    Knob.colorPicker { red = 1, green = 0, blue = 1 }
+        |> Knob.map (c -> Color.rgb c.red c.green c.blue)
+
 -}
 colorPicker : Color -> Knob Color
 colorPicker initial =
@@ -433,7 +442,8 @@ colorPicker initial =
 
 {-| Creates a knob for any type, using a custom HTML view that you supply.
 You can use this function if there is some kind of knob you need
-that is not available in this package.
+that is not available in this package, and can't be created by using [`map`](#map)
+over a predefined knob.
 
 Knobs are comprised of a `value` of the appropriate type,
 and a `view` which listens to user input
@@ -604,7 +614,7 @@ value (Knob config) =
 
 
 {-| Creates a knob that joins multiple knobs to build up a record
-(or actually any data structure you want, depending on the `constructor` argument you pass it!).
+(or actually any data structure you want, depending on the `constructor` argument you pass it!)
 
 Pipe ([`|>`](/packages/elm/core/latest/Basics#%7C%3E)) the knobs into it
 using [`stack`](Knob#stack) or [`stackLabel`](Knob#stackLabel) in order to provide the arguments.
@@ -725,7 +735,7 @@ stackLabel text knob =
 
 
 {-| Analogous to `List.map` or other data structures' `map` function,
-you can use this `map` to convert the value produced by a Knob.
+you can use this function to convert the value produced by a Knob.
 
 The following example converts a knob that produces an `Int` (i.e. a `Knob Int`)
 into one that produces a `String` (i.e. a `Knob String`.) This is achieved
