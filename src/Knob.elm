@@ -32,7 +32,7 @@ The following are the functions you can use to create basic knobs that map to a 
 @docs float, floatConstrained, floatSlider
 @docs int, intConstrained, intSlider
 @docs boolCheckbox
-@docs select
+@docs select, color
 
 
 ## Custom knobs
@@ -71,6 +71,8 @@ so let's make sure we do!
 
 -}
 
+import Color exposing (Color)
+import Hex
 import Html exposing (Html)
 import Html.Attributes
 import Html.Events
@@ -346,6 +348,63 @@ select config =
     Knob
         { value = config.initial
         , view = SingleView selectElement
+        }
+
+
+{-| Color
+-}
+color : Color -> Knob Color
+color initial =
+    let
+        fromString : String -> Color
+        fromString str =
+            Result.withDefault initial <|
+                case String.uncons str of
+                    Just ( '#', rest ) ->
+                        Hex.fromString rest
+                            |> Result.map
+                                (\num ->
+                                    let
+                                        red =
+                                            num // (16 * 16)
+
+                                        green =
+                                            (num // 16) - red
+
+                                        blue =
+                                            num - green
+                                    in
+                                    Color.rgb255 red green blue
+                                )
+
+                    _ ->
+                        Result.Err ""
+
+        toString : Color -> String
+        toString color_ =
+            let
+                { red, green, blue } =
+                    Color.toRgba color_
+
+                toHex : Float -> String
+                toHex num =
+                    floor (num * 255)
+                        |> Hex.toString
+            in
+            "#" ++ toHex red ++ toHex green ++ toHex blue
+
+        picker : () -> Html (Knob Color)
+        picker () =
+            Html.input
+                [ Html.Attributes.type_ "color"
+                , Html.Attributes.value (toString initial)
+                , Html.Events.onInput (\colorString -> color (fromString colorString))
+                ]
+                []
+    in
+    Knob
+        { value = initial
+        , view = SingleView picker
         }
 
 
