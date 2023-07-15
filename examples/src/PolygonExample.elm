@@ -30,8 +30,8 @@ type alias Controls =
     { show : Bool
     , sides : Int
     , size : Int
-    , color : Color
     , sitOn : SitOn
+    , color : Color
     }
 
 
@@ -45,6 +45,9 @@ init =
     let
         { red, green, blue } =
             Color.toRgba Color.purple
+
+        initColor =
+            { red = red, green = green, blue = blue }
     in
     { controls =
         -- Here we initialize our knob.
@@ -70,10 +73,6 @@ init =
                     , initial = 100
                     }
                 )
-            |> Knob.stackLabel "Color"
-                (Knob.colorPicker { red = red, green = green, blue = blue }
-                    |> Knob.map (\c -> Color.rgb c.red c.green c.blue)
-                )
             |> Knob.stackLabel "Sit on"
                 (Knob.select
                     { options = [ "Vertex", "Edge" ]
@@ -81,6 +80,10 @@ init =
                     , fromString = sitOnFromString
                     , initial = SitOnVertex
                     }
+                )
+            |> Knob.stackLabel "Color"
+                (Knob.colorPicker initColor
+                    |> Knob.map (\c -> Color.rgb c.red c.green c.blue)
                 )
     }
 
