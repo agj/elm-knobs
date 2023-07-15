@@ -23,9 +23,6 @@
             elmPackages.elm-json
             elmPackages.elm-review
             elmPackages.elm-test
-            entr
-            nodePackages.live-server
-            pandoc
           ];
         };
       }
