@@ -122,6 +122,26 @@ float { step, initial } =
     floatInternal step (String.fromFloat initial)
 
 
+floatInternal : Float -> String -> Knob Float
+floatInternal step initial =
+    let
+        input : () -> Html (Knob Float)
+        input () =
+            Html.input
+                [ Html.Attributes.type_ "number"
+                , Html.Attributes.value initial
+                , Html.Attributes.step (String.fromFloat step)
+                , Html.Events.onInput (floatInternal step)
+                ]
+                []
+    in
+    Knob
+        { value = String.toFloat initial |> Maybe.withDefault 0
+        , keepOpen = False
+        , view = SingleView input
+        }
+
+
 {-| Creates an input field knob for manually entering numbers within a specific range,
 where `range = ( min, max )`.
 The `step` argument specifies the amount the number will increase or decrease
@@ -140,6 +160,34 @@ floatConstrained { range, step, initial } =
             range
     in
     floatConstrainedInternal ( rangeLow, rangeHigh ) step (String.fromFloat initial)
+
+
+floatConstrainedInternal : ( Float, Float ) -> Float -> String -> Knob Float
+floatConstrainedInternal ( rangeLow, rangeHigh ) step initial =
+    let
+        floatValue : Float
+        floatValue =
+            String.toFloat initial
+                |> Maybe.withDefault 0
+                |> max rangeLow
+                |> min rangeHigh
+
+        input : () -> Html (Knob Float)
+        input () =
+            Html.input
+                [ Html.Attributes.type_ "number"
+                , Html.Attributes.value initial
+                , Html.Attributes.step (String.fromFloat step)
+                , Html.Events.onInput (floatConstrainedInternal ( rangeLow, rangeHigh ) step)
+                , Html.Events.onBlur (floatConstrainedInternal ( rangeLow, rangeHigh ) step (String.fromFloat floatValue))
+                ]
+                []
+    in
+    Knob
+        { value = floatValue
+        , keepOpen = False
+        , view = SingleView input
+        }
 
 
 {-| Creates a slider knob useful for quickly tweaking numbers when precision is not needed.
@@ -205,6 +253,26 @@ int { step, initial } =
     intInternal step (String.fromInt initial)
 
 
+intInternal : Int -> String -> Knob Int
+intInternal step initial =
+    let
+        input : () -> Html (Knob Int)
+        input () =
+            Html.input
+                [ Html.Attributes.type_ "number"
+                , Html.Attributes.value initial
+                , Html.Attributes.step (String.fromInt step)
+                , Html.Events.onInput (intInternal step)
+                ]
+                []
+    in
+    Knob
+        { value = String.toInt initial |> Maybe.withDefault 0
+        , keepOpen = False
+        , view = SingleView input
+        }
+
+
 {-| Creates an input field knob for manually entering integers within a specific range.
 The `step` argument specifies the amount the number will increase or decrease
 when pressing the up and down keys.
@@ -222,6 +290,34 @@ intConstrained { range, step, initial } =
             range
     in
     intConstrainedInternal ( rangeLow, rangeHigh ) step (String.fromInt initial)
+
+
+intConstrainedInternal : ( Int, Int ) -> Int -> String -> Knob Int
+intConstrainedInternal ( rangeLow, rangeHigh ) step initial =
+    let
+        intValue : Int
+        intValue =
+            String.toInt initial
+                |> Maybe.withDefault 0
+                |> max rangeLow
+                |> min rangeHigh
+
+        input : () -> Html (Knob Int)
+        input () =
+            Html.input
+                [ Html.Attributes.type_ "number"
+                , Html.Attributes.value initial
+                , Html.Attributes.step (String.fromInt step)
+                , Html.Events.onInput (intConstrainedInternal ( rangeLow, rangeHigh ) step)
+                , Html.Events.onBlur (intConstrainedInternal ( rangeLow, rangeHigh ) step (String.fromInt intValue))
+                ]
+                []
+    in
+    Knob
+        { value = intValue
+        , keepOpen = False
+        , view = SingleView input
+        }
 
 
 {-| Creates a slider knob useful for quickly tweaking integers when precision is not needed.
@@ -567,6 +663,18 @@ view toMsg (Knob config) =
         ]
 
 
+viewInternal : (Knob a -> b) -> Config a -> Html b
+viewInternal mapper config =
+    case config.view of
+        SingleView v ->
+            Html.map mapper (v ())
+
+        StackView vs ->
+            vs
+                |> List.map (\v -> Html.map mapper (v ()))
+                |> Html.div [ Html.Attributes.class "knobs-stack" ]
+
+
 {-| Default styles for the knobs, provided as a `<style>` tag.
 Put this as a child somewhere in your view in order to use them.
 
@@ -748,102 +856,6 @@ map mapper (Knob a) =
 -- INTERNAL
 
 
-floatInternal : Float -> String -> Knob Float
-floatInternal step initial =
-    let
-        input : () -> Html (Knob Float)
-        input () =
-            Html.input
-                [ Html.Attributes.type_ "number"
-                , Html.Attributes.value initial
-                , Html.Attributes.step (String.fromFloat step)
-                , Html.Events.onInput (floatInternal step)
-                ]
-                []
-    in
-    Knob
-        { value = String.toFloat initial |> Maybe.withDefault 0
-        , keepOpen = False
-        , view = SingleView input
-        }
-
-
-floatConstrainedInternal : ( Float, Float ) -> Float -> String -> Knob Float
-floatConstrainedInternal ( rangeLow, rangeHigh ) step initial =
-    let
-        floatValue : Float
-        floatValue =
-            String.toFloat initial
-                |> Maybe.withDefault 0
-                |> max rangeLow
-                |> min rangeHigh
-
-        input : () -> Html (Knob Float)
-        input () =
-            Html.input
-                [ Html.Attributes.type_ "number"
-                , Html.Attributes.value initial
-                , Html.Attributes.step (String.fromFloat step)
-                , Html.Events.onInput (floatConstrainedInternal ( rangeLow, rangeHigh ) step)
-                , Html.Events.onBlur (floatConstrainedInternal ( rangeLow, rangeHigh ) step (String.fromFloat floatValue))
-                ]
-                []
-    in
-    Knob
-        { value = floatValue
-        , keepOpen = False
-        , view = SingleView input
-        }
-
-
-intInternal : Int -> String -> Knob Int
-intInternal step initial =
-    let
-        input : () -> Html (Knob Int)
-        input () =
-            Html.input
-                [ Html.Attributes.type_ "number"
-                , Html.Attributes.value initial
-                , Html.Attributes.step (String.fromInt step)
-                , Html.Events.onInput (intInternal step)
-                ]
-                []
-    in
-    Knob
-        { value = String.toInt initial |> Maybe.withDefault 0
-        , keepOpen = False
-        , view = SingleView input
-        }
-
-
-intConstrainedInternal : ( Int, Int ) -> Int -> String -> Knob Int
-intConstrainedInternal ( rangeLow, rangeHigh ) step initial =
-    let
-        intValue : Int
-        intValue =
-            String.toInt initial
-                |> Maybe.withDefault 0
-                |> max rangeLow
-                |> min rangeHigh
-
-        input : () -> Html (Knob Int)
-        input () =
-            Html.input
-                [ Html.Attributes.type_ "number"
-                , Html.Attributes.value initial
-                , Html.Attributes.step (String.fromInt step)
-                , Html.Events.onInput (intConstrainedInternal ( rangeLow, rangeHigh ) step)
-                , Html.Events.onBlur (intConstrainedInternal ( rangeLow, rangeHigh ) step (String.fromInt intValue))
-                ]
-                []
-    in
-    Knob
-        { value = intValue
-        , keepOpen = False
-        , view = SingleView input
-        }
-
-
 colorFromString : Color -> String -> Color
 colorFromString default colorString =
     case String.uncons colorString of
@@ -892,18 +904,6 @@ colorToString color =
             toHex red ++ toHex green ++ toHex blue
     in
     "#" ++ colorHex
-
-
-viewInternal : (Knob a -> b) -> Config a -> Html b
-viewInternal mapper config =
-    case config.view of
-        SingleView v ->
-            Html.map mapper (v ())
-
-        StackView vs ->
-            vs
-                |> List.map (\v -> Html.map mapper (v ()))
-                |> Html.div [ Html.Attributes.class "knobs-stack" ]
 
 
 css : String
