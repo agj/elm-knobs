@@ -1,20 +1,32 @@
+init: ## Load a shell with all dependencies (if you don't use direnv).
+	@echo "You may type 'exit' to return to the regular shell.\n"
+	nix develop -c "$$SHELL"
 
 docs: ## Preview the documentation.
-	pnpm exec elm-doc-preview
+	elm-doc-preview --port 8001 --no-browser
+
+changelog: ## Preview the changelog.
+	$$SHELL scripts/changelog.sh
 
 lint: ## Check for formatting errors.
-	pnpm exec elm-format src --validate
+	elm-format src --validate
+	elm-review src
+
+lint-fix: ## Automatically fix linting errors.
+	elm-format src --yes
+	elm-review src --fix
 
 test: ## Run tests.
-	pnpm exec elm-test
+	@echo No tests yet.
+# elm-test
 
-validate: lint test validate-build validate-docs ## Run all validations.
+validate: validate-build test validate-docs lint ## Run all validations.
 
-validate-build: ## Check for build errors.
-	pnpm exec elm make
+validate-build: ## Make sure it builds.
+	elm make
 
-validate-docs: ## Check for documentation errors.
-	pnpm exec elm-doc-preview --output /dev/null
+validate-docs: ## Make sure the docs can be generated.
+	elm-doc-preview --output /dev/null
 
 
 

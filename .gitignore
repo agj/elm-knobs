@@ -1,5 +1,4 @@
-dist
-elm-stuff
-node_modules
-.vscode
 .DS_Store
+elm-stuff/
+.vscode/
+.direnv/

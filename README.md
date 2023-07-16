@@ -1,10 +1,10 @@
 # elm-knobs
 
-[![Elm package](https://img.shields.io/elm-package/v/agj/elm-knobs?style=flat-square)](https://package.elm-lang.org/packages/agj/elm-knobs/latest)
+[![Elm package](https://img.shields.io/elm-package/v/agj/elm-knobs?style=flat-square&logo=elm&labelColor=white&color=%231293D8)](https://package.elm-lang.org/packages/agj/elm-knobs/latest)
 
 A way to easily tweak values interactively within a running Elm app, using a panel of input controls that map to those values, which we call “knobs” here. While not in use, they recede to an icon in the lower-left corner.
 
-![Example of elm-knobs in action](https://raw.githubusercontent.com/agj/elm-knobs/a2db03b305f2f2eeefd8a317ae43c6847692dab8/examples/polygon-example.png)
+![Example of elm-knobs in action](https://raw.githubusercontent.com/agj/elm-knobs/d2167d12ded679174e6678b2de29b9132ffac104/examples/polygon-example.png)
 
 Sometimes it's hard to find the right value for something in your design,
 and having actual controls in the browser that instantly update the view helps tremendously in the development process.
@@ -73,12 +73,14 @@ view model =
 ```
 
 The picture at the top of this page is a more involved example, though.
-You can take a look at it in the [Github repo][in-github], in the `examples/src/PolygonExample.elm` file,
-or [play with it directly in your browser][in-elm-editor] thanks to the magic of Elm Editor.
+You can take a look at it in the [Github repo][in-github],
+or [play with it directly in your browser][in-elm-editor] thanks to the magic of Elm Editor (opens latest version of the code.)
 
-[in-github]: https://github.com/agj/elm-knobs
+[in-github]: https://github.com/agj/elm-knobs/blob/1.1.0/examples/src/
 [in-elm-editor]: https://elm-editor.com/?project-state=https://github.com/agj/elm-knobs
 
-## Acknowledgements
+## Not exactly what you were looking for?
 
-If elm-knobs doesn't meet your needs, definitely check out [avh4/elm-debug-controls](https://package.elm-lang.org/packages/avh4/elm-debug-controls/latest/), a library that has some conceptual overlap with this one, and whose source code inspired my approach to building this library.
+For a more complete package that does much more than elm-knobs, at the cost of setup complexity, try [jamesgary/elm-config-ui](https://package.elm-lang.org/packages/jamesgary/elm-config-ui/latest/).
+
+Also check out [avh4/elm-debug-controls](https://package.elm-lang.org/packages/avh4/elm-debug-controls/latest/), a library with some overlap with this one, and whose source code inspired my approach to building this library.
