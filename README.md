@@ -4,7 +4,7 @@
 
 A way to easily tweak values interactively within a running Elm app, using a panel of input controls that map to those values, which we call “knobs” here. While not in use, they recede to an icon in the lower-left corner.
 
-![Example of elm-knobs in action](https://raw.githubusercontent.com/agj/elm-knobs/a2db03b305f2f2eeefd8a317ae43c6847692dab8/examples/polygon-example.png)
+![Example of elm-knobs in action](https://raw.githubusercontent.com/agj/elm-knobs/d2167d12ded679174e6678b2de29b9132ffac104/examples/polygon-example.png)
 
 Sometimes it's hard to find the right value for something in your design,
 and having actual controls in the browser that instantly update the view helps tremendously in the development process.
