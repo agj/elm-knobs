@@ -1,8 +1,4 @@
-.temp/
-
 .DS_Store
 elm-stuff/
-node_modules/
 .vscode/
 .direnv/
-.clj-kondo/
