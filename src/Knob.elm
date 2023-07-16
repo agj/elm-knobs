@@ -16,11 +16,13 @@ module Knob exposing
 
 When creating a knob, two considerations are important.
 The first is the type of the value you need to control.
-So far we don't have many options, as only knobs that control numbers (`Int`s and `Float`s) are available in this package.
+This package currently provides knobs for numbers, booleans, enumerated choices (custom types or anything like that)
+and colors out of the box, and there is a way to either transform one into another type ([`map`](#map)),
+or to create an entirely new knob ([`custom`](#custom)).
+
 The second important consideration is the interface you want to provide to manipulate that value,
-i.e. the control itself.
-This package's knobs are named putting the value's type first,
-so it's easier to find the one you want according to the value you need to produce.
+i.e. the control itself. Many knobs offer different controls for the same type,
+particularly number-related ones, so pick the one that best suits your needs!
 
 @docs Knob
 
@@ -28,7 +30,7 @@ so it's easier to find the one you want according to the value you need to produ
 # Creating knobs for base values
 
 First up, within our app's `init` let's create a `Knob` and put it in the model.
-The following are the functions you can use to create basic knobs that map to a single primitive value.
+The following are the functions you can use to create basic knobs that map to a single value.
 
 @docs float, floatConstrained, floatSlider
 @docs int, intConstrained, intSlider
@@ -38,7 +40,7 @@ The following are the functions you can use to create basic knobs that map to a 
 
 # Displaying
 
-The next step is to actually show our knob in the page.
+The next step is to actually display our knob in the page.
 
 @docs view, styles
 
@@ -71,7 +73,7 @@ so let's make sure we do!
 @docs map
 
 
-## Custom knobs
+# Custom knobs
 
 @docs custom
 
@@ -86,7 +88,8 @@ import Html.Events
 {-| Represents one user-interactive control mapped to one value of type `a`,
 which this package refers to as a “knob”.
 This is the base type used to create your knobs control panel!
-Normally you'll have one of these stored in your model.
+Normally you'll have a single one of these stored in your model,
+but that one knob can actually represent a group of [`compose`](#compose)d knobs.
 -}
 type Knob a
     = Knob (Config a)
@@ -473,6 +476,7 @@ selectInternal keepOpen config =
 
 
 {-| Represents an RGB color value. Each channel value is a `Float` between 0 and 1.
+This is the type that the [`colorPicker`](#colorPicker) knob uses.
 -}
 type alias Color =
     { red : Float
@@ -483,10 +487,12 @@ type alias Color =
 
 {-| Creates a color picker input.
 Colors are represented using a type alias `Color`,
-but it is easily [`map`](#map)pable into other color formats for your convenience.
+which is easily [`map`](#map)pable into other color formats for your convenience.
 Below is an example mapping it into [avh4/elm-color](/packages/avh4/elm-color/1.0.0/) format.
 
+    -- We set magenta as the initial color.
     Knob.colorPicker { red = 1, green = 0, blue = 1 }
+        -- We map it into avh4/elm-color format.
         |> Knob.map (c -> Color.rgb c.red c.green c.blue)
 
 -}
@@ -642,7 +648,8 @@ in your page to make it display properly, or provide your own custom styles.
     -- Put this as an HTML node within your view:
     Knob.view KnobUpdated yourKnob
 
-Check [the documentation's readme](https://package.elm-lang.org/packages/agj/elm-knobs/latest/) for a full demonstration on how to wire things up.
+Check [the documentation's readme](/packages/agj/elm-knobs/1.0.0/)
+for a full demonstration on how to wire things up.
 
 -}
 view : (Knob a -> msg) -> Knob a -> Html msg
@@ -697,7 +704,8 @@ styles =
 {-| Extract the current value out of a knob.
 Use it in your view to affect what you display.
 
-    Knob.value someKnob
+    Knob.int { step = 1, initial = 5 }
+        |> Knob.value -- Gets `5`.
 
 -}
 value : Knob a -> a
@@ -723,17 +731,17 @@ using [`stack`](Knob#stack) or [`stackLabel`](Knob#stackLabel) in order to provi
     aKnob =
         Knob.compose Controls
             -- This knob will map to `someNumber`:
-            |> Knob.stack (Knob.float 1 0)
+            |> Knob.stack (Knob.float { step = 1, initial = 0 })
             -- This one will map to `anInteger`:
-            |> Knob.stack (Knob.int 1 0)
+            |> Knob.stack (Knob.int { step = 1, initial = 0 })
 
 Here's how you use it to build up a different data structure, in this case a tuple.
 Notice that the number of arguments in the function matches the number of “stacks”.
 
     anotherKnob =
         Knob.compose (\theFloat theInt -> ( theFloat, theInt ))
-            |> Knob.stack (Knob.float 1 0)
-            |> Knob.stack (Knob.int 1 0)
+            |> Knob.stack (Knob.float { step = 1, initial = 0 })
+            |> Knob.stack (Knob.int { step = 1, initial = 0 })
 
 -}
 compose : (a -> b) -> Knob (a -> b)
@@ -793,7 +801,8 @@ stack (Knob config) (Knob pipe) =
 
 The following example will produce a [`float`](Knob#float) knob described as “x position”.
 
-    Knob.label "x position" (Knob.float 1 0)
+    Knob.label "x position"
+        (Knob.float { step = 1, initial = 0 })
 
 -}
 label : String -> Knob a -> Knob a
@@ -817,10 +826,10 @@ label text (Knob config) =
 
 The two examples below produce the same identical result:
 
-    -- The simplified way:
+    -- This:
     Knob.stackLabel "Some label" someKnob
 
-    -- The regular way:
+    -- is the same as:
     Knob.stack (Knob.label "Some label" someKnob)
 
 -}
