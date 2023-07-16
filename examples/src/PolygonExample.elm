@@ -83,6 +83,7 @@ init =
                 )
             |> Knob.stackLabel "Color"
                 (Knob.colorPicker initColor
+                    -- We convert the color to avh4/elm-color format.
                     |> Knob.map (\c -> Color.rgb c.red c.green c.blue)
                 )
     }
