@@ -2,9 +2,9 @@
 
 Details on all elm-knobs releases. The format is roughly based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased]
+## [1.1.0] (2023-07-16)
 
-[Unreleased]: https://github.com/agj/elm-knobs/compare/1.0.0..HEAD
+[1.1.0]: https://github.com/agj/elm-knobs/tree/1.1.0
 
 ### Added
 
@@ -16,8 +16,6 @@ Details on all elm-knobs releases. The format is roughly based on [Keep a Change
 ### Fixed
 
 - Fix style leak for `<input type="range">` sibling elements.
-
----
 
 ## [1.0.0] (2023-04-30)
 

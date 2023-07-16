@@ -76,7 +76,7 @@ The picture at the top of this page is a more involved example, though.
 You can take a look at it in the [Github repo][in-github],
 or [play with it directly in your browser][in-elm-editor] thanks to the magic of Elm Editor (opens latest version of the code.)
 
-[in-github]: https://github.com/agj/elm-knobs/blob/1.0.0/examples/src/
+[in-github]: https://github.com/agj/elm-knobs/blob/1.1.0/examples/src/
 [in-elm-editor]: https://elm-editor.com/?project-state=https://github.com/agj/elm-knobs
 
 ## Not exactly what you were looking for?

@@ -648,7 +648,7 @@ in your page to make it display properly, or provide your own custom styles.
     -- Put this as an HTML node within your view:
     Knob.view KnobUpdated yourKnob
 
-Check [the documentation's readme](/packages/agj/elm-knobs/1.0.0/)
+Check [the documentation's readme](/packages/agj/elm-knobs/1.1.0/)
 for a full demonstration on how to wire things up.
 
 -}
