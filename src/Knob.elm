@@ -94,6 +94,7 @@ type Knob a
 
 type alias Config a =
     { value : a
+    , keepOpen : Bool
     , view : KnobView a
     }
 
@@ -185,6 +186,7 @@ floatSlider { range, step, initial } =
     in
     Knob
         { value = initial
+        , keepOpen = False
         , view = SingleView input
         }
 
@@ -266,6 +268,7 @@ intSlider { range, step, initial } =
     in
     Knob
         { value = initial
+        , keepOpen = False
         , view = SingleView input
         }
 
@@ -287,6 +290,7 @@ boolCheckbox initial =
     in
     Knob
         { value = initial
+        , keepOpen = False
         , view = SingleView checkbox
         }
 
@@ -352,6 +356,7 @@ select config =
     in
     Knob
         { value = config.initial
+        , keepOpen = False
         , view = SingleView selectElement
         }
 
@@ -376,18 +381,26 @@ Below is an example mapping it into [avh4/elm-color](/packages/avh4/elm-color/la
 -}
 colorPicker : Color -> Knob Color
 colorPicker initial =
+    colorPickerInternal False initial
+
+
+colorPickerInternal : Bool -> Color -> Knob Color
+colorPickerInternal keepOpen initial =
     let
         picker : () -> Html (Knob Color)
         picker () =
             Html.input
                 [ Html.Attributes.type_ "color"
                 , Html.Attributes.value (colorToString initial)
-                , Html.Events.onInput (\colorString -> colorPicker (colorFromString initial colorString))
+                , Html.Events.onInput (\colorString -> colorPickerInternal True (colorFromString initial colorString))
+                , Html.Events.onFocus (colorPickerInternal True initial)
+                , Html.Events.onBlur (colorPickerInternal False initial)
                 ]
                 []
     in
     Knob
         { value = initial
+        , keepOpen = keepOpen
         , view = SingleView picker
         }
 
@@ -491,6 +504,7 @@ custom :
 custom config =
     Knob
         { value = config.value
+        , keepOpen = False
         , view = SingleView config.view
         }
 
@@ -522,7 +536,13 @@ Check [the documentation's readme](https://package.elm-lang.org/packages/agj/elm
 -}
 view : (Knob a -> msg) -> Knob a -> Html msg
 view toMsg (Knob config) =
-    Html.aside [ Html.Attributes.class "knobs" ]
+    let
+        classes =
+            [ ( "knobs", True )
+            , ( "knobs-keep-open", config.keepOpen )
+            ]
+    in
+    Html.aside [ Html.Attributes.classList classes ]
         [ Html.div [ Html.Attributes.class "knobs-icon" ]
             [ Html.div []
                 [ Html.text "🎛" ]
@@ -596,6 +616,7 @@ compose : (a -> b) -> Knob (a -> b)
 compose constructor =
     Knob
         { value = constructor
+        , keepOpen = False
         , view = StackView []
         }
 
@@ -635,6 +656,7 @@ stack (Knob config) (Knob pipe) =
     in
     Knob
         { value = pipe.value config.value
+        , keepOpen = pipe.keepOpen || config.keepOpen
         , view = stackedView
         }
 
@@ -662,6 +684,7 @@ label text (Knob config) =
     in
     Knob
         { value = config.value
+        , keepOpen = config.keepOpen
         , view = SingleView labeled
         }
 
@@ -701,6 +724,7 @@ map : (a -> b) -> Knob a -> Knob b
 map mapper (Knob a) =
     Knob
         { value = mapper a.value
+        , keepOpen = a.keepOpen
         , view = SingleView (\() -> viewInternal (map mapper) a)
         }
 
@@ -724,6 +748,7 @@ floatInternal step initial =
     in
     Knob
         { value = String.toFloat initial |> Maybe.withDefault 0
+        , keepOpen = False
         , view = SingleView input
         }
 
@@ -751,6 +776,7 @@ floatConstrainedInternal ( rangeLow, rangeHigh ) step initial =
     in
     Knob
         { value = floatValue
+        , keepOpen = False
         , view = SingleView input
         }
 
@@ -770,6 +796,7 @@ intInternal step initial =
     in
     Knob
         { value = String.toInt initial |> Maybe.withDefault 0
+        , keepOpen = False
         , view = SingleView input
         }
 
@@ -797,6 +824,7 @@ intConstrainedInternal ( rangeLow, rangeHigh ) step initial =
     in
     Knob
         { value = intValue
+        , keepOpen = False
         , view = SingleView input
         }
 
@@ -891,7 +919,8 @@ css =
         overflow-y: auto;
     }
 
-    .knobs:hover > :not(.knobs-icon) {
+    .knobs:hover > :not(.knobs-icon),
+    .knobs.knobs-keep-open > :not(.knobs-icon) {
         display: block;
     }
 
@@ -912,7 +941,8 @@ css =
         font-size: 2em;
     }
 
-    .knobs:hover > .knobs-icon {
+    .knobs:hover > .knobs-icon,
+    .knobs.knobs-keep-open > .knobs-icon {
         display: none;
     }
 
