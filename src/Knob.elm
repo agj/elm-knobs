@@ -325,6 +325,19 @@ select :
     }
     -> Knob a
 select config =
+    selectInternal False config
+
+
+selectInternal :
+    Bool
+    ->
+        { options : List String
+        , toString : a -> String
+        , fromString : String -> a
+        , initial : a
+        }
+    -> Knob a
+selectInternal keepOpen config =
     let
         optionElement : String -> Html (Knob a)
         optionElement text =
@@ -349,14 +362,16 @@ select config =
             Html.select
                 [ Html.Events.onInput
                     (\selectionString ->
-                        select { config | initial = config.fromString selectionString }
+                        selectInternal False { config | initial = config.fromString selectionString }
                     )
+                , Html.Events.onFocus (selectInternal True config)
+                , Html.Events.onBlur (selectInternal False config)
                 ]
                 optionElements
     in
     Knob
         { value = config.initial
-        , keepOpen = False
+        , keepOpen = keepOpen
         , view = SingleView selectElement
         }
 
