@@ -3,7 +3,7 @@ init: ## Load a shell with all dependencies.
 	nix develop -c "$$SHELL"
 
 docs: ## Preview the documentation.
-	elm-doc-preview --port 8001
+	elm-doc-preview --port 8001 --no-browser
 
 changelog: ## Preview the changelog.
 	$$SHELL scripts/changelog.sh
