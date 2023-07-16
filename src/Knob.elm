@@ -407,7 +407,7 @@ colorPickerInternal keepOpen initial =
             Html.input
                 [ Html.Attributes.type_ "color"
                 , Html.Attributes.value (colorToString initial)
-                , Html.Events.onInput (\colorString -> colorPickerInternal True (colorFromString initial colorString))
+                , Html.Events.onInput (\colorString -> colorPickerInternal keepOpen (colorFromString initial colorString))
                 , Html.Events.onFocus (colorPickerInternal True initial)
                 , Html.Events.onBlur (colorPickerInternal False initial)
                 ]
