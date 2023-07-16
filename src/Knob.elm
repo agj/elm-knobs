@@ -648,6 +648,7 @@ Check [the documentation's readme](https://package.elm-lang.org/packages/agj/elm
 view : (Knob a -> msg) -> Knob a -> Html msg
 view toMsg (Knob config) =
     let
+        classes : List ( String, Bool )
         classes =
             [ ( "knobs", True )
             , ( "knobs-keep-open", config.keepOpen )
@@ -900,6 +901,7 @@ colorToString color =
                 |> Hex.toString
                 |> String.padLeft 2 '0'
 
+        colorHex : String
         colorHex =
             toHex red ++ toHex green ++ toHex blue
     in
