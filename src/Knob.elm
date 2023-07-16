@@ -484,7 +484,7 @@ type alias Color =
 {-| Creates a color picker input.
 Colors are represented using a type alias `Color`,
 but it is easily [`map`](#map)pable into other color formats for your convenience.
-Below is an example mapping it into [avh4/elm-color](/packages/avh4/elm-color/latest/) format.
+Below is an example mapping it into [avh4/elm-color](/packages/avh4/elm-color/1.0.0/) format.
 
     Knob.colorPicker { red = 1, green = 0, blue = 1 }
         |> Knob.map (c -> Color.rgb c.red c.green c.blue)
@@ -712,7 +712,7 @@ value (Knob config) =
 {-| Creates a knob that joins multiple knobs to build up a record
 (or actually any data structure you want, depending on the `constructor` argument you pass it!)
 
-Pipe ([`|>`](/packages/elm/core/latest/Basics#%7C%3E)) the knobs into it
+Pipe ([`|>`](/packages/elm/core/1.0.5/Basics#%7C%3E)) the knobs into it
 using [`stack`](Knob#stack) or [`stackLabel`](Knob#stackLabel) in order to provide the arguments.
 
     type alias Controls =
