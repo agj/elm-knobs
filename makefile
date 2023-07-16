@@ -1,4 +1,4 @@
-init: ## Load a shell with all dependencies.
+init: ## Load a shell with all dependencies (if you don't use direnv).
 	@echo "You may type 'exit' to return to the regular shell.\n"
 	nix develop -c "$$SHELL"
 
