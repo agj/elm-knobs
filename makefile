@@ -2,6 +2,7 @@ init: ## Load a shell with all dependencies (if you don't use direnv).
 	@echo "You may type 'exit' to return to the regular shell.\n"
 	nix develop -c "$$SHELL"
 
+.PHONY: docs
 docs: ## Preview the documentation.
 	elm-doc-preview --port 8001 --no-browser
 
