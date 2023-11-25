@@ -13,7 +13,10 @@ chapter =
         |> ElmBook.Chapter.withStatefulComponentList
             [ knobDocToComponent floatDoc
             , knobDocToComponent floatConstrainedDoc
+            , knobDocToComponent floatSliderDoc
             , knobDocToComponent intDoc
+            , knobDocToComponent intConstrainedDoc
+            , knobDocToComponent intSliderDoc
             ]
         |> ElmBook.Chapter.render content
 
@@ -27,22 +30,53 @@ $float$
 
 $floatConstrained$
 
+$floatSlider$
+
 $int$
+
+$intConstrained$
+
+$intSlider$
 """
         |> String.replace "$float$" (knobDocToTemplate floatDoc)
         |> String.replace "$floatConstrained$" (knobDocToTemplate floatConstrainedDoc)
+        |> String.replace "$floatSlider$" (knobDocToTemplate floatSliderDoc)
         |> String.replace "$int$" (knobDocToTemplate intDoc)
+        |> String.replace "$intConstrained$" (knobDocToTemplate intConstrainedDoc)
+        |> String.replace "$intSlider$" (knobDocToTemplate intSliderDoc)
 
 
 type alias Model =
     { float : Knob Float
     , floatConstrained : Knob Float
+    , floatSlider : Knob Float
     , int : Knob Int
+    , intConstrained : Knob Int
+    , intSlider : Knob Int
     }
 
 
 type alias SharedModel a =
     { a | introduction : Model }
+
+
+init =
+    { float = floatDoc.init_
+    , floatConstrained = floatConstrainedDoc.init_
+    , floatSlider = floatSliderDoc.init_
+    , int = intDoc.init_
+    , intConstrained = intConstrainedDoc.init_
+    , intSlider = intSliderDoc.init_
+    }
+
+
+update : Model -> SharedModel a -> SharedModel a
+update newModel sharedModel =
+    { sharedModel | introduction = newModel }
+
+
+
+-- Knob docs
 
 
 type alias KnobDoc a =
@@ -53,22 +87,6 @@ type alias KnobDoc a =
     , set : Model -> Knob a -> Model
     , toString : a -> String
     }
-
-
-init =
-    { float = floatDoc.init_
-    , floatConstrained = floatConstrainedDoc.init_
-    , int = intDoc.init_
-    }
-
-
-update : Model -> SharedModel a -> SharedModel a
-update newModel sharedModel =
-    { sharedModel | introduction = newModel }
-
-
-
--- float
 
 
 floatDoc : KnobDoc Float
@@ -82,10 +100,6 @@ floatDoc =
     }
 
 
-
--- floatConstrained
-
-
 floatConstrainedDoc : KnobDoc Float
 floatConstrainedDoc =
     { name = "floatConstrained"
@@ -97,8 +111,15 @@ floatConstrainedDoc =
     }
 
 
-
--- int
+floatSliderDoc : KnobDoc Float
+floatSliderDoc =
+    { name = "floatSlider"
+    , init_ = Knob.floatSlider { step = 0.01, range = ( 0, 1 ), initial = 0 }
+    , code = "Knob.floatSlider { step = 0.01, range = ( 0, 1 ), initial = 0 }"
+    , get = \model -> model.floatSlider
+    , set = \model new -> { model | floatSlider = new }
+    , toString = String.fromFloat
+    }
 
 
 intDoc : KnobDoc Int
@@ -108,6 +129,28 @@ intDoc =
     , code = "Knob.int { step = 1, initial = 0 }"
     , get = \model -> model.int
     , set = \model new -> { model | int = new }
+    , toString = String.fromInt
+    }
+
+
+intConstrainedDoc : KnobDoc Int
+intConstrainedDoc =
+    { name = "intConstrained"
+    , init_ = Knob.intConstrained { step = 1, range = ( 0, 10 ), initial = 0 }
+    , code = "Knob.intConstrained { step = 1, range = ( 0, 10 ), initial = 0 }"
+    , get = \model -> model.intConstrained
+    , set = \model new -> { model | intConstrained = new }
+    , toString = String.fromInt
+    }
+
+
+intSliderDoc : KnobDoc Int
+intSliderDoc =
+    { name = "intSlider"
+    , init_ = Knob.intSlider { step = 1, range = ( 0, 10 ), initial = 0 }
+    , code = "Knob.intSlider { step = 1, range = ( 0, 10 ), initial = 0 }"
+    , get = \model -> model.intSlider
+    , set = \model new -> { model | intSlider = new }
     , toString = String.fromInt
     }
 
