@@ -3,13 +3,14 @@ module ChapterIntroduction exposing (..)
 import ElmBook.Actions
 import ElmBook.Chapter exposing (Chapter)
 import Html exposing (Html)
+import Html.Attributes exposing (class)
 import Knob exposing (Knob)
 
 
 chapter =
     ElmBook.Chapter.chapter "Introduction"
         |> ElmBook.Chapter.withStatefulComponentList
-            [ ( "Bla", componentInt )
+            [ ( "int", componentInt )
             ]
         |> ElmBook.Chapter.render content
 
@@ -19,12 +20,12 @@ content =
     """
 This is the interactive documentation for elm-knobs.
 
-<component with-label="Bla" />
+<component with-label="int" />
 """
 
 
 type alias Model =
-    Knob Int
+    { int : Knob Int }
 
 
 type alias SharedModel a =
@@ -32,7 +33,7 @@ type alias SharedModel a =
 
 
 init =
-    Knob.int { step = 1, initial = 5 }
+    { int = Knob.int { step = 1, initial = 5 } }
 
 
 update : Model -> SharedModel a -> SharedModel a
@@ -40,10 +41,22 @@ update newModel sharedModel =
     { sharedModel | introduction = newModel }
 
 
+updateInt : Model -> Knob Int -> Model
+updateInt model newInt =
+    { model | int = newInt }
 
--- componentInt : SharedModel a -> Html (SharedModel a)
+
+componentInt sharedModel =
+    knobPreview
+        (sharedModel.introduction.int
+            |> Knob.view (ElmBook.Actions.updateStateWith (updateInt sharedModel.introduction >> update))
+        )
+        (Knob.value sharedModel.introduction.int |> String.fromInt)
 
 
-componentInt model =
-    model.introduction
-        |> Knob.view (ElmBook.Actions.updateStateWith update)
+knobPreview knobView knobValue =
+    Html.div [ class "component-preview" ]
+        [ knobView
+        , Html.div []
+            [ Html.text ("Value: " ++ knobValue) ]
+        ]
