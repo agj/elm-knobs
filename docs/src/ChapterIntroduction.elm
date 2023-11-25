@@ -23,15 +23,15 @@ content =
     """
 This is the interactive documentation for elm-knobs.
 
-$FLOAT$
+$float$
 
-$FLOAT_CONSTRAINED$
+$floatConstrained$
 
-$INT$
+$int$
 """
-        |> String.replace "$FLOAT$" (knobDocToTemplate floatDoc)
-        |> String.replace "$FLOAT_CONSTRAINED$" (knobDocToTemplate floatConstrainedDoc)
-        |> String.replace "$INT$" (knobDocToTemplate intDoc)
+        |> String.replace "$float$" (knobDocToTemplate floatDoc)
+        |> String.replace "$floatConstrained$" (knobDocToTemplate floatConstrainedDoc)
+        |> String.replace "$int$" (knobDocToTemplate intDoc)
 
 
 type alias Model =
@@ -134,13 +134,13 @@ knobDocToComponent knobDoc =
 knobDocToTemplate : KnobDoc a -> String
 knobDocToTemplate knobDoc =
     """
-## KNOB_NAME
+## $knobName$
 
 ```elm
-CODE
+$code$
 ```
 
-<component with-label="KNOB_NAME" />
+<component with-label="$knobName$" />
 """
-        |> String.replace "KNOB_NAME" knobDoc.name
-        |> String.replace "CODE" knobDoc.code
+        |> String.replace "$knobName$" knobDoc.name
+        |> String.replace "$code$" knobDoc.code
