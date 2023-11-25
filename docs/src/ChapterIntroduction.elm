@@ -97,17 +97,6 @@ floatConstrainedDoc =
     }
 
 
-floatConstrainedUpdate : Model -> Knob Float -> Model
-floatConstrainedUpdate model newFloatConstrained =
-    { model | floatConstrained = newFloatConstrained }
-
-
-floatConstrainedView : SharedModel a -> Html (Msg (SharedModel a))
-floatConstrainedView sharedModel =
-    sharedModel.introduction.floatConstrained
-        |> Knob.view (ElmBook.Actions.updateStateWith (floatConstrainedUpdate sharedModel.introduction >> update))
-
-
 
 -- int
 
@@ -123,58 +112,8 @@ intDoc =
     }
 
 
-intUpdate : Model -> Knob Int -> Model
-intUpdate model newInt =
-    { model | int = newInt }
-
-
-intView : SharedModel a -> Html (Msg (SharedModel a))
-intView sharedModel =
-    sharedModel.introduction.int
-        |> Knob.view (ElmBook.Actions.updateStateWith (intUpdate sharedModel.introduction >> update))
-
-
 
 -- Utilities
-
-
-knobPreview : Html a -> String -> Html a
-knobPreview knobView knobValue =
-    Html.div [ class "component-preview" ]
-        [ knobView
-        , Html.div []
-            [ Html.text ("Value: " ++ knobValue) ]
-        ]
-
-
-knobCodeToTemplate : String -> String -> String
-knobCodeToTemplate knobName code =
-    """
-## KNOB_NAME
-
-```elm
-CODE
-```
-
-<component with-label="KNOB_NAME" />
-"""
-        |> String.replace "KNOB_NAME" knobName
-        |> String.replace "CODE" code
-
-
-knobDocToTemplate : KnobDoc a -> String
-knobDocToTemplate knobDoc =
-    """
-## KNOB_NAME
-
-```elm
-CODE
-```
-
-<component with-label="KNOB_NAME" />
-"""
-        |> String.replace "KNOB_NAME" knobDoc.name
-        |> String.replace "CODE" knobDoc.code
 
 
 knobDocToComponent : KnobDoc a -> ( String, SharedModel x -> Html (Msg (SharedModel x)) )
@@ -190,3 +129,18 @@ knobDocToComponent knobDoc =
                 ]
     in
     ( knobDoc.name, knobView )
+
+
+knobDocToTemplate : KnobDoc a -> String
+knobDocToTemplate knobDoc =
+    """
+## KNOB_NAME
+
+```elm
+CODE
+```
+
+<component with-label="KNOB_NAME" />
+"""
+        |> String.replace "KNOB_NAME" knobDoc.name
+        |> String.replace "CODE" knobDoc.code
