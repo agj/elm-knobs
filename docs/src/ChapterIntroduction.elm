@@ -45,13 +45,13 @@ type alias SharedModel a =
     { a | introduction : Model }
 
 
-type alias KnobDoc a x =
+type alias KnobDoc a =
     { name : String
     , init : Knob a
     , code : String
-    , update : Model -> Knob a -> Model
-    , view : SharedModel x -> Html (Msg (SharedModel x))
-    , valueAsString : SharedModel x -> String
+    , get : Model -> Knob a
+    , set : Model -> Knob a -> Model
+    , toString : a -> String
     }
 
 
@@ -71,40 +71,29 @@ update newModel sharedModel =
 -- float
 
 
-floatDoc : KnobDoc Float x
+floatDoc : KnobDoc Float
 floatDoc =
     { name = "float"
     , init = Knob.float { step = 0.01, initial = 0 }
     , code = "Knob.float { step = 0.01, initial = 0 }"
-    , update = floatUpdate
-    , view = floatView
-    , valueAsString = \sharedModel -> Knob.value sharedModel.introduction.float |> String.fromFloat
+    , get = \model -> model.float
+    , set = \model new -> { model | float = new }
+    , toString = String.fromFloat
     }
-
-
-floatUpdate : Model -> Knob Float -> Model
-floatUpdate model newFloat =
-    { model | float = newFloat }
-
-
-floatView : SharedModel x -> Html (Msg (SharedModel x))
-floatView sharedModel =
-    sharedModel.introduction.float
-        |> Knob.view (ElmBook.Actions.updateStateWith (floatUpdate sharedModel.introduction >> update))
 
 
 
 -- floatConstrained
 
 
-floatConstrainedDoc : KnobDoc Float x
+floatConstrainedDoc : KnobDoc Float
 floatConstrainedDoc =
     { name = "floatConstrained"
     , init = Knob.floatConstrained { step = 0.01, range = ( 0, 1 ), initial = 0 }
     , code = "Knob.floatConstrained { step = 0.01, range = ( 0, 1 ), initial = 0 }"
-    , update = floatConstrainedUpdate
-    , view = floatConstrainedView
-    , valueAsString = \sharedModel -> Knob.value sharedModel.introduction.floatConstrained |> String.fromFloat
+    , get = \model -> model.floatConstrained
+    , set = \model new -> { model | floatConstrained = new }
+    , toString = String.fromFloat
     }
 
 
@@ -123,14 +112,14 @@ floatConstrainedView sharedModel =
 -- int
 
 
-intDoc : KnobDoc Int x
+intDoc : KnobDoc Int
 intDoc =
     { name = "int"
     , init = Knob.int { step = 1, initial = 0 }
     , code = "Knob.int { step = 1, initial = 0 }"
-    , update = intUpdate
-    , view = intView
-    , valueAsString = \sharedModel -> Knob.value sharedModel.introduction.int |> String.fromInt
+    , get = \model -> model.int
+    , set = \model new -> { model | int = new }
+    , toString = String.fromInt
     }
 
 
@@ -173,7 +162,7 @@ CODE
         |> String.replace "CODE" code
 
 
-knobDocToTemplate : KnobDoc a x -> String
+knobDocToTemplate : KnobDoc a -> String
 knobDocToTemplate knobDoc =
     """
 ## KNOB_NAME
@@ -188,15 +177,16 @@ CODE
         |> String.replace "CODE" knobDoc.code
 
 
-knobDocToComponent : KnobDoc a x -> ( String, SharedModel x -> Html (Msg (SharedModel x)) )
+knobDocToComponent : KnobDoc a -> ( String, SharedModel x -> Html (Msg (SharedModel x)) )
 knobDocToComponent knobDoc =
     let
         knobView : SharedModel x -> Html (Msg (SharedModel x))
         knobView sharedModel =
             Html.div [ class "component-preview" ]
-                [ knobDoc.view sharedModel
+                [ knobDoc.get sharedModel.introduction
+                    |> Knob.view (ElmBook.Actions.updateStateWith (knobDoc.set sharedModel.introduction >> update))
                 , Html.div []
-                    [ Html.text ("Value: " ++ knobDoc.valueAsString sharedModel) ]
+                    [ Html.text ("Value: " ++ (sharedModel.introduction |> knobDoc.get |> Knob.value |> knobDoc.toString)) ]
                 ]
     in
     ( knobDoc.name, knobView )
