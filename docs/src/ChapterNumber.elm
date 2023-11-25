@@ -1,5 +1,6 @@
 module ChapterNumber exposing (Model, chapter, init)
 
+import Constants
 import ElmBook exposing (Msg)
 import ElmBook.Actions
 import ElmBook.Chapter exposing (Chapter)
@@ -179,6 +180,8 @@ knobDocToTemplate knobDoc =
     """
 ## $knobName$
 
+📦 [See it in the package docs.](https://package.elm-lang.org/packages/agj/elm-knobs/$elmKnobsVersion$/Knob#$knobName$)
+
 ```elm
 $code$
 ```
@@ -187,3 +190,4 @@ $code$
 """
         |> String.replace "$knobName$" knobDoc.name
         |> String.replace "$code$" knobDoc.code
+        |> String.replace "$elmKnobsVersion$" Constants.elmKnobsVersion

@@ -2,6 +2,7 @@ module Main exposing (main)
 
 import ChapterIntroduction
 import ChapterNumber
+import Constants
 import ElmBook exposing (Book)
 import ElmBook.StatefulOptions
 
@@ -19,7 +20,7 @@ init =
 
 main : Book Model
 main =
-    ElmBook.book "elm-knobs"
+    ElmBook.book ("elm-knobs " ++ Constants.elmKnobsVersion)
         |> ElmBook.withStatefulOptions
             [ ElmBook.StatefulOptions.initialState init
             ]
