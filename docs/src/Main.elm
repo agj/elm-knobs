@@ -1,18 +1,19 @@
 module Main exposing (main)
 
 import ChapterIntroduction
+import ChapterNumber
 import ElmBook exposing (Book)
 import ElmBook.StatefulOptions
 
 
 type alias Model =
-    { introduction : ChapterIntroduction.Model
+    { number : ChapterNumber.Model
     }
 
 
 init : Model
 init =
-    { introduction = ChapterIntroduction.init
+    { number = ChapterNumber.init
     }
 
 
@@ -24,4 +25,5 @@ main =
             ]
         |> ElmBook.withChapters
             [ ChapterIntroduction.chapter
+            , ChapterNumber.chapter
             ]
