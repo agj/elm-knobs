@@ -47,7 +47,7 @@ type alias SharedModel a =
 
 type alias KnobDoc a =
     { name : String
-    , init : Knob a
+    , init_ : Knob a
     , code : String
     , get : Model -> Knob a
     , set : Model -> Knob a -> Model
@@ -56,9 +56,9 @@ type alias KnobDoc a =
 
 
 init =
-    { float = floatDoc.init
-    , floatConstrained = floatConstrainedDoc.init
-    , int = intDoc.init
+    { float = floatDoc.init_
+    , floatConstrained = floatConstrainedDoc.init_
+    , int = intDoc.init_
     }
 
 
@@ -74,7 +74,7 @@ update newModel sharedModel =
 floatDoc : KnobDoc Float
 floatDoc =
     { name = "float"
-    , init = Knob.float { step = 0.01, initial = 0 }
+    , init_ = Knob.float { step = 0.01, initial = 0 }
     , code = "Knob.float { step = 0.01, initial = 0 }"
     , get = \model -> model.float
     , set = \model new -> { model | float = new }
@@ -89,7 +89,7 @@ floatDoc =
 floatConstrainedDoc : KnobDoc Float
 floatConstrainedDoc =
     { name = "floatConstrained"
-    , init = Knob.floatConstrained { step = 0.01, range = ( 0, 1 ), initial = 0 }
+    , init_ = Knob.floatConstrained { step = 0.01, range = ( 0, 1 ), initial = 0 }
     , code = "Knob.floatConstrained { step = 0.01, range = ( 0, 1 ), initial = 0 }"
     , get = \model -> model.floatConstrained
     , set = \model new -> { model | floatConstrained = new }
@@ -104,7 +104,7 @@ floatConstrainedDoc =
 intDoc : KnobDoc Int
 intDoc =
     { name = "int"
-    , init = Knob.int { step = 1, initial = 0 }
+    , init_ = Knob.int { step = 1, initial = 0 }
     , code = "Knob.int { step = 1, initial = 0 }"
     , get = \model -> model.int
     , set = \model new -> { model | int = new }
