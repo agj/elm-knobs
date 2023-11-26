@@ -11,9 +11,6 @@ interactive-docs: interactive-docs-install ## Preview the interactive documentat
 interactive-docs-install:
 	cd docs && pnpm install
 
-changelog: ## Preview the changelog.
-	$$SHELL scripts/changelog.sh
-
 lint: ## Check for formatting errors.
 	elm-format src --validate
 	elm-review src
