@@ -24,7 +24,11 @@ main =
         |> ElmBook.withStatefulOptions
             [ ElmBook.StatefulOptions.initialState init
             ]
-        |> ElmBook.withChapters
-            [ ChapterIntroduction.chapter
-            , ChapterNumber.chapter
+        |> ElmBook.withChapterGroups
+            [ ( ""
+              , [ ChapterIntroduction.chapter ]
+              )
+            , ( "Knobs"
+              , [ ChapterNumber.chapter ]
+              )
             ]

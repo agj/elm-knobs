@@ -1,12 +1,9 @@
 module ChapterNumber exposing (Model, chapter, init)
 
-import Constants
 import ElmBook exposing (Msg)
-import ElmBook.Actions
 import ElmBook.Chapter exposing (Chapter)
-import Html exposing (Html)
-import Html.Attributes exposing (class)
 import Knob exposing (Knob)
+import KnobDoc exposing (KnobDoc)
 
 
 chapter =
@@ -39,12 +36,12 @@ $intConstrained$
 
 $intSlider$
 """
-        |> String.replace "$float$" (knobDocToTemplate floatDoc)
-        |> String.replace "$floatConstrained$" (knobDocToTemplate floatConstrainedDoc)
-        |> String.replace "$floatSlider$" (knobDocToTemplate floatSliderDoc)
-        |> String.replace "$int$" (knobDocToTemplate intDoc)
-        |> String.replace "$intConstrained$" (knobDocToTemplate intConstrainedDoc)
-        |> String.replace "$intSlider$" (knobDocToTemplate intSliderDoc)
+        |> String.replace "$float$" (KnobDoc.toTemplate floatDoc)
+        |> String.replace "$floatConstrained$" (KnobDoc.toTemplate floatConstrainedDoc)
+        |> String.replace "$floatSlider$" (KnobDoc.toTemplate floatSliderDoc)
+        |> String.replace "$int$" (KnobDoc.toTemplate intDoc)
+        |> String.replace "$intConstrained$" (KnobDoc.toTemplate intConstrainedDoc)
+        |> String.replace "$intSlider$" (KnobDoc.toTemplate intSliderDoc)
 
 
 type alias Model =
@@ -57,10 +54,6 @@ type alias Model =
     }
 
 
-type alias SharedModel a =
-    { a | number : Model }
-
-
 init =
     { float = floatDoc.init_
     , floatConstrained = floatConstrainedDoc.init_
@@ -71,26 +64,17 @@ init =
     }
 
 
-update : Model -> SharedModel a -> SharedModel a
-update newModel sharedModel =
-    { sharedModel | number = newModel }
+knobDocToComponent =
+    KnobDoc.toComponent
+        (\sharedModel -> sharedModel.number)
+        (\model sharedModel -> { sharedModel | number = model })
 
 
 
 -- Knob docs
 
 
-type alias KnobDoc a =
-    { name : String
-    , init_ : Knob a
-    , code : String
-    , get : Model -> Knob a
-    , set : Model -> Knob a -> Model
-    , toString : a -> String
-    }
-
-
-floatDoc : KnobDoc Float
+floatDoc : KnobDoc Float Model
 floatDoc =
     { name = "float"
     , init_ = Knob.float { step = 0.01, initial = 0 }
@@ -101,7 +85,7 @@ floatDoc =
     }
 
 
-floatConstrainedDoc : KnobDoc Float
+floatConstrainedDoc : KnobDoc Float Model
 floatConstrainedDoc =
     { name = "floatConstrained"
     , init_ = Knob.floatConstrained { step = 0.01, range = ( 0, 1 ), initial = 0 }
@@ -112,7 +96,7 @@ floatConstrainedDoc =
     }
 
 
-floatSliderDoc : KnobDoc Float
+floatSliderDoc : KnobDoc Float Model
 floatSliderDoc =
     { name = "floatSlider"
     , init_ = Knob.floatSlider { step = 0.01, range = ( 0, 1 ), initial = 0 }
@@ -123,7 +107,7 @@ floatSliderDoc =
     }
 
 
-intDoc : KnobDoc Int
+intDoc : KnobDoc Int Model
 intDoc =
     { name = "int"
     , init_ = Knob.int { step = 1, initial = 0 }
@@ -134,7 +118,7 @@ intDoc =
     }
 
 
-intConstrainedDoc : KnobDoc Int
+intConstrainedDoc : KnobDoc Int Model
 intConstrainedDoc =
     { name = "intConstrained"
     , init_ = Knob.intConstrained { step = 1, range = ( 0, 10 ), initial = 0 }
@@ -145,7 +129,7 @@ intConstrainedDoc =
     }
 
 
-intSliderDoc : KnobDoc Int
+intSliderDoc : KnobDoc Int Model
 intSliderDoc =
     { name = "intSlider"
     , init_ = Knob.intSlider { step = 1, range = ( 0, 10 ), initial = 0 }
@@ -154,40 +138,3 @@ intSliderDoc =
     , set = \model new -> { model | intSlider = new }
     , toString = String.fromInt
     }
-
-
-
--- Utilities
-
-
-knobDocToComponent : KnobDoc a -> ( String, SharedModel x -> Html (Msg (SharedModel x)) )
-knobDocToComponent knobDoc =
-    let
-        knobView : SharedModel x -> Html (Msg (SharedModel x))
-        knobView sharedModel =
-            Html.div [ class "component-preview" ]
-                [ knobDoc.get sharedModel.number
-                    |> Knob.view (ElmBook.Actions.updateStateWith (knobDoc.set sharedModel.number >> update))
-                , Html.div []
-                    [ Html.text ("Value: " ++ (sharedModel.number |> knobDoc.get |> Knob.value |> knobDoc.toString)) ]
-                ]
-    in
-    ( knobDoc.name, knobView )
-
-
-knobDocToTemplate : KnobDoc a -> String
-knobDocToTemplate knobDoc =
-    """
-## $knobName$
-
-📦 [See it in the package docs.](https://package.elm-lang.org/packages/agj/elm-knobs/$elmKnobsVersion$/Knob#$knobName$)
-
-```elm
-$code$
-```
-
-<component with-label="$knobName$" />
-"""
-        |> String.replace "$knobName$" knobDoc.name
-        |> String.replace "$code$" knobDoc.code
-        |> String.replace "$elmKnobsVersion$" Constants.elmKnobsVersion
