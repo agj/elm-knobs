@@ -26,13 +26,16 @@ test: ## Run tests.
 	@echo No tests yet.
 # elm-test
 
-validate: validate-build test validate-docs lint ## Run all validations.
+validate: validate-build test validate-docs lint validate-version ## Run all validations.
 
 validate-build: ## Make sure it builds.
 	elm make
 
 validate-docs: ## Make sure the docs can be generated.
 	elm-doc-preview --output /dev/null
+
+validate-version: ## Make sure the package version is consistent across.
+	bash ./scripts/validate-version.sh
 
 
 
