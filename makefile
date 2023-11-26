@@ -7,7 +7,7 @@ docs: ## Preview the documentation.
 	elm-doc-preview --port 8001 --no-browser
 
 interactive-docs: interactive-docs-install ## Preview the interactive documentation.
-	cd docs && pnpx parcel src/index.html
+	cd docs && pnpx parcel
 interactive-docs-install:
 	cd docs && pnpm install
 
