@@ -6,6 +6,7 @@ import ElmBook.Actions
 import Html exposing (Html)
 import Html.Attributes
 import Knob exposing (Knob)
+import String.Extra
 
 
 type alias KnobDoc a model =
@@ -55,5 +56,5 @@ $code$
 <component with-label="$knobName$" />
 """
         |> String.replace "$knobName$" knobDoc.name
-        |> String.replace "$code$" knobDoc.code
+        |> String.replace "$code$" (knobDoc.code |> String.Extra.unindent |> String.trim)
         |> String.replace "$elmKnobsVersion$" Constants.elmKnobsVersion

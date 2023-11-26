@@ -2,6 +2,7 @@ module Main exposing (main)
 
 import ChapterIntroduction
 import ChapterNumber
+import ChapterOtherTypes
 import Constants
 import ElmBook exposing (Book)
 import ElmBook.StatefulOptions
@@ -9,12 +10,14 @@ import ElmBook.StatefulOptions
 
 type alias Model =
     { number : ChapterNumber.Model
+    , otherTypes : ChapterOtherTypes.Model
     }
 
 
 init : Model
 init =
     { number = ChapterNumber.init
+    , otherTypes = ChapterOtherTypes.init
     }
 
 
@@ -29,6 +32,8 @@ main =
               , [ ChapterIntroduction.chapter ]
               )
             , ( "Knobs"
-              , [ ChapterNumber.chapter ]
+              , [ ChapterNumber.chapter
+                , ChapterOtherTypes.chapter
+                ]
               )
             ]
