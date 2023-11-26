@@ -25,19 +25,34 @@ then
   exit 1
 fi
 
-versionInLinks=$(
-  grep -E \
-    -e 'packages/agj/elm-knobs/[[:digit:].]+/' \
-    -e 'github.com/agj/elm-knobs/blob/[[:digit:].]+/' \
-    src/Knob.elm ./README.md \
-  | sed -E 's/^.*[/]([[:digit:].]+)[/].*$/\1/'
-) 
+versionsUsedInCode=$(getVersionsUsedInLinks src/Knob.elm) 
+outdatedVersionsInCode=$(echo "$versionsUsedInCode" | grep -vF "$currentVersion")
 
-linksWithoutCurrentVersion=$(echo "$versionInLinks" | grep -vF "$currentVersion")
-
-if [ "$linksWithoutCurrentVersion" ]
+if [ "$outdatedVersionsInCode" ]
 then
-  echo "Error: There are links that point to a version other than the current!"
-  echo $versionInLinks
+  echo "Error: There's links in the code that point to an outdated version!"
+  echo "$outdatedVersionsInCode"
+  exit 1
+fi
+
+versionsUsedInReadme=$(getVersionsUsedInLinks ./README.md) 
+outdatedVersionsInReadme=$(echo "$versionsUsedInReadme" | grep -vF "$currentVersion")
+
+if [ "$outdatedVersionsInReadme" ]
+then
+  echo "Error: There's links in the readme that point to an outdated version!"
+  echo "$outdatedVersionsInReadme"
+  exit 1
+fi
+
+versionInInteractiveDocs=$(
+  awk -F '"' '/"[[:digit:].]+"/ {print $2}' ./docs/src/Constants.elm | head --lines=1
+)
+outdatedVersionInInteractiveDocs=$(echo "$versionInInteractiveDocs" | grep -vF "$currentVersion")
+
+if [ "$outdatedVersionInInteractiveDocs" ]
+then
+  echo "Error: The version in the interactive docs is outdated!"
+  echo "$outdatedVersionInInteractiveDocs"
   exit 1
 fi

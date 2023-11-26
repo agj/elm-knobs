@@ -11,3 +11,11 @@ getAllVersionsInChangelog() {
 getAllVersionsInGit() {
   git tag | grep -E '^[.[:digit:]]+$'
 }
+
+getVersionsUsedInLinks() {
+  grep -E \
+    -e 'packages/agj/elm-knobs/[[:digit:].]+/' \
+    -e 'github.com/agj/elm-knobs/blob/[[:digit:].]+/' \
+    "$@" \
+  | sed -E 's/^.*[/]([[:digit:].]+)[/].*$/\1/'
+}
