@@ -11,6 +11,9 @@ interactive-docs: interactive-docs-install ## Preview the interactive documentat
 interactive-docs-install:
 	cd docs && pnpm install
 
+build-interactive-docs: interactive-docs-install ## Build the interactive documentation.
+	cd docs && pnpx parcel build --dist-dir "./output/$(shell bash ./scripts/get-current-version.sh)"
+
 lint: ## Check for formatting errors.
 	elm-format src --validate
 	elm-review src
