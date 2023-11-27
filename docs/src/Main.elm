@@ -39,7 +39,7 @@ main =
                     }
                 , ElmBook.Chapter.chapterLink
                     { title = "Other versions ↗"
-                    , url = "/"
+                    , url = "../"
                     }
                 ]
               )
