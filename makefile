@@ -32,13 +32,16 @@ test: ## Run tests.
 	@echo No tests yet.
 # elm-test
 
-validate: validate-build test validate-docs lint validate-version ## Run all validations.
+validate: validate-build test validate-docs validate-examples lint validate-version ## Run all validations.
 
-validate-build: ## Make sure it builds.
-	elm make
+validate-build: ## Make sure it compiles.
+	elm make --output=/dev/null
 
 validate-docs: ## Make sure the docs can be generated.
 	elm-doc-preview --output /dev/null
+
+validate-examples: ## Make sure the examples compile.
+	cd examples && elm make ./src/*Example.elm --output=/dev/null
 
 validate-version: ## Make sure the package version is consistent across.
 	bash ./scripts/validate-version.sh
