@@ -37,6 +37,10 @@ main =
                     { title = "API docs ↗"
                     , url = Constants.apiDocsUrl
                     }
+                , ElmBook.Chapter.chapterLink
+                    { title = "Other versions ↗"
+                    , url = "/"
+                    }
                 ]
               )
             , ( "Knobs"
