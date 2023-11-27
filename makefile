@@ -11,9 +11,14 @@ interactive-docs: interactive-docs-install ## Preview the interactive documentat
 interactive-docs-install:
 	cd docs && pnpm install
 
-build-interactive-docs: interactive-docs-install ## Build the interactive documentation.
+interactive-docs-build: interactive-docs-install ## Build the interactive documentation.
 	cd docs && pnpx parcel build --dist-dir "./output/$(shell bash ./scripts/get-current-version.sh)"
 	bash ./scripts/build-interactive-docs-index.sh
+
+interactive-docs-deploy: interactive-docs-build install ## Deploy interactive documentation to GH pages.
+	pnpx gh-pages --remote github --dist ./docs/output
+install:
+	pnpm install
 
 lint: ## Check for formatting errors.
 	elm-format src --validate
