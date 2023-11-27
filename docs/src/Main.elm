@@ -5,6 +5,7 @@ import ChapterNumber
 import ChapterOtherTypes
 import Constants
 import ElmBook exposing (Book)
+import ElmBook.Chapter
 import ElmBook.StatefulOptions
 
 
@@ -29,7 +30,12 @@ main =
             ]
         |> ElmBook.withChapterGroups
             [ ( ""
-              , [ ChapterIntroduction.chapter ]
+              , [ ChapterIntroduction.chapter
+                , ElmBook.Chapter.chapterLink
+                    { title = "API docs ↗"
+                    , url = Constants.apiDocsUrl
+                    }
+                ]
               )
             , ( "Knobs"
               , [ ChapterNumber.chapter
