@@ -7,6 +7,7 @@ import Constants
 import ElmBook exposing (Book)
 import ElmBook.Chapter
 import ElmBook.StatefulOptions
+import ElmBook.ThemeOptions
 
 
 type alias Model =
@@ -25,9 +26,10 @@ init =
 main : Book Model
 main =
     ElmBook.book ("elm-knobs " ++ Constants.elmKnobsVersion)
+        |> ElmBook.withThemeOptions
+            [ ElmBook.ThemeOptions.useHashBasedNavigation ]
         |> ElmBook.withStatefulOptions
-            [ ElmBook.StatefulOptions.initialState init
-            ]
+            [ ElmBook.StatefulOptions.initialState init ]
         |> ElmBook.withChapterGroups
             [ ( ""
               , [ ChapterIntroduction.chapter
