@@ -25,7 +25,7 @@ gitHasCurrentVersion=$(echo "$allVersionsInGit" | grep -F "$currentVersion")
 
 if [ -z "$gitHasCurrentVersion" ]
 then
-  echo "Error: There is no git tag for the current version!"
+  echo "Error: There is no Git tag for the current version!"
   exit 1
 fi
 
@@ -67,8 +67,10 @@ then
   exit 1
 fi
 
-if [ ! -f "./docs/output/$currentVersion/index.html" ]
+gitHasInteractiveDocsCurrentVersion=$(git cat-file -e "HEAD:./docs/output/$currentVersion/index.html" 2> /dev/null && echo 'OK')
+
+if [ -z "$gitHasInteractiveDocsCurrentVersion" ]
 then
-  echo "Error: There is no interactive documentation for the current version!"
+  echo "Error: There is no interactive documentation for the current version in Git HEAD!"
   exit 1
 fi
