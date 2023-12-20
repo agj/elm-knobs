@@ -22,7 +22,7 @@
             elmPackages.elm-format
             elmPackages.elm-json
             elmPackages.elm-review
-            elmPackages.elm-test
+            elmPackages.elm-test-rs
           ];
         };
       }

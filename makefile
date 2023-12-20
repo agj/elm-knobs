@@ -17,8 +17,10 @@ lint-fix: ## Automatically fix linting errors.
 	elm-review src --fix
 
 test: ## Run tests.
-	@echo No tests yet.
-# elm-test
+	elm-test
+
+test-watch: ## Run tests and watch for changes.
+	elm-test --watch
 
 validate: validate-build test validate-docs lint ## Run all validations.
 
