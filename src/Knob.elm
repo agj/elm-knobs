@@ -10,6 +10,7 @@ module Knob exposing
     , label, stackLabel
     , map
     , custom
+    , serialize
     )
 
 {-| Let's get started creating a control panel full of “knobs” to interactively tweak values in our application.
@@ -83,6 +84,7 @@ import Hex
 import Html exposing (Html)
 import Html.Attributes
 import Html.Events
+import Json.Encode
 
 
 {-| Represents one user-interactive control mapped to one value of type `a`,
@@ -99,6 +101,7 @@ type alias Config a =
     { value : a
     , keepOpen : Bool
     , view : KnobView a
+    , encode : Maybe (a -> Json.Encode.Value)
     }
 
 
@@ -142,6 +145,7 @@ floatInternal step initial =
         { value = String.toFloat initial |> Maybe.withDefault 0
         , keepOpen = False
         , view = SingleView input
+        , encode = Just Json.Encode.float
         }
 
 
@@ -190,6 +194,7 @@ floatConstrainedInternal ( rangeLow, rangeHigh ) step initial =
         { value = floatValue
         , keepOpen = False
         , view = SingleView input
+        , encode = Just Json.Encode.float
         }
 
 
@@ -239,6 +244,7 @@ floatSlider { range, step, initial } =
         { value = initial
         , keepOpen = False
         , view = SingleView input
+        , encode = Just Json.Encode.float
         }
 
 
@@ -273,6 +279,7 @@ intInternal step initial =
         { value = String.toInt initial |> Maybe.withDefault 0
         , keepOpen = False
         , view = SingleView input
+        , encode = Just Json.Encode.int
         }
 
 
@@ -320,6 +327,7 @@ intConstrainedInternal ( rangeLow, rangeHigh ) step initial =
         { value = intValue
         , keepOpen = False
         , view = SingleView input
+        , encode = Just Json.Encode.int
         }
 
 
@@ -369,6 +377,7 @@ intSlider { range, step, initial } =
         { value = initial
         , keepOpen = False
         , view = SingleView input
+        , encode = Just Json.Encode.int
         }
 
 
@@ -391,6 +400,7 @@ boolCheckbox initial =
         { value = initial
         , keepOpen = False
         , view = SingleView checkbox
+        , encode = Just Json.Encode.bool
         }
 
 
@@ -472,6 +482,7 @@ selectInternal keepOpen config =
         { value = config.initial
         , keepOpen = keepOpen
         , view = SingleView selectElement
+        , encode = Just (config.toString >> Json.Encode.string)
         }
 
 
@@ -519,6 +530,7 @@ colorPickerInternal keepOpen initial =
         { value = initial
         , keepOpen = keepOpen
         , view = SingleView picker
+        , encode = Nothing
         }
 
 
@@ -623,6 +635,7 @@ custom config =
         { value = config.value
         , keepOpen = False
         , view = SingleView config.view
+        , encode = Nothing
         }
 
 
@@ -750,6 +763,7 @@ compose constructor =
         { value = constructor
         , keepOpen = False
         , view = StackView []
+        , encode = Nothing
         }
 
 
@@ -790,6 +804,7 @@ stack (Knob config) (Knob pipe) =
         { value = pipe.value config.value
         , keepOpen = pipe.keepOpen || config.keepOpen
         , view = stackedView
+        , encode = Nothing
         }
 
 
@@ -819,6 +834,7 @@ label text (Knob config) =
         { value = config.value
         , keepOpen = config.keepOpen
         , view = SingleView labeled
+        , encode = config.encode
         }
 
 
@@ -859,7 +875,22 @@ map mapper (Knob a) =
         { value = mapper a.value
         , keepOpen = a.keepOpen
         , view = SingleView (\() -> viewInternal (map mapper) a)
+        , encode = Nothing
         }
+
+
+
+-- SERIALIZATION
+
+
+serialize : Knob a -> Json.Encode.Value
+serialize (Knob a) =
+    case a.encode of
+        Just encode ->
+            encode a.value
+
+        Nothing ->
+            Json.Encode.null
 
 
 
