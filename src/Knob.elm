@@ -530,7 +530,15 @@ colorPickerInternal keepOpen initial =
         { value = initial
         , keepOpen = keepOpen
         , view = SingleView picker
-        , encode = Nothing
+        , encode =
+            Just
+                (\{ red, green, blue } ->
+                    Json.Encode.object
+                        [ ( "red", Json.Encode.float red )
+                        , ( "green", Json.Encode.float green )
+                        , ( "blue", Json.Encode.float blue )
+                        ]
+                )
         }
 
 
