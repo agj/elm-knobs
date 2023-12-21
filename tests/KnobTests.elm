@@ -124,11 +124,17 @@ deserialize =
             [ Test.fuzz Fuzz.niceFloat "float" <|
                 \float ->
                     Knob.float { step = 1, initial = 1 }
-                        |> expectViewHasFloatValue float
+                        |> expectViewFloatValueMatchesAfterDeserialization
+                            { initial = 1
+                            , toSerialize = float
+                            }
             , Test.fuzz (Fuzz.floatRange -9999 9999) "floatConstrained" <|
                 \float ->
                     Knob.floatConstrained { step = 1, range = ( -9999, 9999 ), initial = 1 }
-                        |> expectViewHasFloatValue float
+                        |> expectViewFloatValueMatchesAfterDeserialization
+                            { initial = 1
+                            , toSerialize = float
+                            }
             ]
         ]
 
@@ -143,18 +149,64 @@ expectTransitiveEquality value1 knob1 value2 knob2 =
         |> Expect.equal (value1 == value2)
 
 
-expectViewHasValue : (a -> Json.Encode.Value) -> (a -> String) -> a -> Knob a -> Expectation
-expectViewHasValue encoder toString value knob =
+expectViewHasValue : String -> Knob a -> Expectation
+expectViewHasValue valueAsString knob =
     knob
-        |> Knob.deserialize (encoder value)
         |> Knob.view (always ())
         |> Query.fromHtml
         |> Query.find [ Selector.tag "input" ]
-        |> Query.has [ Selector.attribute (Html.Attributes.value (toString value)) ]
+        |> Query.has [ Selector.attribute (Html.Attributes.value valueAsString) ]
 
 
-expectViewHasFloatValue =
-    expectViewHasValue Json.Encode.float String.fromFloat
+expectViewDoesNotHaveValue : String -> Knob a -> Expectation
+expectViewDoesNotHaveValue valueAsString knob =
+    knob
+        |> Knob.view (always ())
+        |> Query.fromHtml
+        |> Query.find [ Selector.tag "input" ]
+        |> Query.hasNot [ Selector.attribute (Html.Attributes.value valueAsString) ]
+
+
+expectViewValueMatchesAfterDeserialization :
+    (a -> Json.Encode.Value)
+    -> (a -> String)
+    -> { initial : a, toSerialize : a }
+    -> Knob a
+    -> Expectation
+expectViewValueMatchesAfterDeserialization encoder toString { initial, toSerialize } =
+    let
+        initialAsString =
+            toString initial
+
+        toSerializeAsString =
+            toString toSerialize
+
+        serialized =
+            encoder toSerialize
+    in
+    Expect.all
+        [ -- Sanity check, knob view should have the initial value.
+          expectViewHasValue initialAsString
+
+        -- After deserialization, knob should have the serialized value.
+        , Knob.deserialize serialized
+            >> expectViewHasValue toSerializeAsString
+
+        -- If the values are not the same, the views should have different values.
+        , if initial /= toSerialize then
+            Expect.all
+                [ expectViewDoesNotHaveValue toSerializeAsString
+                , Knob.deserialize serialized
+                    >> expectViewDoesNotHaveValue initialAsString
+                ]
+
+          else
+            \_ -> Expect.pass
+        ]
+
+
+expectViewFloatValueMatchesAfterDeserialization =
+    expectViewValueMatchesAfterDeserialization Json.Encode.float String.fromFloat
 
 
 
