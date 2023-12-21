@@ -202,7 +202,12 @@ floatConstrainedInternal ( rangeLow, rangeHigh ) step initial =
         , keepOpen = False
         , view = SingleView input
         , encode = Just Json.Encode.float
-        , decode = Nothing
+        , decode =
+            Just
+                (Json.Decode.map
+                    (String.fromFloat >> floatConstrainedInternal ( rangeLow, rangeHigh ) step)
+                    Json.Decode.float
+                )
         }
 
 

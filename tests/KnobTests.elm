@@ -124,11 +124,11 @@ deserialize =
             [ Test.fuzz Fuzz.niceFloat "float" <|
                 \float ->
                     Knob.float { step = 1, initial = 1 }
-                        |> Knob.deserialize (Json.Encode.float float)
-                        |> Knob.view (always ())
-                        |> Query.fromHtml
-                        |> Query.find [ Selector.tag "input" ]
-                        |> Query.has [ Selector.attribute (Html.Attributes.value (String.fromFloat float)) ]
+                        |> expectViewHasFloatValue float
+            , Test.fuzz (Fuzz.floatRange -9999 9999) "floatConstrained" <|
+                \float ->
+                    Knob.floatConstrained { step = 1, range = ( -9999, 9999 ), initial = 1 }
+                        |> expectViewHasFloatValue float
             ]
         ]
 
@@ -141,6 +141,20 @@ expectTransitiveEquality : a -> Knob a -> a -> Knob a -> Expectation
 expectTransitiveEquality value1 knob1 value2 knob2 =
     (Knob.serialize knob1 == Knob.serialize knob2)
         |> Expect.equal (value1 == value2)
+
+
+expectViewHasValue : (a -> Json.Encode.Value) -> (a -> String) -> a -> Knob a -> Expectation
+expectViewHasValue encoder toString value knob =
+    knob
+        |> Knob.deserialize (encoder value)
+        |> Knob.view (always ())
+        |> Query.fromHtml
+        |> Query.find [ Selector.tag "input" ]
+        |> Query.has [ Selector.attribute (Html.Attributes.value (toString value)) ]
+
+
+expectViewHasFloatValue =
+    expectViewHasValue Json.Encode.float String.fromFloat
 
 
 
