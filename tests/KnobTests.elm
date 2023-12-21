@@ -10,40 +10,61 @@ import Test exposing (Test)
 
 serialize : Test
 serialize =
-    Test.describe "Serialization"
+    Test.describe "Given nice values, equality of two serialized knobs is the same as the equality of their values"
         [ Test.describe "Floats"
-            [ Test.fuzz Fuzz.niceFloat "float" <|
-                \float ->
-                    Knob.float { step = 0.1, initial = float }
-                        |> expectCanSerialize (Json.Encode.float float)
-            , Test.fuzz (Fuzz.floatRange -9999 9999) "floatConstrained" <|
-                \float ->
-                    Knob.floatConstrained { range = ( -9999, 9999 ), step = 0.1, initial = float }
-                        |> expectCanSerialize (Json.Encode.float float)
-            , Test.fuzz (Fuzz.floatRange -9999 9999) "floatSlider" <|
-                \float ->
-                    Knob.floatSlider { range = ( -9999, 9999 ), step = 0.1, initial = float }
-                        |> expectCanSerialize (Json.Encode.float float)
+            [ Test.fuzz2 Fuzz.niceFloat Fuzz.niceFloat "float" <|
+                \float1 float2 ->
+                    expectTransitiveEquality
+                        float1
+                        (Knob.float { step = 0.1, initial = float1 })
+                        float2
+                        (Knob.float { step = 0.1, initial = float2 })
+            , Test.fuzz2 (Fuzz.floatRange -9999 9999) (Fuzz.floatRange -9999 9999) "floatConstrained" <|
+                \float1 float2 ->
+                    expectTransitiveEquality
+                        float1
+                        (Knob.floatConstrained { range = ( -9999, 9999 ), step = 0.1, initial = float1 })
+                        float2
+                        (Knob.floatConstrained { range = ( -9999, 9999 ), step = 0.1, initial = float2 })
+            , Test.fuzz2 (Fuzz.floatRange -9999 9999) (Fuzz.floatRange -9999 9999) "floatSlider" <|
+                \float1 float2 ->
+                    expectTransitiveEquality
+                        float1
+                        (Knob.floatSlider { range = ( -9999, 9999 ), step = 0.1, initial = float1 })
+                        float2
+                        (Knob.floatSlider { range = ( -9999, 9999 ), step = 0.1, initial = float2 })
             ]
         , Test.describe "Ints"
-            [ Test.fuzz Fuzz.int "int" <|
-                \int ->
-                    Knob.int { step = 1, initial = int }
-                        |> expectCanSerialize (Json.Encode.int int)
-            , Test.fuzz (Fuzz.intRange -1000 1000) "intConstrained" <|
-                \int ->
-                    Knob.intConstrained { step = 1, range = ( -1000, 1000 ), initial = int }
-                        |> expectCanSerialize (Json.Encode.int int)
-            , Test.fuzz (Fuzz.intRange -1000 1000) "intSlider" <|
-                \int ->
-                    Knob.intSlider { step = 1, range = ( -1000, 1000 ), initial = int }
-                        |> expectCanSerialize (Json.Encode.int int)
+            [ Test.fuzz2 Fuzz.int Fuzz.int "int" <|
+                \int1 int2 ->
+                    expectTransitiveEquality
+                        int1
+                        (Knob.int { step = 1, initial = int1 })
+                        int2
+                        (Knob.int { step = 1, initial = int2 })
+            , Test.fuzz2 (Fuzz.intRange -1000 1000) (Fuzz.intRange -1000 1000) "intConstrained" <|
+                \int1 int2 ->
+                    expectTransitiveEquality
+                        int1
+                        (Knob.intConstrained { step = 1, range = ( -1000, 1000 ), initial = int1 })
+                        int2
+                        (Knob.intConstrained { step = 1, range = ( -1000, 1000 ), initial = int2 })
+            , Test.fuzz2 (Fuzz.intRange -1000 1000) (Fuzz.intRange -1000 1000) "intSlider" <|
+                \int1 int2 ->
+                    expectTransitiveEquality
+                        int1
+                        (Knob.intSlider { step = 1, range = ( -1000, 1000 ), initial = int1 })
+                        int2
+                        (Knob.intSlider { step = 1, range = ( -1000, 1000 ), initial = int2 })
             ]
         , Test.describe "Other"
-            [ Test.fuzz Fuzz.bool "boolCheckbox" <|
-                \bool ->
-                    Knob.boolCheckbox bool
-                        |> expectCanSerialize (Json.Encode.bool bool)
+            [ Test.fuzz2 Fuzz.bool Fuzz.bool "boolCheckbox" <|
+                \bool1 bool2 ->
+                    expectTransitiveEquality
+                        bool1
+                        (Knob.boolCheckbox bool1)
+                        bool2
+                        (Knob.boolCheckbox bool2)
             , let
                 values =
                     [ ( "a", 1 )
@@ -63,41 +84,59 @@ serialize =
                     Dict.get string values
                         |> Maybe.withDefault 0
               in
-              Test.fuzz (Fuzz.oneOfValues (Dict.values values)) "select" <|
-                \value ->
-                    Knob.select
-                        { options = values |> Dict.keys
-                        , toString = toString
-                        , fromString = fromString
-                        , initial = value
-                        }
-                        |> expectCanSerialize (Json.Encode.string (toString value))
-            , Test.fuzz3 fuzzColorChannel fuzzColorChannel fuzzColorChannel "colorPicker" <|
-                \red green blue ->
-                    let
-                        color =
-                            { red = red, green = green, blue = blue }
-                    in
-                    Knob.colorPicker color
-                        |> expectCanSerialize
-                            (Json.Encode.object
-                                [ ( "red", Json.Encode.float red )
-                                , ( "green", Json.Encode.float green )
-                                , ( "blue", Json.Encode.float blue )
-                                ]
-                            )
+              Test.fuzz2 (Fuzz.oneOfValues (Dict.values values)) (Fuzz.oneOfValues (Dict.values values)) "select" <|
+                \value1 value2 ->
+                    expectTransitiveEquality
+                        value1
+                        (Knob.select
+                            { options = values |> Dict.keys
+                            , toString = toString
+                            , fromString = fromString
+                            , initial = value1
+                            }
+                        )
+                        value2
+                        (Knob.select
+                            { options = values |> Dict.keys
+                            , toString = toString
+                            , fromString = fromString
+                            , initial = value2
+                            }
+                        )
+            , Test.fuzz2 fuzzColor fuzzColor "colorPicker" <|
+                \color1 color2 ->
+                    expectTransitiveEquality
+                        color1
+                        (Knob.colorPicker color1)
+                        color2
+                        (Knob.colorPicker color2)
             ]
         ]
+
+
+
+-- EXPECTATIONS
+
+
+expectTransitiveEquality : a -> Knob a -> a -> Knob a -> Expectation
+expectTransitiveEquality value1 knob1 value2 knob2 =
+    (Knob.serialize knob1 == Knob.serialize knob2)
+        |> Expect.equal (value1 == value2)
+
+
+
+-- FUZZERS
+
+
+fuzzColor : Fuzzer Knob.Color
+fuzzColor =
+    Fuzz.map3
+        (\r g b -> { red = r, green = g, blue = b })
+        fuzzColorChannel
+        fuzzColorChannel
+        fuzzColorChannel
 
 
 fuzzColorChannel : Fuzzer Float
 fuzzColorChannel =
     Fuzz.floatRange 0 1
-
-
-expectCanSerialize : Json.Encode.Value -> Knob a -> Expectation
-expectCanSerialize encodedValue knob =
-    knob
-        |> Knob.serialize
-        |> Json.Encode.encode 0
-        |> Expect.equal (encodedValue |> Json.Encode.encode 0)
