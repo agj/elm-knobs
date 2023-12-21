@@ -3,9 +3,12 @@ module KnobTests exposing (..)
 import Dict
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer)
+import Html.Attributes
 import Json.Encode
 import Knob exposing (Knob)
 import Test exposing (Test)
+import Test.Html.Query as Query
+import Test.Html.Selector as Selector
 
 
 serialize : Test
@@ -110,6 +113,22 @@ serialize =
                         (Knob.colorPicker color1)
                         color2
                         (Knob.colorPicker color2)
+            ]
+        ]
+
+
+deserialize : Test
+deserialize =
+    Test.describe "Deserialization"
+        [ Test.describe "Floats"
+            [ Test.fuzz Fuzz.niceFloat "float" <|
+                \float ->
+                    Knob.float { step = 1, initial = 1 }
+                        |> Knob.deserialize (Json.Encode.float float)
+                        |> Knob.view (always ())
+                        |> Query.fromHtml
+                        |> Query.find [ Selector.tag "input" ]
+                        |> Query.has [ Selector.attribute (Html.Attributes.value (String.fromFloat float)) ]
             ]
         ]
 

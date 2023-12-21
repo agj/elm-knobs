@@ -10,7 +10,7 @@ module Knob exposing
     , label, stackLabel
     , map
     , custom
-    , serialize
+    , deserialize, serialize
     )
 
 {-| Let's get started creating a control panel full of “knobs” to interactively tweak values in our application.
@@ -84,6 +84,7 @@ import Hex
 import Html exposing (Html)
 import Html.Attributes
 import Html.Events
+import Json.Decode
 import Json.Encode
 
 
@@ -102,6 +103,7 @@ type alias Config a =
     , keepOpen : Bool
     , view : KnobView a
     , encode : Maybe (a -> Json.Encode.Value)
+    , decode : Maybe (Json.Decode.Decoder (Knob a))
     }
 
 
@@ -146,6 +148,11 @@ floatInternal step initial =
         , keepOpen = False
         , view = SingleView input
         , encode = Just Json.Encode.float
+        , decode =
+            Just
+                (Json.Decode.map (String.fromFloat >> floatInternal step)
+                    Json.Decode.float
+                )
         }
 
 
@@ -195,6 +202,7 @@ floatConstrainedInternal ( rangeLow, rangeHigh ) step initial =
         , keepOpen = False
         , view = SingleView input
         , encode = Just Json.Encode.float
+        , decode = Nothing
         }
 
 
@@ -245,6 +253,7 @@ floatSlider { range, step, initial } =
         , keepOpen = False
         , view = SingleView input
         , encode = Just Json.Encode.float
+        , decode = Nothing
         }
 
 
@@ -280,6 +289,7 @@ intInternal step initial =
         , keepOpen = False
         , view = SingleView input
         , encode = Just Json.Encode.int
+        , decode = Nothing
         }
 
 
@@ -328,6 +338,7 @@ intConstrainedInternal ( rangeLow, rangeHigh ) step initial =
         , keepOpen = False
         , view = SingleView input
         , encode = Just Json.Encode.int
+        , decode = Nothing
         }
 
 
@@ -378,6 +389,7 @@ intSlider { range, step, initial } =
         , keepOpen = False
         , view = SingleView input
         , encode = Just Json.Encode.int
+        , decode = Nothing
         }
 
 
@@ -401,6 +413,7 @@ boolCheckbox initial =
         , keepOpen = False
         , view = SingleView checkbox
         , encode = Just Json.Encode.bool
+        , decode = Nothing
         }
 
 
@@ -483,6 +496,7 @@ selectInternal keepOpen config =
         , keepOpen = keepOpen
         , view = SingleView selectElement
         , encode = Just (config.toString >> Json.Encode.string)
+        , decode = Nothing
         }
 
 
@@ -539,6 +553,7 @@ colorPickerInternal keepOpen initial =
                         , ( "blue", Json.Encode.float blue )
                         ]
                 )
+        , decode = Nothing
         }
 
 
@@ -644,6 +659,7 @@ custom config =
         , keepOpen = False
         , view = SingleView config.view
         , encode = Nothing
+        , decode = Nothing
         }
 
 
@@ -772,6 +788,7 @@ compose constructor =
         , keepOpen = False
         , view = StackView []
         , encode = Nothing
+        , decode = Nothing
         }
 
 
@@ -813,6 +830,7 @@ stack (Knob config) (Knob pipe) =
         , keepOpen = pipe.keepOpen || config.keepOpen
         , view = stackedView
         , encode = Nothing
+        , decode = Nothing
         }
 
 
@@ -843,6 +861,7 @@ label text (Knob config) =
         , keepOpen = config.keepOpen
         , view = SingleView labeled
         , encode = config.encode
+        , decode = Nothing
         }
 
 
@@ -884,6 +903,7 @@ map mapper (Knob a) =
         , keepOpen = a.keepOpen
         , view = SingleView (\() -> viewInternal (map mapper) a)
         , encode = Nothing
+        , decode = Nothing
         }
 
 
@@ -899,6 +919,17 @@ serialize (Knob a) =
 
         Nothing ->
             Json.Encode.null
+
+
+deserialize : Json.Encode.Value -> Knob a -> Knob a
+deserialize val ((Knob a) as knob) =
+    case a.decode of
+        Just decode ->
+            Json.Decode.decodeValue decode val
+                |> Result.withDefault knob
+
+        Nothing ->
+            knob
 
 
 
