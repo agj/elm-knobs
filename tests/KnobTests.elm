@@ -68,44 +68,13 @@ serialize =
                         (Knob.boolCheckbox bool1)
                         bool2
                         (Knob.boolCheckbox bool2)
-            , let
-                values =
-                    [ ( "a", 1 )
-                    , ( "b", 2 )
-                    , ( "c", 3 )
-                    ]
-                        |> Dict.fromList
-
-                toString val =
-                    Dict.toList values
-                        |> List.filter (\( _, v ) -> v == val)
-                        |> List.head
-                        |> Maybe.map Tuple.first
-                        |> Maybe.withDefault ""
-
-                fromString string =
-                    Dict.get string values
-                        |> Maybe.withDefault 0
-              in
-              Test.fuzz2 (Fuzz.oneOfValues (Dict.values values)) (Fuzz.oneOfValues (Dict.values values)) "select" <|
+            , Test.fuzz2 (Fuzz.oneOfValues knobSelectValues) (Fuzz.oneOfValues knobSelectValues) "select" <|
                 \value1 value2 ->
                     expectTransitiveEquality
                         value1
-                        (Knob.select
-                            { options = values |> Dict.keys
-                            , toString = toString
-                            , fromString = fromString
-                            , initial = value1
-                            }
-                        )
+                        (knobSelect value1)
                         value2
-                        (Knob.select
-                            { options = values |> Dict.keys
-                            , toString = toString
-                            , fromString = fromString
-                            , initial = value2
-                            }
-                        )
+                        (knobSelect value2)
             , Test.fuzz2 fuzzColor fuzzColor "colorPicker" <|
                 \color1 color2 ->
                     expectTransitiveEquality
@@ -142,7 +111,9 @@ deserialize =
                             { initial = 1
                             , toSerialize = float
                             }
-            , Test.fuzz Fuzz.int "int" <|
+            ]
+        , Test.describe "Ints"
+            [ Test.fuzz Fuzz.int "int" <|
                 \int ->
                     Knob.int { step = 1, initial = 1 }
                         |> expectViewIntValueMatchesAfterDeserialization
@@ -165,6 +136,44 @@ deserialize =
                             }
             ]
         ]
+
+
+
+-- KNOB PRODUCTION
+
+
+knobSelectPairs =
+    [ ( "a", 1 )
+    , ( "b", 2 )
+    , ( "c", 3 )
+    ]
+        |> Dict.fromList
+
+
+knobSelectValues =
+    Dict.values knobSelectPairs
+
+
+knobSelect : Int -> Knob Int
+knobSelect initial =
+    let
+        toString val =
+            Dict.toList knobSelectPairs
+                |> List.filter (\( _, v ) -> v == val)
+                |> List.head
+                |> Maybe.map Tuple.first
+                |> Maybe.withDefault ""
+
+        fromString string =
+            Dict.get string knobSelectPairs
+                |> Maybe.withDefault 0
+    in
+    Knob.select
+        { options = knobSelectPairs |> Dict.keys
+        , toString = toString
+        , fromString = fromString
+        , initial = initial
+        }
 
 
 
