@@ -449,7 +449,7 @@ boolCheckbox initial =
         , keepOpen = False
         , view = SingleView checkbox
         , encode = Just Json.Encode.bool
-        , decode = Nothing
+        , decode = Just (Json.Decode.map boolCheckbox Json.Decode.bool)
         }
 
 

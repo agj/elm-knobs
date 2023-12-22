@@ -135,6 +135,16 @@ deserialize =
                             , toSerialize = int
                             }
             ]
+        , Test.describe "Other"
+            [ Test.fuzz Fuzz.bool "boolCheckbox" <|
+                \bool ->
+                    Knob.boolCheckbox True
+                        |> Expect.all
+                            [ expectViewChecked True
+                            , Knob.deserialize (Json.Encode.bool bool)
+                                >> expectViewChecked bool
+                            ]
+            ]
         ]
 
 
@@ -202,6 +212,15 @@ expectViewDoesNotHaveValue valueAsString knob =
         |> Query.fromHtml
         |> Query.find [ Selector.tag "input" ]
         |> Query.hasNot [ Selector.attribute (Html.Attributes.value valueAsString) ]
+
+
+expectViewChecked : Bool -> Knob Bool -> Expectation
+expectViewChecked checked knob =
+    knob
+        |> Knob.view (always ())
+        |> Query.fromHtml
+        |> Query.find [ Selector.tag "input" ]
+        |> Query.has [ Selector.attribute (Html.Attributes.checked checked) ]
 
 
 expectViewValueMatchesAfterDeserialization :
