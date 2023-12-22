@@ -135,6 +135,34 @@ deserialize =
                             { initial = 1
                             , toSerialize = float
                             }
+            , Test.fuzz (Fuzz.floatRange -9999 9999) "floatSlider" <|
+                \float ->
+                    Knob.floatSlider { step = 1, range = ( -9999, 9999 ), initial = 1 }
+                        |> expectViewFloatValueMatchesAfterDeserialization
+                            { initial = 1
+                            , toSerialize = float
+                            }
+            , Test.fuzz Fuzz.int "int" <|
+                \int ->
+                    Knob.int { step = 1, initial = 1 }
+                        |> expectViewIntValueMatchesAfterDeserialization
+                            { initial = 1
+                            , toSerialize = int
+                            }
+            , Test.fuzz (Fuzz.intRange -9999 9999) "intConstrained" <|
+                \int ->
+                    Knob.intConstrained { step = 1, range = ( -9999, 9999 ), initial = 1 }
+                        |> expectViewIntValueMatchesAfterDeserialization
+                            { initial = 1
+                            , toSerialize = int
+                            }
+            , Test.fuzz (Fuzz.intRange -9999 9999) "intSlider" <|
+                \int ->
+                    Knob.intSlider { step = 1, range = ( -9999, 9999 ), initial = 1 }
+                        |> expectViewIntValueMatchesAfterDeserialization
+                            { initial = 1
+                            , toSerialize = int
+                            }
             ]
         ]
 
@@ -207,6 +235,10 @@ expectViewValueMatchesAfterDeserialization encoder toString { initial, toSeriali
 
 expectViewFloatValueMatchesAfterDeserialization =
     expectViewValueMatchesAfterDeserialization Json.Encode.float String.fromFloat
+
+
+expectViewIntValueMatchesAfterDeserialization =
+    expectViewValueMatchesAfterDeserialization Json.Encode.int String.fromInt
 
 
 

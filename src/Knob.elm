@@ -258,7 +258,18 @@ floatSlider { range, step, initial } =
         , keepOpen = False
         , view = SingleView input
         , encode = Just Json.Encode.float
-        , decode = Nothing
+        , decode =
+            Just
+                (Json.Decode.map
+                    (\decodedValue ->
+                        floatSlider
+                            { range = ( rangeLow, rangeHigh )
+                            , step = step
+                            , initial = decodedValue
+                            }
+                    )
+                    Json.Decode.float
+                )
         }
 
 
@@ -294,7 +305,11 @@ intInternal step initial =
         , keepOpen = False
         , view = SingleView input
         , encode = Just Json.Encode.int
-        , decode = Nothing
+        , decode =
+            Just
+                (Json.Decode.map (String.fromInt >> intInternal step)
+                    Json.Decode.int
+                )
         }
 
 
@@ -343,7 +358,12 @@ intConstrainedInternal ( rangeLow, rangeHigh ) step initial =
         , keepOpen = False
         , view = SingleView input
         , encode = Just Json.Encode.int
-        , decode = Nothing
+        , decode =
+            Just
+                (Json.Decode.map
+                    (String.fromInt >> intConstrainedInternal ( rangeLow, rangeHigh ) step)
+                    Json.Decode.int
+                )
         }
 
 
@@ -394,7 +414,18 @@ intSlider { range, step, initial } =
         , keepOpen = False
         , view = SingleView input
         , encode = Just Json.Encode.int
-        , decode = Nothing
+        , decode =
+            Just
+                (Json.Decode.map
+                    (\decodedValue ->
+                        intSlider
+                            { range = ( rangeLow, rangeHigh )
+                            , step = step
+                            , initial = decodedValue
+                            }
+                    )
+                    Json.Decode.int
+                )
         }
 
 
