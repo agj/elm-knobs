@@ -147,17 +147,11 @@ deserialize =
             , Test.fuzz (Fuzz.oneOfValues vegetables) "select" <|
                 \value ->
                     knobSelect Carrot
-                        |> Knob.view (always ())
-                        |> Query.fromHtml
-                        |> Query.find [ Selector.selected True ]
-                        |> Query.has [ Selector.attribute (Html.Attributes.value "Carrot") ]
-
-            -- |> expectViewValueMatchesAfterDeserialization
-            --     Json.Encode.int
-            --     knobSelectToString
-            --     { initial = 1
-            --     , toSerialize = value
-            --     }
+                        |> Expect.all
+                            [ expectViewSelected "Carrot"
+                            , Knob.deserialize (Json.Encode.string "Lettuce")
+                                >> expectViewSelected "Lettuce"
+                            ]
             ]
         ]
 
@@ -250,6 +244,15 @@ expectViewChecked checked knob =
         |> Query.fromHtml
         |> Query.find [ Selector.tag "input" ]
         |> Query.has [ Selector.attribute (Html.Attributes.checked checked) ]
+
+
+expectViewSelected : String -> Knob a -> Expectation
+expectViewSelected selection knob =
+    knob
+        |> Knob.view (always ())
+        |> Query.fromHtml
+        |> Query.find [ Selector.selected True ]
+        |> Query.has [ Selector.attribute (Html.Attributes.value selection) ]
 
 
 expectViewValueMatchesAfterDeserialization :

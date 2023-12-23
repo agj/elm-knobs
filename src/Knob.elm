@@ -532,7 +532,14 @@ selectInternal keepOpen config =
         , keepOpen = keepOpen
         , view = SingleView selectElement
         , encode = Just (config.toString >> Json.Encode.string)
-        , decode = Nothing
+        , decode =
+            Just
+                (Json.Decode.map
+                    (\decodedValue ->
+                        selectInternal keepOpen { config | initial = config.fromString decodedValue }
+                    )
+                    Json.Decode.string
+                )
         }
 
 
