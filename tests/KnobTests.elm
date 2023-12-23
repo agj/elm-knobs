@@ -2,12 +2,8 @@ module KnobTests exposing (..)
 
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer)
-import Html.Attributes
-import Json.Encode
 import Knob exposing (Knob)
 import Test exposing (Test)
-import Test.Html.Query as Query
-import Test.Html.Selector as Selector
 
 
 serialize : Test
@@ -15,72 +11,36 @@ serialize =
     Test.describe "Given nice values, equality of two serialized knobs is the same as the equality of their values"
         [ Test.describe "Floats"
             [ Test.fuzz2 Fuzz.niceFloat Fuzz.niceFloat "float" <|
-                \float1 float2 ->
-                    expectTransitiveEquality
-                        float1
-                        (Knob.float { step = 0.1, initial = float1 })
-                        float2
-                        (Knob.float { step = 0.1, initial = float2 })
+                expectTransitiveEquality
+                    (\float -> Knob.float { step = 0.1, initial = float })
             , Test.fuzz2 (Fuzz.floatRange -9999 9999) (Fuzz.floatRange -9999 9999) "floatConstrained" <|
-                \float1 float2 ->
-                    expectTransitiveEquality
-                        float1
-                        (Knob.floatConstrained { range = ( -9999, 9999 ), step = 0.1, initial = float1 })
-                        float2
-                        (Knob.floatConstrained { range = ( -9999, 9999 ), step = 0.1, initial = float2 })
+                expectTransitiveEquality
+                    (\float -> Knob.floatConstrained { range = ( -9999, 9999 ), step = 0.1, initial = float })
             , Test.fuzz2 (Fuzz.floatRange -9999 9999) (Fuzz.floatRange -9999 9999) "floatSlider" <|
-                \float1 float2 ->
-                    expectTransitiveEquality
-                        float1
-                        (Knob.floatSlider { range = ( -9999, 9999 ), step = 0.1, initial = float1 })
-                        float2
-                        (Knob.floatSlider { range = ( -9999, 9999 ), step = 0.1, initial = float2 })
+                expectTransitiveEquality
+                    (\float -> Knob.floatSlider { range = ( -9999, 9999 ), step = 0.1, initial = float })
             ]
         , Test.describe "Ints"
             [ Test.fuzz2 Fuzz.int Fuzz.int "int" <|
-                \int1 int2 ->
-                    expectTransitiveEquality
-                        int1
-                        (Knob.int { step = 1, initial = int1 })
-                        int2
-                        (Knob.int { step = 1, initial = int2 })
+                expectTransitiveEquality
+                    (\int -> Knob.int { step = 1, initial = int })
             , Test.fuzz2 (Fuzz.intRange -1000 1000) (Fuzz.intRange -1000 1000) "intConstrained" <|
-                \int1 int2 ->
-                    expectTransitiveEquality
-                        int1
-                        (Knob.intConstrained { step = 1, range = ( -1000, 1000 ), initial = int1 })
-                        int2
-                        (Knob.intConstrained { step = 1, range = ( -1000, 1000 ), initial = int2 })
+                expectTransitiveEquality
+                    (\int -> Knob.intConstrained { step = 1, range = ( -1000, 1000 ), initial = int })
             , Test.fuzz2 (Fuzz.intRange -1000 1000) (Fuzz.intRange -1000 1000) "intSlider" <|
-                \int1 int2 ->
-                    expectTransitiveEquality
-                        int1
-                        (Knob.intSlider { step = 1, range = ( -1000, 1000 ), initial = int1 })
-                        int2
-                        (Knob.intSlider { step = 1, range = ( -1000, 1000 ), initial = int2 })
+                expectTransitiveEquality
+                    (\int -> Knob.intSlider { step = 1, range = ( -1000, 1000 ), initial = int })
             ]
         , Test.describe "Other"
             [ Test.fuzz2 Fuzz.bool Fuzz.bool "boolCheckbox" <|
-                \bool1 bool2 ->
-                    expectTransitiveEquality
-                        bool1
-                        (Knob.boolCheckbox bool1)
-                        bool2
-                        (Knob.boolCheckbox bool2)
+                expectTransitiveEquality
+                    Knob.boolCheckbox
             , Test.fuzz2 (Fuzz.oneOfValues vegetables) (Fuzz.oneOfValues vegetables) "select" <|
-                \value1 value2 ->
-                    expectTransitiveEquality
-                        value1
-                        (knobSelect value1)
-                        value2
-                        (knobSelect value2)
+                expectTransitiveEquality
+                    knobSelect
             , Test.fuzz2 fuzzColor fuzzColor "colorPicker" <|
-                \color1 color2 ->
-                    expectTransitiveEquality
-                        color1
-                        (Knob.colorPicker color1)
-                        color2
-                        (Knob.colorPicker color2)
+                expectTransitiveEquality
+                    Knob.colorPicker
             ]
         ]
 
@@ -180,9 +140,9 @@ vegetableFromString string =
 -- EXPECTATIONS
 
 
-expectTransitiveEquality : a -> Knob a -> a -> Knob a -> Expectation
-expectTransitiveEquality value1 knob1 value2 knob2 =
-    (Knob.serialize knob1 == Knob.serialize knob2)
+expectTransitiveEquality : (a -> Knob a) -> a -> a -> Expectation
+expectTransitiveEquality toKnob value1 value2 =
+    (Knob.serialize (toKnob value1) == Knob.serialize (toKnob value2))
         |> Expect.equal (value1 == value2)
 
 
