@@ -1,9 +1,9 @@
 module KnobTests exposing (..)
 
-import Dict
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer)
 import Html.Attributes
+import Internal.Utils as Utils
 import Json.Encode
 import Knob exposing (Knob)
 import Test exposing (Test)
@@ -152,6 +152,46 @@ deserialize =
                             , Knob.deserialize (Json.Encode.string value)
                                 >> expectViewSelected value
                             ]
+            , Test.fuzz2 fuzzColor fuzzColor "colorPicker" <|
+                \initial toSerialize ->
+                    Knob.colorPicker initial
+                        |> Expect.all
+                            [ \knob ->
+                                knob
+                                    |> Knob.view (always ())
+                                    |> Query.fromHtml
+                                    |> Query.find [ Selector.tag "input" ]
+                                    |> Query.has [ Selector.attribute (Html.Attributes.value (Utils.colorToString initial)) ]
+                            , \knob ->
+                                knob
+                                    |> Knob.view (always ())
+                                    |> Query.fromHtml
+                                    |> Query.find [ Selector.tag "input" ]
+                                    |> Query.has [ Selector.attribute (Html.Attributes.value (Utils.colorToString initial)) ]
+                            ]
+            ]
+        ]
+
+
+deserialization =
+    Test.describe "Deserialize"
+        [ Test.describe "Other"
+            [ Test.fuzz2 fuzzColor fuzzColor "colorPicker" <|
+                \initial toSerialize ->
+                    if initial /= toSerialize then
+                        let
+                            serialized =
+                                Knob.colorPicker toSerialize
+                                    |> Knob.serialize
+                        in
+                        (Knob.colorPicker initial
+                            |> Knob.deserialize serialized
+                            |> Knob.value
+                        )
+                            |> Expect.equal toSerialize
+
+                    else
+                        Expect.pass
             ]
         ]
 
