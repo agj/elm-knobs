@@ -68,7 +68,7 @@ serialize =
                         (Knob.boolCheckbox bool1)
                         bool2
                         (Knob.boolCheckbox bool2)
-            , Test.fuzz2 (Fuzz.oneOfValues knobSelectValues) (Fuzz.oneOfValues knobSelectValues) "select" <|
+            , Test.fuzz2 (Fuzz.oneOfValues vegetables) (Fuzz.oneOfValues vegetables) "select" <|
                 \value1 value2 ->
                     expectTransitiveEquality
                         value1
@@ -144,13 +144,13 @@ deserialize =
                             , Knob.deserialize (Json.Encode.bool bool)
                                 >> expectViewChecked bool
                             ]
-            , Test.fuzz (Fuzz.oneOfValues knobSelectValues) "select" <|
+            , Test.fuzz (Fuzz.oneOfValues vegetables) "select" <|
                 \value ->
-                    knobSelect 1
+                    knobSelect Carrot
                         |> Knob.view (always ())
                         |> Query.fromHtml
                         |> Query.find [ Selector.selected True ]
-                        |> Query.has [ Selector.attribute (Html.Attributes.value "a") ]
+                        |> Query.has [ Selector.attribute (Html.Attributes.value "Carrot") ]
 
             -- |> expectViewValueMatchesAfterDeserialization
             --     Json.Encode.int
@@ -166,39 +166,53 @@ deserialize =
 -- KNOB PRODUCTION
 
 
-knobSelectPairs =
-    [ ( "a", 1 )
-    , ( "b", 2 )
-    , ( "c", 3 )
-    ]
-        |> Dict.fromList
-
-
-knobSelectValues =
-    Dict.values knobSelectPairs
-
-
-knobSelectToString val =
-    Dict.toList knobSelectPairs
-        |> List.filter (\( _, v ) -> v == val)
-        |> List.head
-        |> Maybe.map Tuple.first
-        |> Maybe.withDefault ""
-
-
-knobSelectFromString string =
-    Dict.get string knobSelectPairs
-        |> Maybe.withDefault 0
-
-
-knobSelect : Int -> Knob Int
+knobSelect : Vegetable -> Knob Vegetable
 knobSelect initial =
     Knob.select
-        { options = knobSelectPairs |> Dict.keys
-        , toString = knobSelectToString
-        , fromString = knobSelectFromString
+        { options = vegetableStrings
+        , toString = vegetableToString
+        , fromString = vegetableFromString
         , initial = initial
         }
+
+
+type Vegetable
+    = Carrot
+    | Lettuce
+    | Beet
+
+
+vegetables =
+    [ Carrot, Lettuce, Beet ]
+
+
+vegetableStrings =
+    vegetables
+        |> List.map vegetableToString
+
+
+vegetableToString vegetable =
+    case vegetable of
+        Carrot ->
+            "Carrot"
+
+        Lettuce ->
+            "Lettuce"
+
+        Beet ->
+            "Beet"
+
+
+vegetableFromString string =
+    case string of
+        "Lettuce" ->
+            Lettuce
+
+        "Beet" ->
+            Beet
+
+        _ ->
+            Carrot
 
 
 
