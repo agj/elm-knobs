@@ -144,13 +144,13 @@ deserialize =
                             , Knob.deserialize (Json.Encode.bool bool)
                                 >> expectViewChecked bool
                             ]
-            , Test.fuzz (Fuzz.oneOfValues vegetables) "select" <|
+            , Test.fuzz (Fuzz.oneOfValues vegetableStrings) "select" <|
                 \value ->
                     knobSelect Carrot
                         |> Expect.all
                             [ expectViewSelected "Carrot"
-                            , Knob.deserialize (Json.Encode.string "Lettuce")
-                                >> expectViewSelected "Lettuce"
+                            , Knob.deserialize (Json.Encode.string value)
+                                >> expectViewSelected value
                             ]
             ]
         ]
