@@ -144,6 +144,20 @@ deserialize =
                             , Knob.deserialize (Json.Encode.bool bool)
                                 >> expectViewChecked bool
                             ]
+            , Test.fuzz (Fuzz.oneOfValues knobSelectValues) "select" <|
+                \value ->
+                    knobSelect 1
+                        |> Knob.view (always ())
+                        |> Query.fromHtml
+                        |> Query.find [ Selector.selected True ]
+                        |> Query.has [ Selector.attribute (Html.Attributes.value "a") ]
+
+            -- |> expectViewValueMatchesAfterDeserialization
+            --     Json.Encode.int
+            --     knobSelectToString
+            --     { initial = 1
+            --     , toSerialize = value
+            --     }
             ]
         ]
 
@@ -164,24 +178,25 @@ knobSelectValues =
     Dict.values knobSelectPairs
 
 
+knobSelectToString val =
+    Dict.toList knobSelectPairs
+        |> List.filter (\( _, v ) -> v == val)
+        |> List.head
+        |> Maybe.map Tuple.first
+        |> Maybe.withDefault ""
+
+
+knobSelectFromString string =
+    Dict.get string knobSelectPairs
+        |> Maybe.withDefault 0
+
+
 knobSelect : Int -> Knob Int
 knobSelect initial =
-    let
-        toString val =
-            Dict.toList knobSelectPairs
-                |> List.filter (\( _, v ) -> v == val)
-                |> List.head
-                |> Maybe.map Tuple.first
-                |> Maybe.withDefault ""
-
-        fromString string =
-            Dict.get string knobSelectPairs
-                |> Maybe.withDefault 0
-    in
     Knob.select
         { options = knobSelectPairs |> Dict.keys
-        , toString = toString
-        , fromString = fromString
+        , toString = knobSelectToString
+        , fromString = knobSelectFromString
         , initial = initial
         }
 
