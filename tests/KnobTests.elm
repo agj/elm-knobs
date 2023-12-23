@@ -3,7 +3,6 @@ module KnobTests exposing (..)
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer)
 import Html.Attributes
-import Internal.Utils as Utils
 import Json.Encode
 import Knob exposing (Knob)
 import Test exposing (Test)
@@ -86,112 +85,40 @@ serialize =
         ]
 
 
-deserialize : Test
-deserialize =
-    Test.describe "Deserialization"
+roundTripSerializationTests =
+    Test.describe "Round-trip serialization"
         [ Test.describe "Floats"
-            [ Test.fuzz Fuzz.niceFloat "float" <|
-                \float ->
-                    Knob.float { step = 1, initial = 1 }
-                        |> expectViewFloatValueMatchesAfterDeserialization
-                            { initial = 1
-                            , toSerialize = float
-                            }
-            , Test.fuzz (Fuzz.floatRange -9999 9999) "floatConstrained" <|
-                \float ->
-                    Knob.floatConstrained { step = 1, range = ( -9999, 9999 ), initial = 1 }
-                        |> expectViewFloatValueMatchesAfterDeserialization
-                            { initial = 1
-                            , toSerialize = float
-                            }
-            , Test.fuzz (Fuzz.floatRange -9999 9999) "floatSlider" <|
-                \float ->
-                    Knob.floatSlider { step = 1, range = ( -9999, 9999 ), initial = 1 }
-                        |> expectViewFloatValueMatchesAfterDeserialization
-                            { initial = 1
-                            , toSerialize = float
-                            }
+            [ Test.fuzz2 Fuzz.niceFloat Fuzz.niceFloat "float" <|
+                expectFloatRoundTripSerializationToWork
+                    (\float -> Knob.float { step = 1, initial = float })
+            , Test.fuzz2 (Fuzz.floatRange -9999 9999) (Fuzz.floatRange -9999 9999) "floatConstrained" <|
+                expectFloatRoundTripSerializationToWork
+                    (\float -> Knob.floatConstrained { step = 1, range = ( -9999, 9999 ), initial = float })
+            , Test.fuzz2 (Fuzz.floatRange -9999 9999) (Fuzz.floatRange -9999 9999) "floatSlider" <|
+                expectFloatRoundTripSerializationToWork
+                    (\float -> Knob.floatSlider { step = 1, range = ( -9999, 9999 ), initial = float })
             ]
         , Test.describe "Ints"
-            [ Test.fuzz Fuzz.int "int" <|
-                \int ->
-                    Knob.int { step = 1, initial = 1 }
-                        |> expectViewIntValueMatchesAfterDeserialization
-                            { initial = 1
-                            , toSerialize = int
-                            }
-            , Test.fuzz (Fuzz.intRange -9999 9999) "intConstrained" <|
-                \int ->
-                    Knob.intConstrained { step = 1, range = ( -9999, 9999 ), initial = 1 }
-                        |> expectViewIntValueMatchesAfterDeserialization
-                            { initial = 1
-                            , toSerialize = int
-                            }
-            , Test.fuzz (Fuzz.intRange -9999 9999) "intSlider" <|
-                \int ->
-                    Knob.intSlider { step = 1, range = ( -9999, 9999 ), initial = 1 }
-                        |> expectViewIntValueMatchesAfterDeserialization
-                            { initial = 1
-                            , toSerialize = int
-                            }
+            [ Test.fuzz2 Fuzz.int Fuzz.int "int" <|
+                expectRoundTripSerializationToWork
+                    (\int -> Knob.int { step = 1, initial = int })
+            , Test.fuzz2 (Fuzz.intRange -9999 9999) (Fuzz.intRange -9999 9999) "intConstrained" <|
+                expectRoundTripSerializationToWork
+                    (\int -> Knob.intConstrained { step = 1, range = ( -9999, 9999 ), initial = int })
+            , Test.fuzz2 (Fuzz.intRange -9999 9999) (Fuzz.intRange -9999 9999) "intSlider" <|
+                expectRoundTripSerializationToWork
+                    (\int -> Knob.intSlider { step = 1, range = ( -9999, 9999 ), initial = int })
             ]
         , Test.describe "Other"
-            [ Test.fuzz Fuzz.bool "boolCheckbox" <|
-                \bool ->
-                    Knob.boolCheckbox True
-                        |> Expect.all
-                            [ expectViewChecked True
-                            , Knob.deserialize (Json.Encode.bool bool)
-                                >> expectViewChecked bool
-                            ]
-            , Test.fuzz (Fuzz.oneOfValues vegetableStrings) "select" <|
-                \value ->
-                    knobSelect Carrot
-                        |> Expect.all
-                            [ expectViewSelected "Carrot"
-                            , Knob.deserialize (Json.Encode.string value)
-                                >> expectViewSelected value
-                            ]
+            [ Test.fuzz2 Fuzz.bool Fuzz.bool "boolCheckbox" <|
+                expectRoundTripSerializationToWork
+                    Knob.boolCheckbox
+            , Test.fuzz2 (Fuzz.oneOfValues vegetables) (Fuzz.oneOfValues vegetables) "select" <|
+                expectRoundTripSerializationToWork
+                    knobSelect
             , Test.fuzz2 fuzzColor fuzzColor "colorPicker" <|
-                \initial toSerialize ->
-                    Knob.colorPicker initial
-                        |> Expect.all
-                            [ \knob ->
-                                knob
-                                    |> Knob.view (always ())
-                                    |> Query.fromHtml
-                                    |> Query.find [ Selector.tag "input" ]
-                                    |> Query.has [ Selector.attribute (Html.Attributes.value (Utils.colorToString initial)) ]
-                            , \knob ->
-                                knob
-                                    |> Knob.view (always ())
-                                    |> Query.fromHtml
-                                    |> Query.find [ Selector.tag "input" ]
-                                    |> Query.has [ Selector.attribute (Html.Attributes.value (Utils.colorToString initial)) ]
-                            ]
-            ]
-        ]
-
-
-deserialization =
-    Test.describe "Deserialize"
-        [ Test.describe "Other"
-            [ Test.fuzz2 fuzzColor fuzzColor "colorPicker" <|
-                \initial toSerialize ->
-                    if initial /= toSerialize then
-                        let
-                            serialized =
-                                Knob.colorPicker toSerialize
-                                    |> Knob.serialize
-                        in
-                        (Knob.colorPicker initial
-                            |> Knob.deserialize serialized
-                            |> Knob.value
-                        )
-                            |> Expect.equal toSerialize
-
-                    else
-                        Expect.pass
+                expectRoundTripSerializationToWork
+                    Knob.colorPicker
             ]
         ]
 
@@ -339,6 +266,40 @@ expectViewFloatValueMatchesAfterDeserialization =
 
 expectViewIntValueMatchesAfterDeserialization =
     expectViewValueMatchesAfterDeserialization Json.Encode.int String.fromInt
+
+
+expectRoundTripSerializationToWork : (a -> Knob a) -> a -> a -> Expectation
+expectRoundTripSerializationToWork toKnob value1 value2 =
+    if value1 /= value2 then
+        let
+            serializedValue2 =
+                toKnob value2 |> Knob.serialize
+        in
+        (toKnob value1
+            |> Knob.deserialize serializedValue2
+            |> Knob.value
+        )
+            |> Expect.equal value2
+
+    else
+        Expect.pass
+
+
+expectFloatRoundTripSerializationToWork : (Float -> Knob Float) -> Float -> Float -> Expectation
+expectFloatRoundTripSerializationToWork toKnob value1 value2 =
+    if value1 /= value2 then
+        let
+            serializedValue2 =
+                toKnob value2 |> Knob.serialize
+        in
+        (toKnob value1
+            |> Knob.deserialize serializedValue2
+            |> Knob.value
+        )
+            |> Expect.within (Expect.Absolute 0.0000001) value2
+
+    else
+        Expect.pass
 
 
 
