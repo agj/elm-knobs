@@ -6,80 +6,67 @@ import Knob exposing (Knob)
 import Test exposing (Test)
 
 
-serialize : Test
-serialize =
+transitiveEqualityTests =
     Test.describe "Given nice values, equality of two serialized knobs is the same as the equality of their values"
-        [ Test.describe "Floats"
-            [ Test.fuzz2 Fuzz.niceFloat Fuzz.niceFloat "float" <|
-                expectTransitiveEquality
-                    (\float -> Knob.float { step = 0.1, initial = float })
-            , Test.fuzz2 (Fuzz.floatRange -9999 9999) (Fuzz.floatRange -9999 9999) "floatConstrained" <|
-                expectTransitiveEquality
-                    (\float -> Knob.floatConstrained { range = ( -9999, 9999 ), step = 0.1, initial = float })
-            , Test.fuzz2 (Fuzz.floatRange -9999 9999) (Fuzz.floatRange -9999 9999) "floatSlider" <|
-                expectTransitiveEquality
-                    (\float -> Knob.floatSlider { range = ( -9999, 9999 ), step = 0.1, initial = float })
-            ]
-        , Test.describe "Ints"
-            [ Test.fuzz2 Fuzz.int Fuzz.int "int" <|
-                expectTransitiveEquality
-                    (\int -> Knob.int { step = 1, initial = int })
-            , Test.fuzz2 (Fuzz.intRange -1000 1000) (Fuzz.intRange -1000 1000) "intConstrained" <|
-                expectTransitiveEquality
-                    (\int -> Knob.intConstrained { step = 1, range = ( -1000, 1000 ), initial = int })
-            , Test.fuzz2 (Fuzz.intRange -1000 1000) (Fuzz.intRange -1000 1000) "intSlider" <|
-                expectTransitiveEquality
-                    (\int -> Knob.intSlider { step = 1, range = ( -1000, 1000 ), initial = int })
-            ]
-        , Test.describe "Other"
-            [ Test.fuzz2 Fuzz.bool Fuzz.bool "boolCheckbox" <|
-                expectTransitiveEquality
-                    Knob.boolCheckbox
-            , Test.fuzz2 (Fuzz.oneOfValues vegetables) (Fuzz.oneOfValues vegetables) "select" <|
-                expectTransitiveEquality
-                    knobSelect
-            , Test.fuzz2 fuzzColor fuzzColor "colorPicker" <|
-                expectTransitiveEquality
-                    Knob.colorPicker
-            ]
+        [ Test.fuzz2 Fuzz.niceFloat Fuzz.niceFloat "float" <|
+            expectTransitiveEquality
+                (\float -> Knob.float { step = 0.1, initial = float })
+        , Test.fuzz2 (Fuzz.floatRange -9999 9999) (Fuzz.floatRange -9999 9999) "floatConstrained" <|
+            expectTransitiveEquality
+                (\float -> Knob.floatConstrained { range = ( -9999, 9999 ), step = 0.1, initial = float })
+        , Test.fuzz2 (Fuzz.floatRange -9999 9999) (Fuzz.floatRange -9999 9999) "floatSlider" <|
+            expectTransitiveEquality
+                (\float -> Knob.floatSlider { range = ( -9999, 9999 ), step = 0.1, initial = float })
+        , Test.fuzz2 Fuzz.int Fuzz.int "int" <|
+            expectTransitiveEquality
+                (\int -> Knob.int { step = 1, initial = int })
+        , Test.fuzz2 (Fuzz.intRange -1000 1000) (Fuzz.intRange -1000 1000) "intConstrained" <|
+            expectTransitiveEquality
+                (\int -> Knob.intConstrained { step = 1, range = ( -1000, 1000 ), initial = int })
+        , Test.fuzz2 (Fuzz.intRange -1000 1000) (Fuzz.intRange -1000 1000) "intSlider" <|
+            expectTransitiveEquality
+                (\int -> Knob.intSlider { step = 1, range = ( -1000, 1000 ), initial = int })
+        , Test.fuzz2 Fuzz.bool Fuzz.bool "boolCheckbox" <|
+            expectTransitiveEquality
+                Knob.boolCheckbox
+        , Test.fuzz2 (Fuzz.oneOfValues vegetables) (Fuzz.oneOfValues vegetables) "select" <|
+            expectTransitiveEquality
+                knobSelect
+        , Test.fuzz2 fuzzColor fuzzColor "colorPicker" <|
+            expectTransitiveEquality
+                Knob.colorPicker
         ]
 
 
 roundTripSerializationTests =
-    Test.describe "Round-trip serialization"
-        [ Test.describe "Floats"
-            [ Test.fuzz2 Fuzz.niceFloat Fuzz.niceFloat "float" <|
-                expectFloatRoundTripSerializationToWork
-                    (\float -> Knob.float { step = 1, initial = float })
-            , Test.fuzz2 (Fuzz.floatRange -9999 9999) (Fuzz.floatRange -9999 9999) "floatConstrained" <|
-                expectFloatRoundTripSerializationToWork
-                    (\float -> Knob.floatConstrained { step = 1, range = ( -9999, 9999 ), initial = float })
-            , Test.fuzz2 (Fuzz.floatRange -9999 9999) (Fuzz.floatRange -9999 9999) "floatSlider" <|
-                expectFloatRoundTripSerializationToWork
-                    (\float -> Knob.floatSlider { step = 1, range = ( -9999, 9999 ), initial = float })
-            ]
-        , Test.describe "Ints"
-            [ Test.fuzz2 Fuzz.int Fuzz.int "int" <|
-                expectRoundTripSerializationToWork
-                    (\int -> Knob.int { step = 1, initial = int })
-            , Test.fuzz2 (Fuzz.intRange -9999 9999) (Fuzz.intRange -9999 9999) "intConstrained" <|
-                expectRoundTripSerializationToWork
-                    (\int -> Knob.intConstrained { step = 1, range = ( -9999, 9999 ), initial = int })
-            , Test.fuzz2 (Fuzz.intRange -9999 9999) (Fuzz.intRange -9999 9999) "intSlider" <|
-                expectRoundTripSerializationToWork
-                    (\int -> Knob.intSlider { step = 1, range = ( -9999, 9999 ), initial = int })
-            ]
-        , Test.describe "Other"
-            [ Test.fuzz2 Fuzz.bool Fuzz.bool "boolCheckbox" <|
-                expectRoundTripSerializationToWork
-                    Knob.boolCheckbox
-            , Test.fuzz2 (Fuzz.oneOfValues vegetables) (Fuzz.oneOfValues vegetables) "select" <|
-                expectRoundTripSerializationToWork
-                    knobSelect
-            , Test.fuzz2 fuzzColor fuzzColor "colorPicker" <|
-                expectRoundTripSerializationToWork
-                    Knob.colorPicker
-            ]
+    Test.describe "Knobs should serialize and then deserialize into the same original value"
+        [ Test.fuzz2 Fuzz.niceFloat Fuzz.niceFloat "float" <|
+            expectFloatRoundTripSerializationToWork
+                (\float -> Knob.float { step = 1, initial = float })
+        , Test.fuzz2 (Fuzz.floatRange -9999 9999) (Fuzz.floatRange -9999 9999) "floatConstrained" <|
+            expectFloatRoundTripSerializationToWork
+                (\float -> Knob.floatConstrained { step = 1, range = ( -9999, 9999 ), initial = float })
+        , Test.fuzz2 (Fuzz.floatRange -9999 9999) (Fuzz.floatRange -9999 9999) "floatSlider" <|
+            expectFloatRoundTripSerializationToWork
+                (\float -> Knob.floatSlider { step = 1, range = ( -9999, 9999 ), initial = float })
+        , Test.fuzz2 Fuzz.int Fuzz.int "int" <|
+            expectRoundTripSerializationToWork
+                (\int -> Knob.int { step = 1, initial = int })
+        , Test.fuzz2 (Fuzz.intRange -9999 9999) (Fuzz.intRange -9999 9999) "intConstrained" <|
+            expectRoundTripSerializationToWork
+                (\int -> Knob.intConstrained { step = 1, range = ( -9999, 9999 ), initial = int })
+        , Test.fuzz2 (Fuzz.intRange -9999 9999) (Fuzz.intRange -9999 9999) "intSlider" <|
+            expectRoundTripSerializationToWork
+                (\int -> Knob.intSlider { step = 1, range = ( -9999, 9999 ), initial = int })
+        , Test.fuzz2 Fuzz.bool Fuzz.bool "boolCheckbox" <|
+            expectRoundTripSerializationToWork
+                Knob.boolCheckbox
+        , Test.fuzz2 (Fuzz.oneOfValues vegetables) (Fuzz.oneOfValues vegetables) "select" <|
+            expectRoundTripSerializationToWork
+                knobSelect
+        , Test.fuzz2 fuzzColor fuzzColor "colorPicker" <|
+            expectRoundTripSerializationToWork
+                Knob.colorPicker
         ]
 
 
