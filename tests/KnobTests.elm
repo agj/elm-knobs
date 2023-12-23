@@ -140,13 +140,26 @@ expectRoundTripSerializationToWork toKnob value1 value2 =
             serializedValue2 =
                 toKnob value2 |> Knob.serialize
         in
-        (toKnob value1
-            |> Knob.deserialize serializedValue2
-            |> Knob.value
-        )
-            |> Expect.equal value2
+        Expect.all
+            [ \_ ->
+                (toKnob value1
+                    |> Knob.deserialize serializedValue2
+                    |> Knob.value
+                )
+                    |> Expect.equal value2
+
+            -- Sanity checks.
+            , \_ ->
+                (toKnob value1 |> Knob.value)
+                    |> Expect.equal value1
+            , \_ ->
+                (toKnob value2 |> Knob.value)
+                    |> Expect.equal value2
+            ]
+            ()
 
     else
+        -- Don't bother when both values are the same.
         Expect.pass
 
 
@@ -157,13 +170,26 @@ expectFloatRoundTripSerializationToWork toKnob value1 value2 =
             serializedValue2 =
                 toKnob value2 |> Knob.serialize
         in
-        (toKnob value1
-            |> Knob.deserialize serializedValue2
-            |> Knob.value
-        )
-            |> Expect.within (Expect.Absolute 0.0000001) value2
+        Expect.all
+            [ \_ ->
+                (toKnob value1
+                    |> Knob.deserialize serializedValue2
+                    |> Knob.value
+                )
+                    |> Expect.within (Expect.Absolute 0.0000001) value2
+
+            -- Sanity checks.
+            , \_ ->
+                (toKnob value1 |> Knob.value)
+                    |> Expect.within (Expect.Absolute 0.0000001) value1
+            , \_ ->
+                (toKnob value2 |> Knob.value)
+                    |> Expect.within (Expect.Absolute 0.0000001) value2
+            ]
+            ()
 
     else
+        -- Don't bother when both values are the same.
         Expect.pass
 
 
