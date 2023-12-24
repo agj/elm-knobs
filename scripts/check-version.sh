@@ -4,7 +4,7 @@ source './scripts/functions.sh'
 
 currentVersion=$(getCurrentVersion)
 
-echo "Validating package version consistency."
+echo "Checking package version consistency."
 echo "Current version: $currentVersion"
 echo
 
