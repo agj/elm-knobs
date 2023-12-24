@@ -932,7 +932,7 @@ label text (Knob config) =
         , keepOpen = config.keepOpen
         , view = SingleView labeled
         , encode = config.encode
-        , decode = Nothing
+        , decode = config.decode
         }
 
 

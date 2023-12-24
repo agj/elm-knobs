@@ -48,6 +48,18 @@ transitiveEqualityTests =
                         |> Knob.stack (Knob.float { step = 1, initial = float })
                         |> Knob.stack (Knob.colorPicker color)
                 )
+        , Test.fuzz2
+            (Fuzz.triple Fuzz.int Fuzz.niceFloat fuzzColor)
+            (Fuzz.triple Fuzz.int Fuzz.niceFloat fuzzColor)
+            "compose with label"
+          <|
+            expectTransitiveEquality
+                (\( int, float, color ) ->
+                    Knob.compose (\a b c -> ( a, b, c ))
+                        |> Knob.stackLabel "int" (Knob.int { step = 1, initial = int })
+                        |> Knob.stackLabel "float" (Knob.float { step = 1, initial = float })
+                        |> Knob.stackLabel "color" (Knob.colorPicker color)
+                )
         , Test.fuzz2 Fuzz.int Fuzz.int "map" <|
             expectTransitiveEquality
                 (\int ->
@@ -97,6 +109,18 @@ roundTripSerializationTests =
                         |> Knob.stack (Knob.int { step = 1, initial = int })
                         |> Knob.stack (Knob.float { step = 1, initial = float })
                         |> Knob.stack (Knob.colorPicker color)
+                )
+        , Test.fuzz2
+            (Fuzz.triple Fuzz.int Fuzz.niceFloat fuzzColor)
+            (Fuzz.triple Fuzz.int Fuzz.niceFloat fuzzColor)
+            "compose with label"
+          <|
+            expectRoundTripSerializationToWork
+                (\( int, float, color ) ->
+                    Knob.compose (\a b c -> ( a, b, c ))
+                        |> Knob.stackLabel "int" (Knob.int { step = 1, initial = int })
+                        |> Knob.stackLabel "float" (Knob.float { step = 1, initial = float })
+                        |> Knob.stackLabel "color" (Knob.colorPicker color)
                 )
         , Test.fuzz2 Fuzz.int Fuzz.int "map" <|
             expectMappedRoundTripSerializationToWork
