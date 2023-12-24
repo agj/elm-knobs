@@ -5,8 +5,13 @@ init: ## Load a shell with all dependencies (if you don't use direnv).
 docs: ## Preview the documentation.
 	elm-doc-preview --port 8001 --no-browser
 
-changelog: ## Preview the changelog.
-	$$SHELL scripts/changelog.sh
+validate: check-build test check-docs lint check-examples ## Run all tests, checks and lint.
+
+test: ## Run tests.
+	elm-test
+
+test-watch: ## Run tests and watch for changes.
+	elm-test --watch
 
 lint: ## Check for formatting errors.
 	elm-format src --validate
@@ -16,18 +21,13 @@ lint-fix: ## Automatically fix linting errors.
 	elm-format src --yes
 	elm-review src --fix
 
-test: ## Run tests.
-	elm-test
-
-test-watch: ## Run tests and watch for changes.
-	elm-test --watch
-
-validate: validate-build test validate-docs lint ## Run all validations.
-
-validate-build: ## Make sure it builds.
+check-build: ## Make sure it builds.
 	elm make
 
-validate-docs: ## Make sure the docs can be generated.
+check-examples: ## Make sure the examples build.
+	$$SHELL scripts/check-examples.sh
+
+check-docs: ## Make sure the docs can be generated.
 	elm-doc-preview --output /dev/null
 
 
