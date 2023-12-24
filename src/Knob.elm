@@ -882,25 +882,26 @@ stack (Knob config) (Knob pipe) =
             ]
                 |> List.concat
                 |> StackView
+
+        encode : () -> Json.Encode.Value
+        encode () =
+            Json.Encode.object
+                [ ( "cur", Maybe.withDefault (always Json.Encode.null) config.encode () )
+                , ( "prev", Maybe.withDefault (always Json.Encode.null) pipe.encode () )
+                ]
+
+        decode : Json.Decode.Decoder (Knob b)
+        decode =
+            Json.Decode.map2 (\new newPipe -> stack new newPipe)
+                (Json.Decode.field "cur" (Maybe.withDefault (Json.Decode.fail "err") config.decode))
+                (Json.Decode.field "prev" (Maybe.withDefault (Json.Decode.fail "err") pipe.decode))
     in
     Knob
         { value = pipe.value config.value
         , keepOpen = pipe.keepOpen || config.keepOpen
         , view = stackedView
-        , encode =
-            Just
-                (\() ->
-                    Json.Encode.object
-                        [ ( "cur", Maybe.withDefault (always Json.Encode.null) config.encode () )
-                        , ( "prev", Maybe.withDefault (always Json.Encode.null) pipe.encode () )
-                        ]
-                )
-        , decode =
-            Just
-                (Json.Decode.map2 (\new newPipe -> stack new newPipe)
-                    (Json.Decode.field "cur" (Maybe.withDefault (Json.Decode.fail "err") config.decode))
-                    (Json.Decode.field "prev" (Maybe.withDefault (Json.Decode.fail "err") pipe.decode))
-                )
+        , encode = Just encode
+        , decode = Just decode
         }
 
 
