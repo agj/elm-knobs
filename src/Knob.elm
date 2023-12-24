@@ -143,6 +143,7 @@ float { step, initial } =
 floatInternal : Float -> String -> Knob Float
 floatInternal step initial =
     let
+        floatValue : Float
         floatValue =
             String.toFloat initial |> Maybe.withDefault 0
 
@@ -303,6 +304,7 @@ int { step, initial } =
 intInternal : Int -> String -> Knob Int
 intInternal step initial =
     let
+        intValue : Int
         intValue =
             String.toInt initial |> Maybe.withDefault 0
 
