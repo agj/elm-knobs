@@ -2,7 +2,8 @@ module KnobTests exposing (..)
 
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer)
-import Knob exposing (Knob)
+import Json.Encode
+import Knob exposing (Knob, serialize)
 import Test exposing (Test)
 
 
@@ -36,8 +37,8 @@ transitiveEqualityTests =
             expectTransitiveEquality
                 Knob.colorPicker
         , Test.fuzz2
-            (Fuzz.triple Fuzz.int Fuzz.float fuzzColor)
-            (Fuzz.triple Fuzz.int Fuzz.float fuzzColor)
+            (Fuzz.triple Fuzz.int Fuzz.niceFloat fuzzColor)
+            (Fuzz.triple Fuzz.int Fuzz.niceFloat fuzzColor)
             "compose"
           <|
             expectTransitiveEquality
@@ -79,6 +80,18 @@ roundTripSerializationTests =
         , Test.fuzz2 fuzzColor fuzzColor "colorPicker" <|
             expectRoundTripSerializationToWork
                 Knob.colorPicker
+        , Test.fuzz2
+            (Fuzz.triple Fuzz.int Fuzz.niceFloat fuzzColor)
+            (Fuzz.triple Fuzz.int Fuzz.niceFloat fuzzColor)
+            "compose"
+          <|
+            expectRoundTripSerializationToWork
+                (\( int, float, color ) ->
+                    Knob.compose (\a b c -> ( a, b, c ))
+                        |> Knob.stack (Knob.int { step = 1, initial = int })
+                        |> Knob.stack (Knob.float { step = 1, initial = float })
+                        |> Knob.stack (Knob.colorPicker color)
+                )
         ]
 
 
@@ -150,7 +163,8 @@ expectRoundTripSerializationToWork toKnob value1 value2 =
     if value1 /= value2 then
         let
             serializedValue2 =
-                toKnob value2 |> Knob.serialize
+                toKnob value2
+                    |> Knob.serialize
         in
         Expect.all
             [ \_ ->

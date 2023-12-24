@@ -890,16 +890,17 @@ stack (Knob config) (Knob pipe) =
         , encode =
             Just
                 (\() ->
-                    let
-                        orNull =
-                            Maybe.withDefault (always Json.Encode.null)
-                    in
                     Json.Encode.object
-                        [ ( "cur", orNull config.encode () )
-                        , ( "prev", orNull pipe.encode () )
+                        [ ( "cur", Maybe.withDefault (always Json.Encode.null) config.encode () )
+                        , ( "prev", Maybe.withDefault (always Json.Encode.null) pipe.encode () )
                         ]
                 )
-        , decode = Nothing
+        , decode =
+            Just
+                (Json.Decode.map2 (\new newPipe -> stack new newPipe)
+                    (Json.Decode.field "cur" (Maybe.withDefault (Json.Decode.fail "err") config.decode))
+                    (Json.Decode.field "prev" (Maybe.withDefault (Json.Decode.fail "err") pipe.decode))
+                )
         }
 
 
