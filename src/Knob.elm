@@ -102,7 +102,7 @@ type alias Config a =
     { value : a
     , keepOpen : Bool
     , view : KnobView a
-    , encode : Maybe (a -> Json.Encode.Value)
+    , encode : Maybe (() -> Json.Encode.Value)
     , decode : Maybe (Json.Decode.Decoder (Knob a))
     }
 
@@ -133,6 +133,9 @@ float { step, initial } =
 floatInternal : Float -> String -> Knob Float
 floatInternal step initial =
     let
+        floatValue =
+            String.toFloat initial |> Maybe.withDefault 0
+
         input : () -> Html (Knob Float)
         input () =
             Html.input
@@ -144,10 +147,10 @@ floatInternal step initial =
                 []
     in
     Knob
-        { value = String.toFloat initial |> Maybe.withDefault 0
+        { value = floatValue
         , keepOpen = False
         , view = SingleView input
-        , encode = Just Json.Encode.float
+        , encode = Just (\() -> Json.Encode.float floatValue)
         , decode =
             Just
                 (Json.Decode.map (String.fromFloat >> floatInternal step)
@@ -201,7 +204,7 @@ floatConstrainedInternal ( rangeLow, rangeHigh ) step initial =
         { value = floatValue
         , keepOpen = False
         , view = SingleView input
-        , encode = Just Json.Encode.float
+        , encode = Just (\() -> Json.Encode.float floatValue)
         , decode =
             Just
                 (Json.Decode.map
@@ -257,7 +260,7 @@ floatSlider { range, step, initial } =
         { value = initial
         , keepOpen = False
         , view = SingleView input
-        , encode = Just Json.Encode.float
+        , encode = Just (\() -> Json.Encode.float initial)
         , decode =
             Just
                 (Json.Decode.map
@@ -290,6 +293,9 @@ int { step, initial } =
 intInternal : Int -> String -> Knob Int
 intInternal step initial =
     let
+        intValue =
+            String.toInt initial |> Maybe.withDefault 0
+
         input : () -> Html (Knob Int)
         input () =
             Html.input
@@ -301,10 +307,10 @@ intInternal step initial =
                 []
     in
     Knob
-        { value = String.toInt initial |> Maybe.withDefault 0
+        { value = intValue
         , keepOpen = False
         , view = SingleView input
-        , encode = Just Json.Encode.int
+        , encode = Just (\() -> Json.Encode.int intValue)
         , decode =
             Just
                 (Json.Decode.map (String.fromInt >> intInternal step)
@@ -357,7 +363,7 @@ intConstrainedInternal ( rangeLow, rangeHigh ) step initial =
         { value = intValue
         , keepOpen = False
         , view = SingleView input
-        , encode = Just Json.Encode.int
+        , encode = Just (\() -> Json.Encode.int intValue)
         , decode =
             Just
                 (Json.Decode.map
@@ -413,7 +419,7 @@ intSlider { range, step, initial } =
         { value = initial
         , keepOpen = False
         , view = SingleView input
-        , encode = Just Json.Encode.int
+        , encode = Just (\() -> Json.Encode.int initial)
         , decode =
             Just
                 (Json.Decode.map
@@ -448,7 +454,7 @@ boolCheckbox initial =
         { value = initial
         , keepOpen = False
         , view = SingleView checkbox
-        , encode = Just Json.Encode.bool
+        , encode = Just (\() -> Json.Encode.bool initial)
         , decode = Just (Json.Decode.map boolCheckbox Json.Decode.bool)
         }
 
@@ -531,7 +537,7 @@ selectInternal keepOpen config =
         { value = config.initial
         , keepOpen = keepOpen
         , view = SingleView selectElement
-        , encode = Just (config.toString >> Json.Encode.string)
+        , encode = Just (\() -> config.initial |> config.toString |> Json.Encode.string)
         , decode =
             Just
                 (Json.Decode.map
@@ -586,11 +592,11 @@ colorPickerInternal keepOpen initial =
         , view = SingleView picker
         , encode =
             Just
-                (\{ red, green, blue } ->
+                (\() ->
                     Json.Encode.object
-                        [ ( "red", Json.Encode.float red )
-                        , ( "green", Json.Encode.float green )
-                        , ( "blue", Json.Encode.float blue )
+                        [ ( "red", Json.Encode.float initial.red )
+                        , ( "green", Json.Encode.float initial.green )
+                        , ( "blue", Json.Encode.float initial.blue )
                         ]
                 )
         , decode =
@@ -962,7 +968,7 @@ serialize : Knob a -> Json.Encode.Value
 serialize (Knob a) =
     case a.encode of
         Just encode ->
-            encode a.value
+            encode ()
 
         Nothing ->
             Json.Encode.null
