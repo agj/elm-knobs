@@ -468,8 +468,8 @@ stringInput initial =
         { value = initial
         , keepOpen = False
         , view = SingleView input
-        , encode = Nothing
-        , decode = Nothing
+        , encode = Just (\() -> Json.Encode.string initial)
+        , decode = Just (Json.Decode.string |> Json.Decode.map stringInput)
         }
 
 
