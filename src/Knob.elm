@@ -90,10 +90,10 @@ or other such techniques.
 
 -}
 
+import Hex
 import Html exposing (Html)
 import Html.Attributes
 import Html.Events
-import Internal.Utils as Utils
 import Json.Decode
 import Json.Encode
 
@@ -563,7 +563,10 @@ selectInternal keepOpen config =
 This is the type that the [`colorPicker`](#colorPicker) knob uses.
 -}
 type alias Color =
-    Utils.Color
+    { red : Float
+    , green : Float
+    , blue : Float
+    }
 
 
 {-| Creates a color picker input.
@@ -589,8 +592,8 @@ colorPickerInternal keepOpen initial =
         picker () =
             Html.input
                 [ Html.Attributes.type_ "color"
-                , Html.Attributes.value (Utils.colorToString initial)
-                , Html.Events.onInput (\colorString -> colorPickerInternal keepOpen (Utils.colorFromString initial colorString))
+                , Html.Attributes.value (colorToString initial)
+                , Html.Events.onInput (\colorString -> colorPickerInternal keepOpen (colorFromString initial colorString))
                 , Html.Events.onFocus (colorPickerInternal True initial)
                 , Html.Events.onBlur (colorPickerInternal False initial)
                 ]
@@ -1055,6 +1058,57 @@ deserialize val ((Knob a) as knob) =
 
 
 -- INTERNAL
+
+
+colorFromString : Color -> String -> Color
+colorFromString default colorString =
+    case String.uncons colorString of
+        Just ( '#', rest ) ->
+            let
+                parse : String -> Float
+                parse str =
+                    str
+                        |> Hex.fromString
+                        |> Result.withDefault 0
+                        |> (\n -> toFloat n / 255)
+            in
+            { red =
+                rest
+                    |> String.left 2
+                    |> parse
+            , green =
+                rest
+                    |> String.dropLeft 2
+                    |> String.left 2
+                    |> parse
+            , blue =
+                rest
+                    |> String.dropLeft 4
+                    |> String.left 2
+                    |> parse
+            }
+
+        _ ->
+            default
+
+
+colorToString : Color -> String
+colorToString color =
+    let
+        { red, green, blue } =
+            color
+
+        toHex : Float -> String
+        toHex num =
+            floor (num * 255)
+                |> Hex.toString
+                |> String.padLeft 2 '0'
+
+        colorHex : String
+        colorHex =
+            toHex red ++ toHex green ++ toHex blue
+    in
+    "#" ++ colorHex
 
 
 css : String
