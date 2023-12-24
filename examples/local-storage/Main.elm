@@ -16,20 +16,27 @@ main =
 
 
 type alias Model =
-    { knob : Knob Int }
+    { knob : Knob Controls }
+
+
+type alias Controls =
+    { bool : Bool
+    , int : Int
+    }
 
 
 type Msg
-    = KnobUpdated (Knob Int)
+    = KnobUpdated (Knob Controls)
 
 
+{-| We're using flags to bring the previously stored value from JavaScript land.
+-}
 init serializedKnob =
     ( { knob =
             -- Create the knob as normal.
-            Knob.int
-                { step = 1
-                , initial = 0
-                }
+            Knob.compose Controls
+                |> Knob.stack (Knob.boolCheckbox True)
+                |> Knob.stack (Knob.int { step = 1, initial = 0 })
                 -- As a final step, deserialize the saved value.
                 |> Knob.readSerialized serializedKnob
       }
@@ -54,13 +61,27 @@ update msg model =
 
 
 view model =
+    let
+        controls =
+            Knob.value model.knob
+    in
     { title = "elm-knobs LocalStorage example"
     , body =
-        [ Html.text "You may change this knob value: "
-        , Html.b []
-            [ Html.text (String.fromInt (Knob.value model.knob))
+        [ Html.p [] [ Html.text "You may change these knob values:" ]
+        , Html.p []
+            [ Html.b []
+                [ Html.text
+                    (if controls.bool then
+                        "True"
+
+                     else
+                        "False"
+                    )
+                , Html.text " "
+                , Html.text (String.fromInt controls.int)
+                ]
             ]
-        , Html.text ". After you refresh, it should remain the same."
+        , Html.p [] [ Html.text "After you refresh the page, the values should remain the same." ]
         , Knob.view KnobUpdated model.knob
         , Knob.styles
         ]

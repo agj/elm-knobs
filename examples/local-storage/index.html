@@ -11,22 +11,22 @@
     <script src="main.js"></script>
 
     <script>
-      // Retrieve the knob state from LocalStorage in JSON, and parse.
+      // Retrieve the knob state from sessionStorage in JSON, and parse.
       const knobStoredState = JSON.parse(
-        localStorage.getItem("elm-knobs-state") ?? "null"
+        sessionStorage.getItem("elm-knobs-state") ?? "null"
       );
 
       // Initialize the app.
       const app = Elm.Main.init({
         node: document.getElementById("elm"),
-        // Pass the stored state to `Main.init` via flags.
+        // Pass the stored state to Elm side's `Main.init` via flags.
         flags: knobStoredState,
       });
 
       // Subscribe to the `saveKnobState` port.
       app.ports.saveKnobState.subscribe((newKnobState) => {
-        // When the port is called, save the JSON encoded state to LocalStorage.
-        localStorage.setItem("elm-knobs-state", JSON.stringify(newKnobState));
+        // When the port is called, save the JSON encoded state to sessionStorage.
+        sessionStorage.setItem("elm-knobs-state", JSON.stringify(newKnobState));
       });
     </script>
   </body>
