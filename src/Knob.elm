@@ -9,6 +9,7 @@ module Knob exposing
     , compose, stack
     , label, stackLabel
     , map
+    , serialize, readSerialized
     , custom
     )
 
@@ -73,6 +74,16 @@ so let's make sure we do!
 @docs map
 
 
+# Serialization
+
+The value of your knobs will be reset every time you refresh the page,
+unless you persist their value somehow.
+Knob serialization is a way to make it easier to do this using the Web Storage API
+or other such techniques.
+
+@docs serialize, readSerialized
+
+
 # Custom knobs
 
 @docs custom
@@ -83,6 +94,8 @@ import Hex
 import Html exposing (Html)
 import Html.Attributes
 import Html.Events
+import Json.Decode
+import Json.Encode
 
 
 {-| Represents one user-interactive control mapped to one value of type `a`,
@@ -99,6 +112,8 @@ type alias Config a =
     { value : a
     , keepOpen : Bool
     , view : KnobView a
+    , encode : Maybe (() -> Json.Encode.Value)
+    , decode : Maybe (Json.Decode.Decoder (Knob a))
     }
 
 
@@ -128,6 +143,10 @@ float { step, initial } =
 floatInternal : Float -> String -> Knob Float
 floatInternal step initial =
     let
+        floatValue : Float
+        floatValue =
+            String.toFloat initial |> Maybe.withDefault 0
+
         input : () -> Html (Knob Float)
         input () =
             Html.input
@@ -139,9 +158,15 @@ floatInternal step initial =
                 []
     in
     Knob
-        { value = String.toFloat initial |> Maybe.withDefault 0
+        { value = floatValue
         , keepOpen = False
         , view = SingleView input
+        , encode = Just (\() -> Json.Encode.float floatValue)
+        , decode =
+            Just
+                (Json.Decode.map (String.fromFloat >> floatInternal step)
+                    Json.Decode.float
+                )
         }
 
 
@@ -190,6 +215,13 @@ floatConstrainedInternal ( rangeLow, rangeHigh ) step initial =
         { value = floatValue
         , keepOpen = False
         , view = SingleView input
+        , encode = Just (\() -> Json.Encode.float floatValue)
+        , decode =
+            Just
+                (Json.Decode.map
+                    (String.fromFloat >> floatConstrainedInternal ( rangeLow, rangeHigh ) step)
+                    Json.Decode.float
+                )
         }
 
 
@@ -239,6 +271,19 @@ floatSlider { range, step, initial } =
         { value = initial
         , keepOpen = False
         , view = SingleView input
+        , encode = Just (\() -> Json.Encode.float initial)
+        , decode =
+            Just
+                (Json.Decode.map
+                    (\decodedValue ->
+                        floatSlider
+                            { range = ( rangeLow, rangeHigh )
+                            , step = step
+                            , initial = decodedValue
+                            }
+                    )
+                    Json.Decode.float
+                )
         }
 
 
@@ -259,6 +304,10 @@ int { step, initial } =
 intInternal : Int -> String -> Knob Int
 intInternal step initial =
     let
+        intValue : Int
+        intValue =
+            String.toInt initial |> Maybe.withDefault 0
+
         input : () -> Html (Knob Int)
         input () =
             Html.input
@@ -270,9 +319,15 @@ intInternal step initial =
                 []
     in
     Knob
-        { value = String.toInt initial |> Maybe.withDefault 0
+        { value = intValue
         , keepOpen = False
         , view = SingleView input
+        , encode = Just (\() -> Json.Encode.int intValue)
+        , decode =
+            Just
+                (Json.Decode.map (String.fromInt >> intInternal step)
+                    Json.Decode.int
+                )
         }
 
 
@@ -320,6 +375,13 @@ intConstrainedInternal ( rangeLow, rangeHigh ) step initial =
         { value = intValue
         , keepOpen = False
         , view = SingleView input
+        , encode = Just (\() -> Json.Encode.int intValue)
+        , decode =
+            Just
+                (Json.Decode.map
+                    (String.fromInt >> intConstrainedInternal ( rangeLow, rangeHigh ) step)
+                    Json.Decode.int
+                )
         }
 
 
@@ -369,6 +431,19 @@ intSlider { range, step, initial } =
         { value = initial
         , keepOpen = False
         , view = SingleView input
+        , encode = Just (\() -> Json.Encode.int initial)
+        , decode =
+            Just
+                (Json.Decode.map
+                    (\decodedValue ->
+                        intSlider
+                            { range = ( rangeLow, rangeHigh )
+                            , step = step
+                            , initial = decodedValue
+                            }
+                    )
+                    Json.Decode.int
+                )
         }
 
 
@@ -391,6 +466,8 @@ boolCheckbox initial =
         { value = initial
         , keepOpen = False
         , view = SingleView checkbox
+        , encode = Just (\() -> Json.Encode.bool initial)
+        , decode = Just (Json.Decode.map boolCheckbox Json.Decode.bool)
         }
 
 
@@ -472,6 +549,15 @@ selectInternal keepOpen config =
         { value = config.initial
         , keepOpen = keepOpen
         , view = SingleView selectElement
+        , encode = Just (\() -> config.initial |> config.toString |> Json.Encode.string)
+        , decode =
+            Just
+                (Json.Decode.map
+                    (\decodedValue ->
+                        selectInternal keepOpen { config | initial = config.fromString decodedValue }
+                    )
+                    Json.Decode.string
+                )
         }
 
 
@@ -519,6 +605,23 @@ colorPickerInternal keepOpen initial =
         { value = initial
         , keepOpen = keepOpen
         , view = SingleView picker
+        , encode =
+            Just
+                (\() ->
+                    Json.Encode.object
+                        [ ( "red", Json.Encode.float initial.red )
+                        , ( "green", Json.Encode.float initial.green )
+                        , ( "blue", Json.Encode.float initial.blue )
+                        ]
+                )
+        , decode =
+            Just
+                (Json.Decode.map3
+                    (\red green blue -> colorPickerInternal keepOpen { red = red, green = green, blue = blue })
+                    (Json.Decode.field "red" Json.Decode.float)
+                    (Json.Decode.field "green" Json.Decode.float)
+                    (Json.Decode.field "blue" Json.Decode.float)
+                )
         }
 
 
@@ -612,6 +715,9 @@ This means that your knob will need to take a `String` as its initial value.
                         []
             }
 
+Lastly, one final caveat to take into consideration when writing custom knobs is that
+they are not serializable using [`serialize`](Knob#serialize).
+
 -}
 custom :
     { value : a
@@ -623,6 +729,8 @@ custom config =
         { value = config.value
         , keepOpen = False
         , view = SingleView config.view
+        , encode = Nothing
+        , decode = Nothing
         }
 
 
@@ -750,6 +858,13 @@ compose constructor =
         { value = constructor
         , keepOpen = False
         , view = StackView []
+        , encode = Just (\_ -> Json.Encode.null)
+        , decode =
+            Just
+                (Json.Decode.map
+                    (\_ -> compose constructor)
+                    (Json.Decode.succeed ())
+                )
         }
 
 
@@ -778,18 +893,33 @@ stack (Knob config) (Knob pipe) =
 
         stackedView : KnobView b
         stackedView =
-            (viewToList pipe.view
+            [ viewToList pipe.view
                 |> List.map (stackView (\newPipe -> stack (Knob config) newPipe))
-            )
-                ++ (viewToList config.view
-                        |> List.map (stackView (\new -> stack new (Knob pipe)))
-                   )
+            , viewToList config.view
+                |> List.map (stackView (\new -> stack new (Knob pipe)))
+            ]
+                |> List.concat
                 |> StackView
+
+        encode : () -> Json.Encode.Value
+        encode () =
+            Json.Encode.object
+                [ ( "cur", Maybe.withDefault (always Json.Encode.null) config.encode () )
+                , ( "prev", Maybe.withDefault (always Json.Encode.null) pipe.encode () )
+                ]
+
+        decode : Json.Decode.Decoder (Knob b)
+        decode =
+            Json.Decode.map2 (\new newPipe -> stack new newPipe)
+                (Json.Decode.field "cur" (Maybe.withDefault (Json.Decode.fail "err") config.decode))
+                (Json.Decode.field "prev" (Maybe.withDefault (Json.Decode.fail "err") pipe.decode))
     in
     Knob
         { value = pipe.value config.value
         , keepOpen = pipe.keepOpen || config.keepOpen
         , view = stackedView
+        , encode = Just encode
+        , decode = Just decode
         }
 
 
@@ -819,6 +949,8 @@ label text (Knob config) =
         { value = config.value
         , keepOpen = config.keepOpen
         , view = SingleView labeled
+        , encode = config.encode
+        , decode = config.decode
         }
 
 
@@ -859,7 +991,74 @@ map mapper (Knob a) =
         { value = mapper a.value
         , keepOpen = a.keepOpen
         , view = SingleView (\() -> viewInternal (map mapper) a)
+        , encode = a.encode
+        , decode =
+            a.decode
+                |> Maybe.map (Json.Decode.map (map mapper))
         }
+
+
+
+-- SERIALIZATION
+
+
+{-| Convert a knob's value into an [`elm/json`](/packages/elm/json/) `Value`.
+You can then send this out to JavaScript via a port,
+and store it using the browser's [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API),
+for example. You'll want to use in your update function whenever you get
+an updated knob.
+
+    port saveKnobState : Json.Encode.Value -> Cmd msg
+
+    update msg model =
+        case msg of
+            KnobUpdated updatedKnob ->
+                ( { model | knob = updatedKnob }
+                , saveKnobState (Knob.serialize updatedKnob)
+                )
+
+-}
+serialize : Knob a -> Json.Encode.Value
+serialize (Knob a) =
+    case a.encode of
+        Just encode ->
+            encode ()
+
+        Nothing ->
+            Json.Encode.null
+
+
+{-| After you have used [`serialize`](Knob#serialize) to store your knob's value somewhere,
+the way to get that value back into the knob is this function.
+You'll probably want to use it on `init` with the serialized data you get
+from flags.
+
+If this function fails to interpret the passed value,
+the knob will just retain its initial value.
+Also, it works with single, [composed](Knob#compose) or [mapped](Knob#map) knobs,
+however, it sadly won't work for [custom](Knob#custom) knobs, so be warned.
+
+Notice that you need to create your knob with initial values normally,
+and as a last step use this function to update it with the serialized value.
+
+    init serializedKnob =
+        ( { knob =
+                Knob.int { step = 1, init = 0 }
+                    |> readSerialized serializedKnob
+          }
+        , Cmd.none
+        )
+
+-}
+readSerialized : Json.Encode.Value -> Knob a -> Knob a
+readSerialized val ((Knob a) as knob) =
+    case a.decode of
+        Just decode ->
+            Json.Decode.decodeValue decode val
+                |> Result.withDefault knob
+
+        Nothing ->
+            knob
 
 
 

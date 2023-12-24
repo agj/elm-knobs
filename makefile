@@ -20,6 +20,14 @@ interactive-docs-deploy: interactive-docs-build install ## Deploy interactive do
 install:
 	pnpm install
 
+validate: check-build test check-docs lint check-examples validate-version ## Run all tests, checks and lint.
+
+test: ## Run tests.
+	elm-test
+
+test-watch: ## Run tests and watch for changes.
+	elm-test --watch
+
 lint: ## Check for formatting errors.
 	elm-format src --validate
 	elm-review src
@@ -28,20 +36,14 @@ lint-fix: ## Automatically fix linting errors.
 	elm-format src --yes
 	elm-review src --fix
 
-test: ## Run tests.
-	@echo No tests yet.
-# elm-test
+check-build: ## Make sure it compiles.
+	elm make --output /dev/null
 
-validate: validate-build test validate-docs validate-examples lint validate-version ## Run all validations.
+check-examples: ## Make sure the examples compile.
+	$$SHELL scripts/check-examples.sh
 
-validate-build: ## Make sure it compiles.
-	elm make --output=/dev/null
-
-validate-docs: ## Make sure the docs can be generated.
+check-docs: ## Make sure the docs can be generated.
 	elm-doc-preview --output /dev/null
-
-validate-examples: ## Make sure the examples compile.
-	cd examples && elm make ./src/*Example.elm --output=/dev/null
 
 validate-version: ## Make sure the package version is consistent across.
 	bash ./scripts/validate-version.sh
