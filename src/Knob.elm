@@ -840,8 +840,13 @@ compose constructor =
         { value = constructor
         , keepOpen = False
         , view = StackView []
-        , encode = Nothing
-        , decode = Nothing
+        , encode = Just (\_ -> Json.Encode.null)
+        , decode =
+            Just
+                (Json.Decode.map
+                    (\_ -> compose constructor)
+                    (Json.Decode.succeed ())
+                )
         }
 
 
@@ -882,7 +887,18 @@ stack (Knob config) (Knob pipe) =
         { value = pipe.value config.value
         , keepOpen = pipe.keepOpen || config.keepOpen
         , view = stackedView
-        , encode = Nothing
+        , encode =
+            Just
+                (\() ->
+                    let
+                        orNull =
+                            Maybe.withDefault (always Json.Encode.null)
+                    in
+                    Json.Encode.object
+                        [ ( "cur", orNull config.encode () )
+                        , ( "prev", orNull pipe.encode () )
+                        ]
+                )
         , decode = Nothing
         }
 

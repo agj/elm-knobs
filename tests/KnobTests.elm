@@ -35,6 +35,18 @@ transitiveEqualityTests =
         , Test.fuzz2 fuzzColor fuzzColor "colorPicker" <|
             expectTransitiveEquality
                 Knob.colorPicker
+        , Test.fuzz2
+            (Fuzz.triple Fuzz.int Fuzz.float fuzzColor)
+            (Fuzz.triple Fuzz.int Fuzz.float fuzzColor)
+            "compose"
+          <|
+            expectTransitiveEquality
+                (\( int, float, color ) ->
+                    Knob.compose (\a b c -> ( a, b, c ))
+                        |> Knob.stack (Knob.int { step = 1, initial = int })
+                        |> Knob.stack (Knob.float { step = 1, initial = float })
+                        |> Knob.stack (Knob.colorPicker color)
+                )
         ]
 
 
