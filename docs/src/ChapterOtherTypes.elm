@@ -9,6 +9,7 @@ chapter =
     ElmBook.Chapter.chapter "Other types"
         |> ElmBook.Chapter.withStatefulComponentList
             [ knobDocToComponent stringInputDoc
+            , knobDocToComponent stringTextareaDoc
             , knobDocToComponent boolCheckboxDoc
             , knobDocToComponent selectDoc
             , knobDocToComponent colorPickerDoc
@@ -23,6 +24,8 @@ Knobs for other types.
 
 $stringInput$
 
+$stringTextarea$
+
 $boolCheckbox$
 
 $select$
@@ -30,6 +33,7 @@ $select$
 $colorPicker$
 """
         |> String.replace "$stringInput$" (KnobDoc.toTemplate stringInputDoc)
+        |> String.replace "$stringTextarea$" (KnobDoc.toTemplate stringTextareaDoc)
         |> String.replace "$boolCheckbox$" (KnobDoc.toTemplate boolCheckboxDoc)
         |> String.replace "$select$" (KnobDoc.toTemplate selectDoc)
         |> String.replace "$colorPicker$" (KnobDoc.toTemplate colorPickerDoc)
@@ -37,6 +41,7 @@ $colorPicker$
 
 type alias Model =
     { stringInput : Knob String
+    , stringTextarea : Knob String
     , boolCheckbox : Knob Bool
     , select : Knob Vegetable
     , colorPicker : Knob Knob.Color
@@ -46,6 +51,7 @@ type alias Model =
 init : Model
 init =
     { stringInput = stringInputDoc.init_
+    , stringTextarea = stringTextareaDoc.init_
     , boolCheckbox = boolCheckboxDoc.init_
     , select = selectDoc.init_
     , colorPicker = colorPickerDoc.init_
@@ -61,15 +67,40 @@ knobDocToComponent =
 
 -- Knob docs
 
+
 stringInputDoc : KnobDoc String Model
 stringInputDoc =
     { name = "stringInput"
-    , init_ = Knob.stringInput "Enter text here" 
+    , init_ = Knob.stringInput "Enter text here"
     , code = "Knob.stringInput \"Enter text here\""
     , get = \model -> model.stringInput
     , set = \model new -> { model | stringInput = new }
     , toString = identity
     }
+
+
+stringTextareaDoc : KnobDoc String Model
+stringTextareaDoc =
+    { name = "stringTextarea"
+    , init_ =
+        Knob.stringTextarea
+            { cols = Just 40
+            , rows = Just 5
+            , initial = "Enter text here"
+            }
+    , code =
+        """
+        Knob.stringTextarea
+            { cols = Just 40
+            , rows = Just 5
+            , initial = "Enter text here"
+            }
+        """
+    , get = \model -> model.stringTextarea
+    , set = \model new -> { model | stringTextarea = new }
+    , toString = identity
+    }
+
 
 boolCheckboxDoc : KnobDoc Bool Model
 boolCheckboxDoc =

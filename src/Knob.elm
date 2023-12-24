@@ -11,7 +11,7 @@ module Knob exposing
     , map
     , serialize, readSerialized
     , custom
-    , stringInput
+    , stringInput, stringTextarea
     )
 
 {-| Let's get started creating a control panel full of “knobs” to interactively tweak values in our application.
@@ -464,6 +464,37 @@ stringInput initial =
         { value = initial
         , keepOpen = False
         , view = SingleView input
+        , encode = Nothing
+        , decode = Nothing
+        }
+
+
+stringTextarea : { cols : Maybe Int, rows : Maybe Int, initial : String } -> Knob String
+stringTextarea config =
+    let
+        textarea : () -> Html (Knob String)
+        textarea () =
+            Html.textarea
+                [ case config.rows of
+                    Just rows ->
+                        Html.Attributes.rows rows
+
+                    Nothing ->
+                        noAttribute
+                , case config.cols of
+                    Just cols ->
+                        Html.Attributes.cols cols
+
+                    Nothing ->
+                        noAttribute
+                , Html.Events.onInput (\val -> stringTextarea { config | initial = val })
+                ]
+                [ Html.text config.initial ]
+    in
+    Knob
+        { value = config.initial
+        , keepOpen = False
+        , view = SingleView textarea
         , encode = Nothing
         , decode = Nothing
         }
@@ -1136,6 +1167,11 @@ colorToString color =
             toHex red ++ toHex green ++ toHex blue
     in
     "#" ++ colorHex
+
+
+noAttribute : Html.Attribute msg
+noAttribute =
+    Html.Attributes.classList []
 
 
 css : String
