@@ -9,8 +9,8 @@ module Knob exposing
     , compose, stack
     , label, stackLabel
     , map
+    , serialize, deserialize
     , custom
-    , deserialize, serialize
     )
 
 {-| Let's get started creating a control panel full of “knobs” to interactively tweak values in our application.
@@ -72,6 +72,16 @@ so let's make sure we do!
 # Transformation
 
 @docs map
+
+
+# Serialization
+
+The value of your knobs will be reset every time you refresh the page,
+unless you persist their value somehow.
+Knob serialization is a way to make it easier to do this using the Web Storage API
+or other such techniques.
+
+@docs serialize, deserialize
 
 
 # Custom knobs
@@ -700,6 +710,9 @@ This means that your knob will need to take a `String` as its initial value.
                         []
             }
 
+Lastly, one final caveat to take into consideration when writing custom knobs is that
+they are not serializable using [`serialize`](Knob#serialize).
+
 -}
 custom :
     { value : a
@@ -984,6 +997,22 @@ map mapper (Knob a) =
 -- SERIALIZATION
 
 
+{-| Convert a knob's value into an [`elm/json`](/packages/elm/json/) `Value`.
+You can then send this out to JavaScript via a port,
+and store it using the browser's [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API),
+for example. You'll want to use in your update function whenever you get
+an updated knob.
+
+    port saveKnobState : Json.Encode.Value -> Cmd msg
+
+    update msg model =
+        case msg of
+            KnobUpdated updatedKnob ->
+                ( { model | knob = updatedKnob }
+                , saveKnobState (Knob.serialize updatedKnob)
+                )
+
+-}
 serialize : Knob a -> Json.Encode.Value
 serialize (Knob a) =
     case a.encode of
@@ -994,6 +1023,25 @@ serialize (Knob a) =
             Json.Encode.null
 
 
+{-| After you have used [`serialize`](Knob#serialize) to store your knob's value somewhere,
+the way to get that value back into the knob is this function.
+You'll probably want to use it on `init` with the serialized data you get
+from flags.
+
+If this function fails to interpret the passed value,
+the knob will just retain its initial value.
+Also, it works with single, [composed](Knob#compose) or [mapped](Knob#map) knobs,
+however, it sadly won't work for [custom](Knob#custom) knobs, so be warned.
+
+    init serializedKnob =
+        ( { knob =
+                Knob.int { step = 1, init = 0 }
+                    |> deserialize serializedKnob
+          }
+        , Cmd.none
+        )
+
+-}
 deserialize : Json.Encode.Value -> Knob a -> Knob a
 deserialize val ((Knob a) as knob) =
     case a.decode of
