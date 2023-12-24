@@ -870,12 +870,12 @@ stack (Knob config) (Knob pipe) =
 
         stackedView : KnobView b
         stackedView =
-            (viewToList pipe.view
+            [ viewToList pipe.view
                 |> List.map (stackView (\newPipe -> stack (Knob config) newPipe))
-            )
-                ++ (viewToList config.view
-                        |> List.map (stackView (\new -> stack new (Knob pipe)))
-                   )
+            , viewToList config.view
+                |> List.map (stackView (\new -> stack new (Knob pipe)))
+            ]
+                |> List.concat
                 |> StackView
     in
     Knob
