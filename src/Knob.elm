@@ -468,8 +468,8 @@ stringInput initial =
         { value = initial
         , keepOpen = False
         , view = SingleView input
-        , encode = Nothing
-        , decode = Nothing
+        , encode = Just (\() -> Json.Encode.string initial)
+        , decode = Just (Json.Decode.map stringInput Json.Decode.string)
         }
 
 
@@ -497,8 +497,13 @@ stringTextarea config =
         { value = config.initial
         , keepOpen = False
         , view = SingleView textarea
-        , encode = Nothing
-        , decode = Nothing
+        , encode = Just (\() -> Json.Encode.string config.initial)
+        , decode =
+            Just
+                (Json.Decode.map
+                    (\decodedValue -> stringTextarea { config | initial = decodedValue })
+                    Json.Decode.string
+                )
         }
 
 

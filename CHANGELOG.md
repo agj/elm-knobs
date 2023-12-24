@@ -2,6 +2,18 @@
 
 Details on all elm-knobs releases. The format is roughly based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## Unreleased
+
+### Added
+
+- Knobs: `stringInput`, `stringTextarea`.
+- Knob serialization with `serialize` and `readSerialized`.
+
+### Other
+
+- Added a serialization example using the Web Storage API.
+- Reorganized the examples.
+
 ## [1.1.0] (2023-07-16)
 
 [1.1.0]: https://github.com/agj/elm-knobs/tree/1.1.0

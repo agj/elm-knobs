@@ -27,6 +27,12 @@ transitiveEqualityTests =
         , Test.fuzz2 (Fuzz.intRange -1000 1000) (Fuzz.intRange -1000 1000) "intSlider" <|
             expectTransitiveEquality
                 (\int -> Knob.intSlider { step = 1, range = ( -1000, 1000 ), initial = int })
+        , Test.fuzz2 Fuzz.string Fuzz.string "stringInput" <|
+            expectTransitiveEquality
+                Knob.stringInput
+        , Test.fuzz2 Fuzz.string Fuzz.string "stringTextarea" <|
+            expectTransitiveEquality
+                (\string -> Knob.stringTextarea { columns = Nothing, rows = Nothing, initial = string })
         , Test.fuzz2 Fuzz.bool Fuzz.bool "boolCheckbox" <|
             expectTransitiveEquality
                 Knob.boolCheckbox
@@ -89,6 +95,12 @@ roundTripSerializationTests =
         , Test.fuzz2 (Fuzz.intRange -9999 9999) (Fuzz.intRange -9999 9999) "intSlider" <|
             expectRoundTripSerializationToWork
                 (\int -> Knob.intSlider { step = 1, range = ( -9999, 9999 ), initial = int })
+        , Test.fuzz2 Fuzz.string Fuzz.string "stringInput" <|
+            expectRoundTripSerializationToWork
+                Knob.stringInput
+        , Test.fuzz2 Fuzz.string Fuzz.string "stringTextarea" <|
+            expectRoundTripSerializationToWork
+                (\string -> Knob.stringTextarea { columns = Nothing, rows = Nothing, initial = string })
         , Test.fuzz2 Fuzz.bool Fuzz.bool "boolCheckbox" <|
             expectRoundTripSerializationToWork
                 Knob.boolCheckbox
