@@ -48,6 +48,12 @@ transitiveEqualityTests =
                         |> Knob.stack (Knob.float { step = 1, initial = float })
                         |> Knob.stack (Knob.colorPicker color)
                 )
+        , Test.fuzz2 Fuzz.int Fuzz.int "map" <|
+            expectTransitiveEquality
+                (\int ->
+                    Knob.int { step = 1, initial = int }
+                        |> Knob.map String.fromInt
+                )
         ]
 
 
@@ -152,7 +158,7 @@ vegetableFromString string =
 -- EXPECTATIONS
 
 
-expectTransitiveEquality : (a -> Knob a) -> a -> a -> Expectation
+expectTransitiveEquality : (a -> Knob b) -> a -> a -> Expectation
 expectTransitiveEquality toKnob value1 value2 =
     (Knob.serialize (toKnob value1) == Knob.serialize (toKnob value2))
         |> Expect.equal (value1 == value2)

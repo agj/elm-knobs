@@ -973,7 +973,7 @@ map mapper (Knob a) =
         { value = mapper a.value
         , keepOpen = a.keepOpen
         , view = SingleView (\() -> viewInternal (map mapper) a)
-        , encode = Nothing
+        , encode = a.encode
         , decode = Nothing
         }
 
