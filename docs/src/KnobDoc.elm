@@ -49,11 +49,11 @@ toTemplate knobDoc =
 
 📦 [See it in the package docs.](https://package.elm-lang.org/packages/agj/elm-knobs/$elmKnobsVersion$/Knob#$knobName$)
 
+<component with-label="$knobName$" />
+
 ```elm
 $code$
 ```
-
-<component with-label="$knobName$" />
 """
         |> String.replace "$knobName$" knobDoc.name
         |> String.replace "$code$" (knobDoc.code |> String.Extra.unindent |> String.trim)

@@ -8,7 +8,8 @@ import KnobDoc exposing (KnobDoc)
 chapter =
     ElmBook.Chapter.chapter "Other types"
         |> ElmBook.Chapter.withStatefulComponentList
-            [ knobDocToComponent boolCheckboxDoc
+            [ knobDocToComponent stringInputDoc
+            , knobDocToComponent boolCheckboxDoc
             , knobDocToComponent selectDoc
             , knobDocToComponent colorPickerDoc
             ]
@@ -20,26 +21,32 @@ content =
     """
 Knobs for other types.
 
+$stringInput$
+
 $boolCheckbox$
 
 $select$
 
 $colorPicker$
 """
+        |> String.replace "$stringInput$" (KnobDoc.toTemplate stringInputDoc)
         |> String.replace "$boolCheckbox$" (KnobDoc.toTemplate boolCheckboxDoc)
         |> String.replace "$select$" (KnobDoc.toTemplate selectDoc)
         |> String.replace "$colorPicker$" (KnobDoc.toTemplate colorPickerDoc)
 
 
 type alias Model =
-    { boolCheckbox : Knob Bool
+    { stringInput : Knob String
+    , boolCheckbox : Knob Bool
     , select : Knob Vegetable
     , colorPicker : Knob Knob.Color
     }
 
 
+init : Model
 init =
-    { boolCheckbox = boolCheckboxDoc.init_
+    { stringInput = stringInputDoc.init_
+    , boolCheckbox = boolCheckboxDoc.init_
     , select = selectDoc.init_
     , colorPicker = colorPickerDoc.init_
     }
@@ -54,6 +61,15 @@ knobDocToComponent =
 
 -- Knob docs
 
+stringInputDoc : KnobDoc String Model
+stringInputDoc =
+    { name = "stringInput"
+    , init_ = Knob.stringInput "Enter text here" 
+    , code = "Knob.stringInput \"Enter text here\""
+    , get = \model -> model.stringInput
+    , set = \model new -> { model | stringInput = new }
+    , toString = identity
+    }
 
 boolCheckboxDoc : KnobDoc Bool Model
 boolCheckboxDoc =

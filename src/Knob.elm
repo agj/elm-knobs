@@ -11,6 +11,7 @@ module Knob exposing
     , map
     , serialize, readSerialized
     , custom
+    , stringInput
     )
 
 {-| Let's get started creating a control panel full of “knobs” to interactively tweak values in our application.
@@ -444,6 +445,27 @@ intSlider { range, step, initial } =
                     )
                     Json.Decode.int
                 )
+        }
+
+
+stringInput : String -> Knob String
+stringInput initial =
+    let
+        input : () -> Html (Knob String)
+        input () =
+            Html.input
+                [ Html.Attributes.type_ "text"
+                , Html.Attributes.value initial
+                , Html.Events.onInput stringInput
+                ]
+                []
+    in
+    Knob
+        { value = initial
+        , keepOpen = False
+        , view = SingleView input
+        , encode = Nothing
+        , decode = Nothing
         }
 
 
