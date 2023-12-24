@@ -65,7 +65,7 @@ view model =
         controls =
             Knob.value model.knob
     in
-    { title = "elm-knobs LocalStorage example"
+    { title = "elm-knobs Web Storage API example"
     , body =
         [ Html.p [] [ Html.text "You may change these knob values:" ]
         , Html.p []
