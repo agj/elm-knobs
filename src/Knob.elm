@@ -475,18 +475,12 @@ stringTextarea config =
         textarea : () -> Html (Knob String)
         textarea () =
             Html.textarea
-                [ case config.rows of
-                    Just rows ->
-                        Html.Attributes.rows rows
-
-                    Nothing ->
-                        noAttribute
-                , case config.cols of
-                    Just cols ->
-                        Html.Attributes.cols cols
-
-                    Nothing ->
-                        noAttribute
+                [ config.rows
+                    |> Maybe.map Html.Attributes.rows
+                    |> Maybe.withDefault noAttribute
+                , config.cols
+                    |> Maybe.map Html.Attributes.cols
+                    |> Maybe.withDefault noAttribute
                 , Html.Events.onInput (\val -> stringTextarea { config | initial = val })
                 ]
                 [ Html.text config.initial ]
