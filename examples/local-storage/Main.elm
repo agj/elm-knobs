@@ -31,7 +31,7 @@ init serializedKnob =
                 , initial = 0
                 }
                 -- As a final step, deserialize the saved value.
-                |> Knob.deserialize serializedKnob
+                |> Knob.readSerialized serializedKnob
       }
     , Cmd.none
     )

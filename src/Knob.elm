@@ -9,7 +9,7 @@ module Knob exposing
     , compose, stack
     , label, stackLabel
     , map
-    , serialize, deserialize
+    , serialize, readSerialized
     , custom
     )
 
@@ -81,7 +81,7 @@ unless you persist their value somehow.
 Knob serialization is a way to make it easier to do this using the Web Storage API
 or other such techniques.
 
-@docs serialize, deserialize
+@docs serialize, readSerialized
 
 
 # Custom knobs
@@ -1036,17 +1036,20 @@ the knob will just retain its initial value.
 Also, it works with single, [composed](Knob#compose) or [mapped](Knob#map) knobs,
 however, it sadly won't work for [custom](Knob#custom) knobs, so be warned.
 
+Notice that you need to create your knob with initial values normally,
+and as a last step use this function to update it with the serialized value.
+
     init serializedKnob =
         ( { knob =
                 Knob.int { step = 1, init = 0 }
-                    |> deserialize serializedKnob
+                    |> readSerialized serializedKnob
           }
         , Cmd.none
         )
 
 -}
-deserialize : Json.Encode.Value -> Knob a -> Knob a
-deserialize val ((Knob a) as knob) =
+readSerialized : Json.Encode.Value -> Knob a -> Knob a
+readSerialized val ((Knob a) as knob) =
     case a.decode of
         Just decode ->
             Json.Decode.decodeValue decode val

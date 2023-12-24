@@ -211,7 +211,7 @@ expectMappedRoundTripSerializationToWork mapper toKnob value1 value2 =
         Expect.all
             [ \_ ->
                 (toKnob value1
-                    |> Knob.deserialize serializedValue2
+                    |> Knob.readSerialized serializedValue2
                     |> Knob.value
                 )
                     |> Expect.equal (mapper value2)
@@ -241,7 +241,7 @@ expectFloatRoundTripSerializationToWork toKnob value1 value2 =
         Expect.all
             [ \_ ->
                 (toKnob value1
-                    |> Knob.deserialize serializedValue2
+                    |> Knob.readSerialized serializedValue2
                     |> Knob.value
                 )
                     |> Expect.within (Expect.Absolute 0.0000001) value2
