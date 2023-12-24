@@ -74,3 +74,5 @@ then
   echo "Error: There is no interactive documentation for the current version in Git HEAD!"
   exit 1
 fi
+
+echo "All OK!"
