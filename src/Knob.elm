@@ -974,7 +974,9 @@ map mapper (Knob a) =
         , keepOpen = a.keepOpen
         , view = SingleView (\() -> viewInternal (map mapper) a)
         , encode = a.encode
-        , decode = Nothing
+        , decode =
+            a.decode
+                |> Maybe.map (Json.Decode.map (map mapper))
         }
 
 

@@ -98,6 +98,13 @@ roundTripSerializationTests =
                         |> Knob.stack (Knob.float { step = 1, initial = float })
                         |> Knob.stack (Knob.colorPicker color)
                 )
+        , Test.fuzz2 Fuzz.int Fuzz.int "map" <|
+            expectMappedRoundTripSerializationToWork
+                String.fromInt
+                (\int ->
+                    Knob.int { step = 1, initial = int }
+                        |> Knob.map String.fromInt
+                )
         ]
 
 
@@ -165,7 +172,12 @@ expectTransitiveEquality toKnob value1 value2 =
 
 
 expectRoundTripSerializationToWork : (a -> Knob a) -> a -> a -> Expectation
-expectRoundTripSerializationToWork toKnob value1 value2 =
+expectRoundTripSerializationToWork =
+    expectMappedRoundTripSerializationToWork identity
+
+
+expectMappedRoundTripSerializationToWork : (a -> b) -> (a -> Knob b) -> a -> a -> Expectation
+expectMappedRoundTripSerializationToWork mapper toKnob value1 value2 =
     if value1 /= value2 then
         let
             serializedValue2 =
@@ -178,15 +190,15 @@ expectRoundTripSerializationToWork toKnob value1 value2 =
                     |> Knob.deserialize serializedValue2
                     |> Knob.value
                 )
-                    |> Expect.equal value2
+                    |> Expect.equal (mapper value2)
 
             -- Sanity checks.
             , \_ ->
                 (toKnob value1 |> Knob.value)
-                    |> Expect.equal value1
+                    |> Expect.equal (mapper value1)
             , \_ ->
                 (toKnob value2 |> Knob.value)
-                    |> Expect.equal value2
+                    |> Expect.equal (mapper value2)
             ]
             ()
 
