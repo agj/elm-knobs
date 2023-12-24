@@ -1,4 +1,4 @@
-module KnobTests exposing (..)
+module SerializationTests exposing (..)
 
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer)
