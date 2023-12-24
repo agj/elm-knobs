@@ -2,7 +2,12 @@
 
 [![Elm package](https://img.shields.io/elm-package/v/agj/elm-knobs?style=flat-square&logo=elm&labelColor=white&color=%231293D8)](https://package.elm-lang.org/packages/agj/elm-knobs/latest)
 
-A way to easily tweak values interactively within a running Elm app, using a panel of input controls that map to those values, which we call “knobs” here. While not in use, they recede to an icon in the lower-left corner.
+A way to easily tweak values interactively within a running Elm app,
+using a panel of input controls that map to those values, which we call “knobs” here.
+While not in use, they recede to an icon in the lower-left corner.
+The library supports easy serialization, enabling you to persist the values even after a page refresh by, for example, interfacing with the [Web Storage API][webstorage].
+
+[webstorage]: https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API
 
 ![Example of elm-knobs in action](https://raw.githubusercontent.com/agj/elm-knobs/d2167d12ded679174e6678b2de29b9132ffac104/examples/polygon-example.png)
 
@@ -15,7 +20,11 @@ Since its intended use case is aiding the development process and facilitating r
 visual customization is not a priority,
 but you can still define your own CSS styles to customize how it looks.
 
-Here's a very basic yet complete example of using elm-knobs:
+Below is a very basic yet complete example of using elm-knobs.
+It is not what is shown at the top of this page, though,
+but you can [find that and other examples in the Github repo][examples].
+
+[examples]: https://github.com/agj/elm-knobs/blob/1.1.0/examples/
 
 ```elm
 module BasicExample exposing (main)
@@ -71,13 +80,6 @@ view model =
         , Knob.styles
         ]
 ```
-
-The picture at the top of this page is a more involved example, though.
-You can take a look at it in the [Github repo][in-github],
-or [play with it directly in your browser][in-elm-editor] thanks to the magic of Elm Editor (opens latest version of the code.)
-
-[in-github]: https://github.com/agj/elm-knobs/blob/1.1.0/examples/src/
-[in-elm-editor]: https://elm-editor.com/?project-state=https://github.com/agj/elm-knobs
 
 ## Not exactly what you were looking for?
 
