@@ -2,6 +2,7 @@ module Knob exposing
     ( Knob
     , float, floatConstrained, floatSlider
     , int, intConstrained, intSlider
+    , stringInput, stringTextarea
     , boolCheckbox
     , select, Color, colorPicker
     , view, styles
@@ -11,7 +12,6 @@ module Knob exposing
     , map
     , serialize, readSerialized
     , custom
-    , stringInput, stringTextarea
     )
 
 {-| Let's get started creating a control panel full of “knobs” to interactively tweak values in our application.
@@ -36,6 +36,7 @@ The following are the functions you can use to create basic knobs that map to a 
 
 @docs float, floatConstrained, floatSlider
 @docs int, intConstrained, intSlider
+@docs stringInput, stringTextarea
 @docs boolCheckbox
 @docs select, Color, colorPicker
 
@@ -448,6 +449,9 @@ intSlider { range, step, initial } =
         }
 
 
+{-| Creates a small, single-line input field knob for entering text.
+`initial` is the text it will be prefilled with.
+-}
 stringInput : String -> Knob String
 stringInput initial =
     let
@@ -469,7 +473,11 @@ stringInput initial =
         }
 
 
-stringTextarea : { cols : Maybe Int, rows : Maybe Int, initial : String } -> Knob String
+{-| Creates a multiline input field knob for entering text.
+You can specify the dimensions of this control by setting the amount of `columns` and `rows`.
+`initial` is the text it will be prefilled with.
+-}
+stringTextarea : { columns : Maybe Int, rows : Maybe Int, initial : String } -> Knob String
 stringTextarea config =
     let
         textarea : () -> Html (Knob String)
@@ -478,7 +486,7 @@ stringTextarea config =
                 [ config.rows
                     |> Maybe.map Html.Attributes.rows
                     |> Maybe.withDefault noAttribute
-                , config.cols
+                , config.columns
                     |> Maybe.map Html.Attributes.cols
                     |> Maybe.withDefault noAttribute
                 , Html.Events.onInput (\val -> stringTextarea { config | initial = val })

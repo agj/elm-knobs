@@ -84,14 +84,14 @@ stringTextareaDoc =
     { name = "stringTextarea"
     , init_ =
         Knob.stringTextarea
-            { cols = Just 40
+            { columns = Just 40
             , rows = Just 5
             , initial = "Enter text here"
             }
     , code =
         """
         Knob.stringTextarea
-            { cols = Just 40
+            { columns = Just 40
             , rows = Just 5
             , initial = "Enter text here"
             }
