@@ -23,12 +23,14 @@ type alias ProcessedKnobDoc sharedModel =
     { name : String
     , code : String
     , component : ( String, sharedModel -> Html (Msg sharedModel) )
-    , template : String
     }
 
 
 type alias Templatable a =
-    { a | name : String, code : String }
+    { a
+        | name : String
+        , code : String
+    }
 
 
 process :
@@ -40,7 +42,6 @@ process getModel setModel knobDoc =
     { name = knobDoc.name
     , code = knobDoc.code
     , component = toComponent getModel setModel knobDoc
-    , template = toTemplate knobDoc
     }
 
 

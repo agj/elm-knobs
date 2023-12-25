@@ -8,12 +8,7 @@ import KnobDoc exposing (KnobDoc)
 chapter =
     ElmBook.Chapter.chapter "Other types"
         |> ElmBook.Chapter.withStatefulComponentList
-            [ knobDocToComponent stringInputDoc
-            , knobDocToComponent stringTextareaDoc
-            , knobDocToComponent boolCheckboxDoc
-            , knobDocToComponent selectDoc
-            , knobDocToComponent colorPickerDoc
-            ]
+            (processedDocs |> List.map .component)
         |> ElmBook.Chapter.render content
 
 
@@ -22,21 +17,9 @@ content =
     """
 Knobs for other types.
 
-$stringInput$
-
-$stringTextarea$
-
-$boolCheckbox$
-
-$select$
-
-$colorPicker$
+$knobDocs$
 """
-        |> String.replace "$stringInput$" (KnobDoc.toTemplate stringInputDoc)
-        |> String.replace "$stringTextarea$" (KnobDoc.toTemplate stringTextareaDoc)
-        |> String.replace "$boolCheckbox$" (KnobDoc.toTemplate boolCheckboxDoc)
-        |> String.replace "$select$" (KnobDoc.toTemplate selectDoc)
-        |> String.replace "$colorPicker$" (KnobDoc.toTemplate colorPickerDoc)
+        |> String.replace "$knobDocs$" (KnobDoc.toFullTemplate processedDocs)
 
 
 type alias Model =
@@ -58,10 +41,13 @@ init =
     }
 
 
-knobDocToComponent =
-    KnobDoc.toComponent
-        (\sharedModel -> sharedModel.otherTypes)
-        (\model sharedModel -> { sharedModel | otherTypes = model })
+processedDocs =
+    [ processDoc stringInputDoc
+    , processDoc stringTextareaDoc
+    , processDoc boolCheckboxDoc
+    , processDoc selectDoc
+    , processDoc colorPickerDoc
+    ]
 
 
 
@@ -225,3 +211,13 @@ roundToString float =
     toFloat (round (float * 100))
         / 100
         |> String.fromFloat
+
+
+
+-- Utils
+
+
+processDoc =
+    KnobDoc.process
+        .otherTypes
+        (\model sharedModel -> { sharedModel | otherTypes = model })
