@@ -1,6 +1,8 @@
 module ChapterOtherTypes exposing (Model, chapter, init)
 
 import ElmBook.Chapter exposing (Chapter)
+import Html
+import Html.Attributes
 import Knob exposing (Knob)
 import KnobDoc exposing (KnobDoc)
 
@@ -8,19 +10,21 @@ import KnobDoc exposing (KnobDoc)
 chapter =
     ElmBook.Chapter.chapter "Other types"
         |> ElmBook.Chapter.withStatefulComponentList
-            [ knobDocToComponent stringInputDoc
-            , knobDocToComponent stringTextareaDoc
-            , knobDocToComponent boolCheckboxDoc
-            , knobDocToComponent selectDoc
-            , knobDocToComponent colorPickerDoc
-            ]
+            ([ knobDocToComponent stringInputDoc
+             , knobDocToComponent stringTextareaDoc
+             , knobDocToComponent boolCheckboxDoc
+             , knobDocToComponent selectDoc
+             , knobDocToComponent colorPickerDoc
+             ]
+                |> List.concat
+            )
         |> ElmBook.Chapter.render content
 
 
 content : String
 content =
     """
-Knobs for other types.
+Knobs for other types, including `String` and `Bool`.
 
 $stringInput$
 
@@ -59,7 +63,7 @@ init =
 
 
 knobDocToComponent =
-    KnobDoc.toComponent
+    KnobDoc.toComponentWithId
         (\sharedModel -> sharedModel.otherTypes)
         (\model sharedModel -> { sharedModel | otherTypes = model })
 
