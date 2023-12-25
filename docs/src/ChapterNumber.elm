@@ -1,29 +1,21 @@
 module ChapterNumber exposing (Model, chapter, init)
 
-import Browser.Dom
 import ElmBook exposing (Msg)
-import ElmBook.Actions exposing (logAction, updateState, updateStateWithCmd)
 import ElmBook.Chapter exposing (Chapter)
-import Html
-import Html.Events
 import Knob exposing (Knob)
 import KnobDoc exposing (KnobDoc)
-import Task
 
 
 chapter =
     ElmBook.Chapter.chapter "Number"
         |> ElmBook.Chapter.withStatefulComponentList
-            ([ knobDocToComponent floatDoc
-             , knobDocToComponent floatConstrainedDoc
-             , knobDocToComponent floatSliderDoc
-             , knobDocToComponent intDoc
-             , knobDocToComponent intConstrainedDoc
-             , knobDocToComponent intSliderDoc
-             , [ ( "toc", KnobDoc.tableOfContentsComponent ) ]
-             ]
-                |> List.concat
-            )
+            [ knobDocToComponent floatDoc
+            , knobDocToComponent floatConstrainedDoc
+            , knobDocToComponent floatSliderDoc
+            , knobDocToComponent intDoc
+            , knobDocToComponent intConstrainedDoc
+            , knobDocToComponent intSliderDoc
+            ]
         |> ElmBook.Chapter.render content
 
 
@@ -31,8 +23,6 @@ content : String
 content =
     """
 These are all the knobs that manage an `Int` or a `Float` value.
-
-<component with-label="toc" />
 
 $float$
 
@@ -75,7 +65,7 @@ init =
 
 
 knobDocToComponent =
-    KnobDoc.toComponentWithId
+    KnobDoc.toComponent
         (\sharedModel -> sharedModel.number)
         (\model sharedModel -> { sharedModel | number = model })
 
