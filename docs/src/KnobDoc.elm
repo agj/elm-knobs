@@ -7,7 +7,6 @@ import ElmBook.Actions exposing (updateState, updateStateWithCmd)
 import Html exposing (Html)
 import Html.Attributes
 import Html.Events
-import Json.Decode
 import Knob exposing (Knob)
 import String.Extra
 import Task
@@ -45,12 +44,11 @@ toComponentWithId getModel setModel knobDoc =
     in
     [ ( knobDoc.name, knobView )
     , ( "id-" ++ knobDoc.name, \_ -> Html.span [ Html.Attributes.id knobDoc.name ] [] )
-    , ( "toc-link-" ++ knobDoc.name, tocLinkComponent { label = knobDoc.name, targetId = knobDoc.name } )
     ]
 
 
-tocLinkComponent : { label : String, targetId : String } -> model -> Html (Msg model)
-tocLinkComponent { label, targetId } _ =
+tableOfContentsComponent : model -> Html (Msg model)
+tableOfContentsComponent _ =
     let
         scroll : model -> ( model, Cmd (Msg model) )
         scroll model =
@@ -59,14 +57,10 @@ tocLinkComponent { label, targetId } _ =
                 |> Task.attempt (\_ -> updateState identity)
             )
     in
-    Html.span
+    Html.button
         [ Html.Events.onClick (updateStateWithCmd scroll)
-        , Html.Attributes.style "text-decoration" "underline"
-        , Html.Attributes.style "cursor" "pointer"
-        , Html.Attributes.attribute "role" "link"
-        , Html.Attributes.tabindex 0
         ]
-        [ Html.text label ]
+        [ Html.text "yeah" ]
 
 
 toTemplate : KnobDoc a model -> String
