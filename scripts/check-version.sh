@@ -56,7 +56,7 @@ fi
 # Interactive docs
 
 versionInInteractiveDocs=$(
-  awk -F '"' '/"[[:digit:].]+"/ {print $2}' ./docs/src/Constants.elm | head --lines=1
+  awk -F '"' '/"[[:digit:].]+"/ {print $2}' ./interactive-docs/src/Constants.elm | head --lines=1
 )
 outdatedVersionInInteractiveDocs=$(echo "$versionInInteractiveDocs" | grep -vF "$currentVersion")
 
@@ -67,7 +67,7 @@ then
   exit 1
 fi
 
-gitHasInteractiveDocsCurrentVersion=$(git cat-file -e "HEAD:./docs/output/$currentVersion/index.html" 2> /dev/null && echo 'OK')
+gitHasInteractiveDocsCurrentVersion=$(git cat-file -e "HEAD:./interactive-docs/output/$currentVersion/index.html" 2> /dev/null && echo 'OK')
 
 if [ -z "$gitHasInteractiveDocsCurrentVersion" ]
 then

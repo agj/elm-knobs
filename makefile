@@ -2,24 +2,22 @@ init: ## Load a shell with all dependencies (if you don't use direnv).
 	@echo "You may type 'exit' to return to the regular shell.\n"
 	nix develop -c "$$SHELL"
 
-.PHONY: docs
 docs: ## Preview the documentation.
 	elm-doc-preview --port 8001 --no-browser
 
 interactive-docs: interactive-docs-install ## Preview the interactive documentation.
-	cd docs && pnpx parcel
+	cd interactive-docs && pnpx parcel
 
 interactive-docs-build: interactive-docs-install ## Build the interactive documentation.
-	cd docs && pnpx parcel build --dist-dir "./output/$(shell bash ./scripts/get-current-version.sh)"
+	cd interactive-docs && pnpx parcel build --dist-dir "./output/$(shell bash ./scripts/get-current-version.sh)"
 	bash ./scripts/build-interactive-docs-index.sh
 
-interactive-docs-deploy: interactive-docs-build root-install ## Deploy interactive documentation to GH pages.
-	pnpx gh-pages --remote github --dist ./docs/output
-
-root-install:
+interactive-docs-deploy: interactive-docs-build ## Deploy interactive documentation to GH pages.
 	pnpm install
+	pnpx gh-pages --remote github --dist ./interactive-docs/output
+
 interactive-docs-install:
-	cd docs && pnpm install
+	cd interactive-docs && pnpm install
 
 validate: check-build test check-docs lint check-examples check-version ## Run all tests, checks and lint.
 
