@@ -14,8 +14,7 @@ getAllVersionsInGit() {
 
 getVersionsUsedInLinks() {
   grep -E \
-    -e 'packages/agj/elm-knobs/[[:digit:].]+/' \
-    -e 'github.com/agj/elm-knobs/blob/[[:digit:].]+/' \
+    -e 'elm-knobs/[[:digit:].]+' \
     "$@" \
   | sed -E 's/^.*[/]([[:digit:].]+)[/].*$/\1/'
 }
