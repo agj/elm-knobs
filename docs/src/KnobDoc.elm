@@ -19,6 +19,38 @@ type alias KnobDoc a model =
     }
 
 
+type alias ProcessedKnobDoc sharedModel =
+    { name : String
+    , code : String
+    , component : ( String, sharedModel -> Html (Msg sharedModel) )
+    , template : String
+    }
+
+
+type alias Templatable a =
+    { a | name : String, code : String }
+
+
+process :
+    (sharedModel -> model)
+    -> (model -> sharedModel -> sharedModel)
+    -> KnobDoc a model
+    -> ProcessedKnobDoc sharedModel
+process getModel setModel knobDoc =
+    { name = knobDoc.name
+    , code = knobDoc.code
+    , component = toComponent getModel setModel knobDoc
+    , template = toTemplate knobDoc
+    }
+
+
+toFullTemplate : List (ProcessedKnobDoc sharedModel) -> String
+toFullTemplate processedKnobDocs =
+    processedKnobDocs
+        |> List.map toTemplate
+        |> String.join "\n\n\n"
+
+
 toComponent :
     (sharedModel -> model)
     -> (model -> sharedModel -> sharedModel)
@@ -42,7 +74,7 @@ toComponent getModel setModel knobDoc =
     ( knobDoc.name, knobView )
 
 
-toTemplate : KnobDoc a model -> String
+toTemplate : Templatable a -> String
 toTemplate knobDoc =
     """
 ## $knobName$

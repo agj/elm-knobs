@@ -9,13 +9,7 @@ import KnobDoc exposing (KnobDoc)
 chapter =
     ElmBook.Chapter.chapter "Number"
         |> ElmBook.Chapter.withStatefulComponentList
-            [ knobDocToComponent floatDoc
-            , knobDocToComponent floatConstrainedDoc
-            , knobDocToComponent floatSliderDoc
-            , knobDocToComponent intDoc
-            , knobDocToComponent intConstrainedDoc
-            , knobDocToComponent intSliderDoc
-            ]
+            (processedDocs |> List.map .component)
         |> ElmBook.Chapter.render content
 
 
@@ -24,24 +18,9 @@ content =
     """
 These are all the knobs that manage an `Int` or a `Float` value.
 
-$float$
-
-$floatConstrained$
-
-$floatSlider$
-
-$int$
-
-$intConstrained$
-
-$intSlider$
+$knobDocs$
 """
-        |> String.replace "$float$" (KnobDoc.toTemplate floatDoc)
-        |> String.replace "$floatConstrained$" (KnobDoc.toTemplate floatConstrainedDoc)
-        |> String.replace "$floatSlider$" (KnobDoc.toTemplate floatSliderDoc)
-        |> String.replace "$int$" (KnobDoc.toTemplate intDoc)
-        |> String.replace "$intConstrained$" (KnobDoc.toTemplate intConstrainedDoc)
-        |> String.replace "$intSlider$" (KnobDoc.toTemplate intSliderDoc)
+        |> String.replace "$knobDocs$" (KnobDoc.toFullTemplate processedDocs)
 
 
 type alias Model =
@@ -64,10 +43,14 @@ init =
     }
 
 
-knobDocToComponent =
-    KnobDoc.toComponent
-        (\sharedModel -> sharedModel.number)
-        (\model sharedModel -> { sharedModel | number = model })
+processedDocs =
+    [ processDoc floatDoc
+    , processDoc floatConstrainedDoc
+    , processDoc floatSliderDoc
+    , processDoc intDoc
+    , processDoc intConstrainedDoc
+    , processDoc intSliderDoc
+    ]
 
 
 
@@ -138,3 +121,13 @@ intSliderDoc =
     , set = \model new -> { model | intSlider = new }
     , toString = String.fromInt
     }
+
+
+
+-- Utils
+
+
+processDoc =
+    KnobDoc.process
+        .number
+        (\model sharedModel -> { sharedModel | number = model })
