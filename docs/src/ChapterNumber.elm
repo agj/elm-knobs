@@ -20,7 +20,6 @@ chapter =
              , knobDocToComponent intDoc
              , knobDocToComponent intConstrainedDoc
              , knobDocToComponent intSliderDoc
-             , [ ( "toc", KnobDoc.tableOfContentsComponent ) ]
              ]
                 |> List.concat
             )
@@ -32,7 +31,9 @@ content =
     """
 These are all the knobs that manage an `Int` or a `Float` value.
 
-<component with-label="toc" />
+- <component with-label="toc-link-float" with-display="inline" />
+- <component with-label="toc-link-floatConstrained" with-display="inline" />
+- <component with-label="toc-link-floatSlider" with-display="inline" />
 
 $float$
 
