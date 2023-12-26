@@ -1,4 +1,4 @@
-# elm-knobs
+# elm-knobs 🎛
 
 [![Elm package](https://img.shields.io/elm-package/v/agj/elm-knobs?style=flat-square&logo=elm&labelColor=white&color=%231293D8)](https://package.elm-lang.org/packages/agj/elm-knobs/latest)
 
