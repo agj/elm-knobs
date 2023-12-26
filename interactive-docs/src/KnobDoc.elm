@@ -80,9 +80,12 @@ toTemplate knobDoc =
     """
 ## $knobName$
 
-📦 [See it in the package docs.](https://package.elm-lang.org/packages/agj/elm-knobs/$elmKnobsVersion$/Knob#$knobName$)
+📦 [API docs.](https://package.elm-lang.org/packages/agj/elm-knobs/$elmKnobsVersion$/Knob#$knobName$)
 
-<component with-label="$knobName$" />
+<component
+  with-label="$knobName$"
+  with-hidden-label="true"
+/>
 
 ```elm
 $code$

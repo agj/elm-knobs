@@ -34,6 +34,10 @@ particularly number-related ones, so pick the one that best suits your needs!
 First up, within our app's `init` let's create a `Knob` and put it in the model.
 The following are the functions you can use to create basic knobs that map to a single value.
 
+👀 Tip: Check the [**interactive documentation**][interactive-docs] to see working examples of these!
+
+[interactive-docs]: https://agj.github.io/elm-knobs/1.1.0/
+
 @docs float, floatConstrained, floatSlider
 @docs int, intConstrained, intSlider
 @docs stringInput, stringTextarea
@@ -82,6 +86,7 @@ The value of your knobs will be reset every time you refresh the page,
 unless you persist their value somehow.
 Knob serialization is a way to make it easier to do this using the Web Storage API
 or other such techniques.
+Check [this example](https://github.com/agj/elm-knobs/blob/1.1.0/examples/web-storage/) to see how to do it.
 
 @docs serialize, readSerialized
 
