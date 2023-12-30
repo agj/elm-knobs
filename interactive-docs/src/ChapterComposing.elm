@@ -22,9 +22,9 @@ content =
     """
 Composition.
 
-$label$
-
 $compose$
+
+$label$
 
 $stackLabel$
 """
@@ -47,25 +47,13 @@ init =
     }
 
 
-type alias Doc a model =
-    { name : String
-    , description : String
-    , init_ : Knob a
-    , code : String
-    , get : model -> Knob a
-    , set : model -> Knob a -> model
-    , toString : a -> String
-    }
-
-
 
 -- Docs
 
 
-labelDoc : Doc Float Model
+labelDoc : KnobDoc Float Model
 labelDoc =
     { name = "label"
-    , description = ""
     , init_ =
         Knob.label "Amount"
             (Knob.float { step = 1, initial = 0 })
@@ -92,10 +80,9 @@ composeToString compose =
         |> String.replace "$float$" (String.fromFloat compose.credits)
 
 
-composeDoc : Doc Compose Model
+composeDoc : KnobDoc Compose Model
 composeDoc =
     { name = "compose + stack"
-    , description = "Bla."
     , init_ =
         Knob.compose
             (\name credits ->
@@ -124,10 +111,9 @@ composeDoc =
     }
 
 
-stackLabelDoc : Doc Compose Model
+stackLabelDoc : KnobDoc Compose Model
 stackLabelDoc =
     { name = "compose + stackLabel"
-    , description = "Bla."
     , init_ =
         Knob.compose
             (\name credits ->
@@ -168,12 +154,10 @@ toComponent =
         (\model sharedModel -> { sharedModel | composing = model })
 
 
-toTemplate : { a | name : String, description : String, code : String } -> String
-toTemplate { name, description, code } =
+toTemplate : KnobDoc a model -> String
+toTemplate { name, code } =
     """
 ## $name$
-
-$description$
 
 <component
     with-label="$name$"
@@ -185,5 +169,4 @@ $code$
 ```
 """
         |> String.replace "$name$" name
-        |> String.replace "$description$" description
         |> String.replace "$code$" (code |> String.Extra.unindent |> String.trim)
