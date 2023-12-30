@@ -26,19 +26,19 @@ type alias ProcessedKnobDoc sharedModel =
     }
 
 
-type alias Templatable a =
-    { a
+type alias Templatable x =
+    { x
         | name : String
         , code : String
     }
 
 
-type alias Componentable a knob model =
-    { a
+type alias Componentable x a model =
+    { x
         | name : String
-        , get : model -> Knob knob
-        , set : model -> Knob knob -> model
-        , toString : knob -> String
+        , get : model -> Knob a
+        , set : model -> Knob a -> model
+        , toString : a -> String
     }
 
 
@@ -64,7 +64,7 @@ toFullTemplate processedKnobDocs =
 toComponent :
     (sharedModel -> model)
     -> (model -> sharedModel -> sharedModel)
-    -> Componentable a knob model
+    -> Componentable x a model
     -> ( String, sharedModel -> Html (Msg sharedModel) )
 toComponent getModel setModel knobDoc =
     let
@@ -84,7 +84,7 @@ toComponent getModel setModel knobDoc =
     ( knobDoc.name, knobView )
 
 
-toTemplate : Templatable a -> String
+toTemplate : Templatable x -> String
 toTemplate knobDoc =
     """
 ## $knobName$
@@ -92,8 +92,8 @@ toTemplate knobDoc =
 📦 [API docs.](https://package.elm-lang.org/packages/agj/elm-knobs/$elmKnobsVersion$/Knob#$knobName$)
 
 <component
-  with-label="$knobName$"
-  with-hidden-label="true"
+    with-label="$knobName$"
+    with-hidden-label="true"
 />
 
 ```elm
