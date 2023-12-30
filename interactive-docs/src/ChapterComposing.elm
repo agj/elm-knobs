@@ -8,9 +8,12 @@ import String.Extra
 
 
 chapter =
-    ElmBook.Chapter.chapter "Composition"
+    ElmBook.Chapter.chapter "Composition & organization"
         |> ElmBook.Chapter.withStatefulComponentList
-            [ toComponent composeDoc ]
+            [ toComponent labelDoc
+            , toComponent composeDoc
+            , toComponent stackLabelDoc
+            ]
         |> ElmBook.Chapter.render content
 
 
@@ -19,18 +22,39 @@ content =
     """
 Composition.
 
+$label$
+
 $compose$
+
+$stackLabel$
 """
+        |> String.replace "$label$" (toTemplate labelDoc)
         |> String.replace "$compose$" (toTemplate composeDoc)
+        |> String.replace "$stackLabel$" (toTemplate stackLabelDoc)
 
 
 type alias Model =
-    { compose : Knob Float
+    { label : Knob Float
+    , compose : Knob Compose
+    , stackLabel : Knob Compose
     }
 
 
 init =
-    { compose = composeDoc.init_
+    { label = labelDoc.init_
+    , compose = composeDoc.init_
+    , stackLabel = stackLabelDoc.init_
+    }
+
+
+type alias Doc a model =
+    { name : String
+    , description : String
+    , init_ : Knob a
+    , code : String
+    , get : model -> Knob a
+    , set : model -> Knob a -> model
+    , toString : a -> String
     }
 
 
@@ -38,14 +62,99 @@ init =
 -- Docs
 
 
-composeDoc =
-    { name = "compose"
-    , description = "Bla."
-    , init_ = Knob.float { step = 1, initial = 1 }
-    , code = "Knob.float { step = 1, initial = 1 }"
-    , get = \model -> model.compose
-    , set = \model knob -> { model | compose = knob }
+labelDoc : Doc Float Model
+labelDoc =
+    { name = "label"
+    , description = ""
+    , init_ =
+        Knob.label "Amount"
+            (Knob.float { step = 1, initial = 0 })
+    , code =
+        """
+        Knob.label "Amount"
+            (Knob.float { step = 1, initial = 0 })
+        """
+    , get = .label
+    , set = \model knob -> { model | label = knob }
     , toString = String.fromFloat
+    }
+
+
+type alias Compose =
+    { name : String
+    , credits : Float
+    }
+
+
+composeToString compose =
+    "{ name = $name$, credits = $float$ }"
+        |> String.replace "$name$" compose.name
+        |> String.replace "$float$" (String.fromFloat compose.credits)
+
+
+composeDoc : Doc Compose Model
+composeDoc =
+    { name = "compose + stack"
+    , description = "Bla."
+    , init_ =
+        Knob.compose
+            (\name credits ->
+                { name = name, credits = credits }
+            )
+            |> Knob.stack (Knob.stringInput "Ale")
+            |> Knob.stack
+                (Knob.floatConstrained
+                    { step = 1, range = ( 0, 99 ), initial = 10 }
+                )
+    , code =
+        """
+        Knob.compose
+            (\\name credits ->
+                { name = name, credits = credits }
+            )
+            |> Knob.stack (Knob.stringInput "Ale")
+            |> Knob.stack
+                (Knob.floatConstrained
+                    { step = 1, range = ( 0, 99 ), initial = 10 }
+                )
+        """
+    , get = .compose
+    , set = \model knob -> { model | compose = knob }
+    , toString = composeToString
+    }
+
+
+stackLabelDoc : Doc Compose Model
+stackLabelDoc =
+    { name = "compose + stackLabel"
+    , description = "Bla."
+    , init_ =
+        Knob.compose
+            (\name credits ->
+                { name = name, credits = credits }
+            )
+            |> Knob.stackLabel "Name"
+                (Knob.stringInput "Ale")
+            |> Knob.stackLabel "Credits"
+                (Knob.floatConstrained
+                    { step = 1, range = ( 0, 99 ), initial = 10 }
+                )
+    , code =
+        """
+        Knob.compose
+            (\\name credits ->
+                { name = name, credits = credits }
+            )
+            |> Knob.stackLabel "Name"
+                (Knob.stringInput "Ale")
+            |> Knob.stackLabel "Credits"
+                (Knob.floatConstrained
+                    { step = 1, range = ( 0, 99 ), initial = 10 }
+                )
+        """
+    , get = .stackLabel
+    , set = \model knob -> { model | stackLabel = knob }
+    , toString = composeToString
     }
 
 

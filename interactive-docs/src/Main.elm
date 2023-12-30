@@ -46,7 +46,7 @@ main =
                     }
                 ]
               )
-            , ( "Knobs"
+            , ( "Knob examples"
               , [ ChapterNumber.chapter
                 , ChapterOtherTypes.chapter
                 , ChapterComposing.chapter
