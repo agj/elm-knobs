@@ -4,16 +4,12 @@ import ElmBook exposing (Msg)
 import ElmBook.Chapter exposing (Chapter)
 import Knob exposing (Knob)
 import KnobDoc exposing (KnobDoc)
-import String.Extra
 
 
 chapter =
     ElmBook.Chapter.chapter "Composition & organization"
         |> ElmBook.Chapter.withStatefulComponentList
-            [ toComponent labelDoc
-            , toComponent composeDoc
-            , toComponent stackLabelDoc
-            ]
+            (processedDocs |> List.map .component)
         |> ElmBook.Chapter.render content
 
 
@@ -22,15 +18,9 @@ content =
     """
 Composition.
 
-$compose$
-
-$label$
-
-$stackLabel$
+$knobDocs$
 """
-        |> String.replace "$label$" (toTemplate labelDoc)
-        |> String.replace "$compose$" (toTemplate composeDoc)
-        |> String.replace "$stackLabel$" (toTemplate stackLabelDoc)
+        |> String.replace "$knobDocs$" (KnobDoc.toFullTemplate processedDocs)
 
 
 type alias Model =
@@ -47,25 +37,15 @@ init =
     }
 
 
+processedDocs =
+    [ processDoc composeDoc
+    , processDoc labelDoc
+    , processDoc stackLabelDoc
+    ]
+
+
 
 -- Docs
-
-
-labelDoc : KnobDoc Float Model
-labelDoc =
-    { name = "label"
-    , init_ =
-        Knob.label "Amount"
-            (Knob.float { step = 1, initial = 0 })
-    , code =
-        """
-        Knob.label "Amount"
-            (Knob.float { step = 1, initial = 0 })
-        """
-    , get = .label
-    , set = \model knob -> { model | label = knob }
-    , toString = String.fromFloat
-    }
 
 
 type alias Compose =
@@ -83,6 +63,7 @@ composeToString compose =
 composeDoc : KnobDoc Compose Model
 composeDoc =
     { name = "compose + stack"
+    , link = Just [ "compose", "stack" ]
     , init_ =
         Knob.compose
             (\name credits ->
@@ -111,9 +92,28 @@ composeDoc =
     }
 
 
+labelDoc : KnobDoc Float Model
+labelDoc =
+    { name = "label"
+    , link = Nothing
+    , init_ =
+        Knob.label "Amount"
+            (Knob.float { step = 1, initial = 0 })
+    , code =
+        """
+        Knob.label "Amount"
+            (Knob.float { step = 1, initial = 0 })
+        """
+    , get = .label
+    , set = \model knob -> { model | label = knob }
+    , toString = String.fromFloat
+    }
+
+
 stackLabelDoc : KnobDoc Compose Model
 stackLabelDoc =
     { name = "compose + stackLabel"
+    , link = Just [ "compose", "stackLabel" ]
     , init_ =
         Knob.compose
             (\name credits ->
@@ -148,25 +148,7 @@ stackLabelDoc =
 -- Utils
 
 
-toComponent =
-    KnobDoc.toComponent
+processDoc =
+    KnobDoc.process
         .composing
         (\model sharedModel -> { sharedModel | composing = model })
-
-
-toTemplate : KnobDoc a model -> String
-toTemplate { name, code } =
-    """
-## $name$
-
-<component
-    with-label="$name$"
-    with-hidden-label="true"
-/>
-
-```elm
-$code$
-```
-"""
-        |> String.replace "$name$" name
-        |> String.replace "$code$" (code |> String.Extra.unindent |> String.trim)

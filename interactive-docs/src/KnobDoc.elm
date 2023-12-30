@@ -11,6 +11,7 @@ import String.Extra
 
 type alias KnobDoc a model =
     { name : String
+    , link : Maybe (List String)
     , init_ : Knob a
     , code : String
     , get : model -> Knob a
@@ -21,6 +22,7 @@ type alias KnobDoc a model =
 
 type alias ProcessedKnobDoc sharedModel =
     { name : String
+    , link : Maybe (List String)
     , code : String
     , component : ( String, sharedModel -> Html (Msg sharedModel) )
     }
@@ -29,6 +31,7 @@ type alias ProcessedKnobDoc sharedModel =
 type alias Templatable x =
     { x
         | name : String
+        , link : Maybe (List String)
         , code : String
     }
 
@@ -49,6 +52,7 @@ process :
     -> ProcessedKnobDoc sharedModel
 process getModel setModel knobDoc =
     { name = knobDoc.name
+    , link = knobDoc.link
     , code = knobDoc.code
     , component = toComponent getModel setModel knobDoc
     }
@@ -89,7 +93,7 @@ toTemplate knobDoc =
     """
 ## $knobName$
 
-📦 [API docs.](https://package.elm-lang.org/packages/agj/elm-knobs/$elmKnobsVersion$/Knob#$knobName$)
+$apiDocsLink$
 
 <component
     with-label="$knobName$"
@@ -101,5 +105,25 @@ $code$
 ```
 """
         |> String.replace "$knobName$" knobDoc.name
+        |> String.replace "$apiDocsLink$" (apiDocsLink knobDoc)
         |> String.replace "$code$" (knobDoc.code |> String.Extra.unindent |> String.trim)
         |> String.replace "$elmKnobsVersion$" Constants.elmKnobsVersion
+
+
+apiDocsLink : { a | name : String, link : Maybe (List String) } -> String
+apiDocsLink { name, link } =
+    case link of
+        Nothing ->
+            "📦 [API docs.](https://package.elm-lang.org/packages/agj/elm-knobs/$elmKnobsVersion$/Knob#$name$)"
+                |> String.replace "$name$" name
+                |> String.replace "$elmKnobsVersion$" Constants.elmKnobsVersion
+
+        Just links ->
+            links
+                |> List.map
+                    (\linkName ->
+                        "- 📦 [API docs for: `$name$`](https://package.elm-lang.org/packages/agj/elm-knobs/$elmKnobsVersion$/Knob#$name$)"
+                            |> String.replace "$name$" linkName
+                            |> String.replace "$elmKnobsVersion$" Constants.elmKnobsVersion
+                    )
+                |> String.join "\n"

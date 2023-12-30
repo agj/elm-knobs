@@ -57,6 +57,7 @@ processedDocs =
 stringInputDoc : KnobDoc String Model
 stringInputDoc =
     { name = "stringInput"
+    , link = Nothing
     , init_ = Knob.stringInput "Enter text here"
     , code = "Knob.stringInput \"Enter text here\""
     , get = \model -> model.stringInput
@@ -68,6 +69,7 @@ stringInputDoc =
 stringTextareaDoc : KnobDoc String Model
 stringTextareaDoc =
     { name = "stringTextarea"
+    , link = Nothing
     , init_ =
         Knob.stringTextarea
             { columns = Just 40
@@ -91,6 +93,7 @@ stringTextareaDoc =
 boolCheckboxDoc : KnobDoc Bool Model
 boolCheckboxDoc =
     { name = "boolCheckbox"
+    , link = Nothing
     , init_ = Knob.boolCheckbox False
     , code = "Knob.boolCheckbox False"
     , get = \model -> model.boolCheckbox
@@ -108,6 +111,7 @@ boolCheckboxDoc =
 selectDoc : KnobDoc Vegetable Model
 selectDoc =
     { name = "select"
+    , link = Nothing
     , init_ =
         Knob.select
             { options = [ "Carrot", "Lettuce", "Beet" ]
@@ -193,6 +197,7 @@ vegetableFromString string =
 colorPickerDoc : KnobDoc Knob.Color Model
 colorPickerDoc =
     { name = "colorPicker"
+    , link = Nothing
     , init_ = Knob.colorPicker { red = 1, green = 1, blue = 1 }
     , code = "Knob.colorPicker { red = 1, green = 1, blue = 1 }"
     , get = \model -> model.colorPicker
