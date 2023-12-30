@@ -33,6 +33,15 @@ type alias Templatable a =
     }
 
 
+type alias Componentable a knob model =
+    { a
+        | name : String
+        , get : model -> Knob knob
+        , set : model -> Knob knob -> model
+        , toString : knob -> String
+    }
+
+
 process :
     (sharedModel -> model)
     -> (model -> sharedModel -> sharedModel)
@@ -55,7 +64,7 @@ toFullTemplate processedKnobDocs =
 toComponent :
     (sharedModel -> model)
     -> (model -> sharedModel -> sharedModel)
-    -> KnobDoc a model
+    -> Componentable a knob model
     -> ( String, sharedModel -> Html (Msg sharedModel) )
 toComponent getModel setModel knobDoc =
     let
