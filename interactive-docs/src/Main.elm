@@ -9,6 +9,8 @@ import ElmBook exposing (Book)
 import ElmBook.Chapter
 import ElmBook.StatefulOptions
 import ElmBook.ThemeOptions
+import Html
+import Html.Attributes
 
 
 type alias Model =
@@ -30,7 +32,13 @@ main : Book Model
 main =
     ElmBook.book ("elm-knobs " ++ Constants.elmKnobsVersion)
         |> ElmBook.withThemeOptions
-            [ ElmBook.ThemeOptions.useHashBasedNavigation ]
+            [ ElmBook.ThemeOptions.subtitle "interactive docs"
+            , ElmBook.ThemeOptions.logo
+                (Html.div [ Html.Attributes.class "page-logo" ]
+                    [ Html.text "🎛" ]
+                )
+            , ElmBook.ThemeOptions.useHashBasedNavigation
+            ]
         |> ElmBook.withStatefulOptions
             [ ElmBook.StatefulOptions.initialState init ]
         |> ElmBook.withChapterGroups
