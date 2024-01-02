@@ -5,7 +5,21 @@ init: ## Load a shell with all dependencies (if you don't use direnv).
 docs: ## Preview the documentation.
 	elm-doc-preview --port 8001 --no-browser
 
-validate: check-build test check-docs lint check-examples ## Run all tests, checks and lint.
+interactive-docs: interactive-docs-install ## Preview the interactive documentation.
+	cd interactive-docs && pnpx parcel
+
+interactive-docs-build: interactive-docs-install ## Build the interactive documentation.
+	cd interactive-docs && pnpx parcel build --dist-dir "./output/$(shell bash ./scripts/get-current-version.sh)"
+	bash ./scripts/build-interactive-docs-index.sh
+
+interactive-docs-deploy: interactive-docs-build ## Deploy interactive documentation to GH pages.
+	pnpm install
+	pnpx gh-pages --remote github --dist ./interactive-docs/output
+
+interactive-docs-install:
+	cd interactive-docs && pnpm install
+
+validate: check-build test check-docs lint check-examples check-version ## Run all tests, checks and lint.
 
 test: ## Run tests.
 	elm-test
@@ -21,14 +35,17 @@ lint-fix: ## Automatically fix linting errors.
 	elm-format src --yes
 	elm-review src --fix
 
-check-build: ## Make sure it builds.
-	elm make
+check-build: ## Make sure it compiles.
+	elm make --output /dev/null
 
-check-examples: ## Make sure the examples build.
+check-examples: ## Make sure the examples compile.
 	$$SHELL scripts/check-examples.sh
 
 check-docs: ## Make sure the docs can be generated.
 	elm-doc-preview --output /dev/null
+
+check-version: ## Make sure the package version is consistent across.
+	bash ./scripts/check-version.sh
 
 
 

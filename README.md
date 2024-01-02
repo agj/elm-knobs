@@ -1,4 +1,4 @@
-# elm-knobs
+# elm-knobs 🎛
 
 [![Elm package](https://img.shields.io/elm-package/v/agj/elm-knobs?style=flat-square&logo=elm&labelColor=white&color=%231293D8)](https://package.elm-lang.org/packages/agj/elm-knobs/latest)
 
@@ -11,6 +11,18 @@ The library supports easy serialization, enabling you to persist the values even
 
 ![Example of elm-knobs in action](https://raw.githubusercontent.com/agj/elm-knobs/d2167d12ded679174e6678b2de29b9132ffac104/examples/polygon-example.png)
 
+## Links
+
+- [API docs (package.elm-lang.org).][docs]
+- [Interactive docs.][interactive-docs]
+- [Code examples.][examples]
+
+[docs]: https://package.elm-lang.org/packages/agj/elm-knobs/1.1.0
+[interactive-docs]: https://agj.github.io/elm-knobs/1.1.0/
+[examples]: https://github.com/agj/elm-knobs/blob/1.1.0/examples/
+
+## Why?
+
 Sometimes it's hard to find the right value for something in your design,
 and having actual controls in the browser that instantly update the view helps tremendously in the development process.
 It also enables non-technical people to explore how things change when different values are used,
@@ -20,11 +32,11 @@ Since its intended use case is aiding the development process and facilitating r
 visual customization is not a priority,
 but you can still define your own CSS styles to customize how it looks.
 
+## What it looks like to use elm-knobs
+
 Below is a very basic yet complete example of using elm-knobs.
 It is not what is shown at the top of this page, though,
 but you can [find that and other examples in the Github repo][examples].
-
-[examples]: https://github.com/agj/elm-knobs/blob/1.1.0/examples/
 
 ```elm
 module BasicExample exposing (main)

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>elm-knobs</title>
+
+    <style>
+      .page-logo {
+        font-size: 0.8em;
+      }
+
+      .component-preview {
+        display: flex;
+        gap: 1em;
+        flex-direction: column;
+      }
+
+      .knobs {
+        --separation: 0.5em;
+
+        bottom: 0;
+        color: black;
+        display: flex;
+        font-size: 14px;
+        gap: var(--separation);
+        left: 0;
+        max-height: 100vh;
+        z-index: 888;
+      }
+
+      .knobs > * {
+        background-color: white;
+        box-shadow: 0 0 0.4em rgba(0, 0, 0, 0.2);
+      }
+
+      .knobs > :not(.knobs-icon) {
+        padding: calc(3 * var(--separation));
+        overflow-y: auto;
+      }
+
+      .knobs .knobs-icon {
+        display: none;
+      }
+
+      .knobs .knobs-stack {
+        display: flex;
+        flex-direction: column;
+        gap: calc(2 * var(--separation));
+      }
+
+      .knobs label {
+        display: flex;
+        flex-direction: column;
+        gap: var(--separation);
+      }
+
+      .knobs label:has(> input[type="checkbox"]) {
+        flex-direction: row;
+        align-items: center;
+      }
+
+      /* The following use of :has() is so that browsers that don't support that selector
+         may ignore this block.
+      */
+      .knobs label:has(> input) > input[type="checkbox"] {
+        order: -1;
+      }
+
+      .knobs input[type="range"] + * {
+        color: darkgray;
+        text-align: center;
+      }
+
+      /* Overrides */
+
+      .elm-book--wrapper--main--footer {
+        display: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <main></main>
+
+    <script type="module">
+      import { Elm } from "./Main.elm";
+
+      Elm.Main.init(document.querySelector("main"));
+    </script>
+  </body>
+</html>
