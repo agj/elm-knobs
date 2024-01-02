@@ -15,7 +15,7 @@ chapter =
 content : String
 content =
     """
-Knobs for other types.
+Knobs for non-numeric types.
 
 $knobDocs$
 """

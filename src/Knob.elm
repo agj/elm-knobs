@@ -523,7 +523,7 @@ boolCheckbox initial =
             Html.input
                 [ Html.Attributes.type_ "checkbox"
                 , Html.Attributes.checked initial
-                , Html.Events.onCheck (\val -> boolCheckbox val)
+                , Html.Events.onCheck boolCheckbox
                 ]
                 []
     in
@@ -712,7 +712,7 @@ Here's how the `boolCheckbox` knob would be created using `custom`:
                 Html.input
                     [ Html.Attributes.type_ "checkbox"
                     , Html.Attributes.checked initial
-                    , Html.Events.onChecked ourBoolKnob
+                    , Html.Events.onCheck ourBoolKnob
                     ]
                     []
         in
@@ -724,7 +724,7 @@ Here's how the `boolCheckbox` knob would be created using `custom`:
 Notice how `view` is a thunk—that is, a function that takes `()` (a placeholder value)
 and returns the view.
 The view is just some HTML that emits knobs instead of messages.
-Take a look at the line with `Html.Events.onChecked` and make note of what we're doing:
+Take a look at the line with `Html.Events.onCheck` and make note of what we're doing:
 We're directly passing in `ourBoolKnob` because it's a function that takes
 the new "checked" value and with it constructs the knob anew.
 This is how we're transforming the contained value when the user clicks.

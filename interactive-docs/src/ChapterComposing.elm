@@ -16,7 +16,7 @@ chapter =
 content : String
 content =
     """
-Composition.
+Examples of composing multiple knobs into a bigger data structure.
 
 $knobDocs$
 """
