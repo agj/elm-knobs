@@ -64,6 +64,7 @@ composeDoc : KnobDoc Compose Model
 composeDoc =
     { name = "compose + stack"
     , link = Just [ "compose", "stack" ]
+    , description = Nothing
     , init_ =
         Knob.compose
             (\name credits ->
@@ -96,6 +97,7 @@ labelDoc : KnobDoc Float Model
 labelDoc =
     { name = "label"
     , link = Nothing
+    , description = Nothing
     , init_ =
         Knob.label "Amount"
             (Knob.float { step = 1, initial = 0 })
@@ -114,6 +116,7 @@ stackLabelDoc : KnobDoc Compose Model
 stackLabelDoc =
     { name = "compose + stackLabel"
     , link = Just [ "compose", "stackLabel" ]
+    , description = Nothing
     , init_ =
         Knob.compose
             (\name credits ->

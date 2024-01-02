@@ -12,6 +12,7 @@ import String.Extra
 type alias KnobDoc a model =
     { name : String
     , link : Maybe (List String)
+    , description : Maybe String
     , init_ : Knob a
     , code : String
     , get : model -> Knob a
@@ -23,6 +24,7 @@ type alias KnobDoc a model =
 type alias ProcessedKnobDoc sharedModel =
     { name : String
     , link : Maybe (List String)
+    , description : Maybe String
     , code : String
     , component : ( String, sharedModel -> Html (Msg sharedModel) )
     }
@@ -31,6 +33,7 @@ type alias ProcessedKnobDoc sharedModel =
 type alias Templatable x =
     { x
         | name : String
+        , description : Maybe String
         , link : Maybe (List String)
         , code : String
     }
@@ -53,6 +56,7 @@ process :
 process getModel setModel knobDoc =
     { name = knobDoc.name
     , link = knobDoc.link
+    , description = knobDoc.description
     , code = knobDoc.code
     , component = toComponent getModel setModel knobDoc
     }
@@ -93,6 +97,8 @@ toTemplate knobDoc =
     """
 ## $knobName$
 
+$description$
+
 $apiDocsLink$
 
 <component
@@ -105,6 +111,7 @@ $code$
 ```
 """
         |> String.replace "$knobName$" knobDoc.name
+        |> String.replace "$description$" (knobDoc.description |> Maybe.withDefault "" |> String.Extra.unindent |> String.trim)
         |> String.replace "$apiDocsLink$" (apiDocsLink knobDoc)
         |> String.replace "$code$" (knobDoc.code |> String.Extra.unindent |> String.trim)
         |> String.replace "$elmKnobsVersion$" Constants.elmKnobsVersion

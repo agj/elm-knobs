@@ -2,6 +2,7 @@ module Main exposing (main)
 
 import ChapterComposing
 import ChapterIntroduction
+import ChapterMap
 import ChapterNumber
 import ChapterOtherTypes
 import Constants
@@ -17,6 +18,7 @@ type alias Model =
     { number : ChapterNumber.Model
     , otherTypes : ChapterOtherTypes.Model
     , composing : ChapterComposing.Model
+    , transformation : ChapterMap.Model
     }
 
 
@@ -25,6 +27,7 @@ init =
     { number = ChapterNumber.init
     , otherTypes = ChapterOtherTypes.init
     , composing = ChapterComposing.init
+    , transformation = ChapterMap.init
     }
 
 
@@ -58,6 +61,7 @@ main =
               , [ ChapterNumber.chapter
                 , ChapterOtherTypes.chapter
                 , ChapterComposing.chapter
+                , ChapterMap.chapter
                 ]
               )
             ]

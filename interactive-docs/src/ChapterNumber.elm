@@ -61,6 +61,7 @@ floatDoc : KnobDoc Float Model
 floatDoc =
     { name = "float"
     , link = Nothing
+    , description = Nothing
     , init_ = Knob.float { step = 0.01, initial = 0 }
     , code = "Knob.float { step = 0.01, initial = 0 }"
     , get = \model -> model.float
@@ -73,6 +74,7 @@ floatConstrainedDoc : KnobDoc Float Model
 floatConstrainedDoc =
     { name = "floatConstrained"
     , link = Nothing
+    , description = Nothing
     , init_ = Knob.floatConstrained { step = 0.01, range = ( 0, 1 ), initial = 0 }
     , code = "Knob.floatConstrained { step = 0.01, range = ( 0, 1 ), initial = 0 }"
     , get = \model -> model.floatConstrained
@@ -85,6 +87,7 @@ floatSliderDoc : KnobDoc Float Model
 floatSliderDoc =
     { name = "floatSlider"
     , link = Nothing
+    , description = Nothing
     , init_ = Knob.floatSlider { step = 0.01, range = ( 0, 1 ), initial = 0 }
     , code = "Knob.floatSlider { step = 0.01, range = ( 0, 1 ), initial = 0 }"
     , get = \model -> model.floatSlider
@@ -97,6 +100,7 @@ intDoc : KnobDoc Int Model
 intDoc =
     { name = "int"
     , link = Nothing
+    , description = Nothing
     , init_ = Knob.int { step = 1, initial = 0 }
     , code = "Knob.int { step = 1, initial = 0 }"
     , get = \model -> model.int
@@ -109,6 +113,7 @@ intConstrainedDoc : KnobDoc Int Model
 intConstrainedDoc =
     { name = "intConstrained"
     , link = Nothing
+    , description = Nothing
     , init_ = Knob.intConstrained { step = 1, range = ( 0, 10 ), initial = 0 }
     , code = "Knob.intConstrained { step = 1, range = ( 0, 10 ), initial = 0 }"
     , get = \model -> model.intConstrained
@@ -121,6 +126,7 @@ intSliderDoc : KnobDoc Int Model
 intSliderDoc =
     { name = "intSlider"
     , link = Nothing
+    , description = Nothing
     , init_ = Knob.intSlider { step = 1, range = ( 0, 10 ), initial = 0 }
     , code = "Knob.intSlider { step = 1, range = ( 0, 10 ), initial = 0 }"
     , get = \model -> model.intSlider
