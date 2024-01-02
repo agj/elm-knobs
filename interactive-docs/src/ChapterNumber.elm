@@ -75,8 +75,14 @@ floatConstrainedDoc =
     { name = "floatConstrained"
     , link = Nothing
     , description = Nothing
-    , init_ = Knob.floatConstrained { step = 0.01, range = ( 0, 1 ), initial = 0 }
-    , code = "Knob.floatConstrained { step = 0.01, range = ( 0, 1 ), initial = 0 }"
+    , init_ =
+        Knob.floatConstrained
+            { step = 0.01, range = ( 0, 1 ), initial = 0 }
+    , code =
+        """
+        Knob.floatConstrained
+            { step = 0.01, range = ( 0, 1 ), initial = 0 }
+        """
     , get = \model -> model.floatConstrained
     , set = \model new -> { model | floatConstrained = new }
     , toString = String.fromFloat
@@ -88,8 +94,14 @@ floatSliderDoc =
     { name = "floatSlider"
     , link = Nothing
     , description = Nothing
-    , init_ = Knob.floatSlider { step = 0.01, range = ( 0, 1 ), initial = 0 }
-    , code = "Knob.floatSlider { step = 0.01, range = ( 0, 1 ), initial = 0 }"
+    , init_ =
+        Knob.floatSlider
+            { step = 0.01, range = ( 0, 1 ), initial = 0 }
+    , code =
+        """
+        Knob.floatSlider
+            { step = 0.01, range = ( 0, 1 ), initial = 0 }
+        """
     , get = \model -> model.floatSlider
     , set = \model new -> { model | floatSlider = new }
     , toString = String.fromFloat
@@ -114,8 +126,14 @@ intConstrainedDoc =
     { name = "intConstrained"
     , link = Nothing
     , description = Nothing
-    , init_ = Knob.intConstrained { step = 1, range = ( 0, 10 ), initial = 0 }
-    , code = "Knob.intConstrained { step = 1, range = ( 0, 10 ), initial = 0 }"
+    , init_ =
+        Knob.intConstrained
+            { step = 1, range = ( 0, 10 ), initial = 0 }
+    , code =
+        """
+        Knob.intConstrained
+            { step = 1, range = ( 0, 10 ), initial = 0 }
+        """
     , get = \model -> model.intConstrained
     , set = \model new -> { model | intConstrained = new }
     , toString = String.fromInt
@@ -127,8 +145,14 @@ intSliderDoc =
     { name = "intSlider"
     , link = Nothing
     , description = Nothing
-    , init_ = Knob.intSlider { step = 1, range = ( 0, 10 ), initial = 0 }
-    , code = "Knob.intSlider { step = 1, range = ( 0, 10 ), initial = 0 }"
+    , init_ =
+        Knob.intSlider
+            { step = 1, range = ( 0, 10 ), initial = 0 }
+    , code =
+        """
+        Knob.intSlider
+            { step = 1, range = ( 0, 10 ), initial = 0 }
+        """
     , get = \model -> model.intSlider
     , set = \model new -> { model | intSlider = new }
     , toString = String.fromInt

@@ -115,7 +115,9 @@ selectDoc : KnobDoc Vegetable Model
 selectDoc =
     { name = "select"
     , link = Nothing
-    , description = Nothing
+    , description = Just """
+        This example creates a `select` knob for a `Vegetable` custom type.
+        """
     , init_ =
         Knob.select
             { options = [ "Carrot", "Lettuce", "Beet" ]
