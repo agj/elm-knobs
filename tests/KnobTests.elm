@@ -15,9 +15,17 @@ int =
                 Knob.int { step = 1, initial = 0 }
                     |> simulateInput "10"
                     |> Event.expect 10
+        , Test.test "Step is only respected at the browser level" <|
+            \() ->
+                Knob.int { step = 5, initial = 0 }
+                    |> simulateInput "12"
+                    |> Event.expect 12
         ]
 
 
+{-| Creates a test event of the type of the knob, for a given string input on the
+knob's HTML <input> tag.
+-}
 simulateInput : String -> Knob a -> Event a
 simulateInput inputString knob =
     knob
