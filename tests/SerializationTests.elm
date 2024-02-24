@@ -2,8 +2,7 @@ module SerializationTests exposing (..)
 
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer)
-import Json.Encode
-import Knob exposing (Knob, serialize)
+import Knob exposing (Knob)
 import Test exposing (Test)
 
 
