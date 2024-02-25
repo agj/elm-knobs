@@ -309,19 +309,19 @@ int { step, initial } =
 
 
 intInternal : Int -> Int -> String -> Knob Int
-intInternal step fallback initial =
+intInternal step initial current =
     let
         intValue : Int
         intValue =
-            String.toInt initial |> Maybe.withDefault fallback
+            String.toInt current |> Maybe.withDefault initial
 
         input : () -> Html (Knob Int)
         input () =
             Html.input
                 [ Html.Attributes.type_ "number"
-                , Html.Attributes.value initial
+                , Html.Attributes.value current
                 , Html.Attributes.step (String.fromInt step)
-                , Html.Events.onInput (intInternal step intValue)
+                , Html.Events.onInput (intInternal step initial)
                 ]
                 []
     in
@@ -332,7 +332,7 @@ intInternal step fallback initial =
         , encode = Just (\() -> Json.Encode.int intValue)
         , decode =
             Just
-                (Json.Decode.map (String.fromInt >> intInternal step intValue)
+                (Json.Decode.map (String.fromInt >> intInternal step initial)
                     Json.Decode.int
                 )
         }
