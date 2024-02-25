@@ -1,5 +1,6 @@
 module KnobTests exposing (..)
 
+import Fuzz
 import Html exposing (Html)
 import Knob exposing (Knob)
 import Test
@@ -10,16 +11,21 @@ import Test.Html.Selector as Selector
 
 int =
     Test.describe "int"
-        [ Test.test "Can input" <|
-            \() ->
+        [ Test.fuzz Fuzz.int "Can input valid values" <|
+            \intInput ->
                 Knob.int { step = 1, initial = 0 }
-                    |> simulateInput "10"
-                    |> Event.expect 10
-        , Test.test "Step is only respected at the browser level" <|
-            \() ->
+                    |> simulateInput (String.fromInt intInput)
+                    |> Event.expect intInput
+        , Test.fuzz Fuzz.int "Step is only respected at the browser level" <|
+            \intInput ->
                 Knob.int { step = 5, initial = 0 }
-                    |> simulateInput "12"
-                    |> Event.expect 12
+                    |> simulateInput (String.fromInt intInput)
+                    |> Event.expect intInput
+        , Test.fuzz2 Fuzz.int Fuzz.string "Invalid values result in the initial value" <|
+            \initial invalidInput ->
+                Knob.int { step = 1, initial = initial }
+                    |> simulateInput (invalidInput ++ "x")
+                    |> Event.expect initial
         ]
 
 
