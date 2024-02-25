@@ -22,9 +22,18 @@ int =
                     |> simulateInput (String.fromInt intInput)
                     |> Event.expect intInput
         , Test.fuzz2 Fuzz.int Fuzz.string "Invalid values result in the initial value" <|
-            \initial invalidInput ->
+            \initial stringInput ->
+                let
+                    invalidInput =
+                        case String.toInt stringInput of
+                            Just _ ->
+                                ""
+
+                            Nothing ->
+                                stringInput
+                in
                 Knob.int { step = 1, initial = initial }
-                    |> simulateInput (invalidInput ++ "x")
+                    |> simulateInput invalidInput
                     |> Event.expect initial
         ]
 
