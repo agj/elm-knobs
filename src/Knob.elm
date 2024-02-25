@@ -144,23 +144,23 @@ float :
     }
     -> Knob Float
 float { step, initial } =
-    floatInternal step (String.fromFloat initial)
+    floatInternal step initial (String.fromFloat initial)
 
 
-floatInternal : Float -> String -> Knob Float
-floatInternal step initial =
+floatInternal : Float -> Float -> String -> Knob Float
+floatInternal step initial current =
     let
         floatValue : Float
         floatValue =
-            String.toFloat initial |> Maybe.withDefault 0
+            String.toFloat current |> Maybe.withDefault initial
 
         input : () -> Html (Knob Float)
         input () =
             Html.input
                 [ Html.Attributes.type_ "number"
-                , Html.Attributes.value initial
+                , Html.Attributes.value current
                 , Html.Attributes.step (String.fromFloat step)
-                , Html.Events.onInput (floatInternal step)
+                , Html.Events.onInput (floatInternal step initial)
                 ]
                 []
     in
@@ -171,7 +171,7 @@ floatInternal step initial =
         , encode = Just (\() -> Json.Encode.float floatValue)
         , decode =
             Just
-                (Json.Decode.map (String.fromFloat >> floatInternal step)
+                (Json.Decode.map (String.fromFloat >> floatInternal step initial)
                     Json.Decode.float
                 )
         }
