@@ -29,11 +29,11 @@ test-watch: ## Run tests and watch for changes.
 
 lint: ## Check for formatting errors.
 	elm-format src --validate
-	elm-review src
+	elm-review
 
 lint-fix: ## Automatically fix linting errors.
 	elm-format src --yes
-	elm-review src --fix
+	elm-review --fix
 
 check-build: ## Make sure it compiles.
 	elm make --output /dev/null
