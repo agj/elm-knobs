@@ -2,10 +2,9 @@ module KnobTests exposing (..)
 
 import Expect
 import Fuzz
-import Html exposing (Html)
 import Knob exposing (Knob)
 import Test
-import Test.Html.Event as Event exposing (Event)
+import Test.Html.Event as Event
 import Test.Html.Query as Query
 import Test.Html.Selector as Selector
 

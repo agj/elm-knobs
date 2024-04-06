@@ -3,7 +3,7 @@ module SerializationTests exposing (..)
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer)
 import Knob exposing (Knob)
-import Test exposing (Test)
+import Test
 
 
 transitiveEqualityTests =
