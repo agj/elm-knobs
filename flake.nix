@@ -25,6 +25,7 @@
             elmPackages.elm-test
             nodejs-slim_21
             nodePackages.pnpm
+            nushell
           ];
         };
       }

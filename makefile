@@ -39,7 +39,7 @@ check-build: ## Make sure it compiles.
 	elm make --output /dev/null
 
 check-examples: ## Make sure the examples compile.
-	$$SHELL scripts/check-examples.sh
+	nu scripts/check-examples.nu
 
 check-docs: ## Make sure the docs can be generated.
 	elm-doc-preview --output /dev/null
