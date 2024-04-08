@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-source ./scripts/functions.sh
-
 outputDir=./interactive-docs/output
 
 echo "Generating interactive docs version index."

@@ -9,7 +9,7 @@ interactive-docs: interactive-docs-install ## Preview the interactive documentat
 	cd interactive-docs && pnpm exec parcel
 
 interactive-docs-build: interactive-docs-install ## Build the interactive documentation.
-	cd interactive-docs && pnpx parcel build --dist-dir "./output/$(shell bash ./scripts/get-current-version.sh)"
+	cd interactive-docs && pnpm exec parcel build --dist-dir "./output/$(shell nu ./scripts/get-current-version.nu)"
 	bash ./scripts/build-interactive-docs-index.sh
 
 interactive-docs-deploy: interactive-docs-build ## Deploy interactive documentation to GH pages.

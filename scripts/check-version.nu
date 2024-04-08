@@ -1,7 +1,8 @@
+use functions.nu getCurrentVersion
 
 print "ℹ️ Checking package version consistency…"
 
-let currentVersion = open elm.json | get 'version'
+let currentVersion = getCurrentVersion
 
 print $"ℹ️ Current version: ($currentVersion)"
 
