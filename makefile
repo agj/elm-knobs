@@ -39,13 +39,13 @@ check-build: ## Make sure it compiles.
 	elm make --output /dev/null
 
 check-examples: ## Make sure the examples compile.
-	nu scripts/check-examples.nu
+	nu ./scripts/check-examples.nu
 
 check-docs: ## Make sure the docs can be generated.
 	elm-doc-preview --output /dev/null
 
 check-version: ## Make sure the package version is consistent across.
-	bash ./scripts/check-version.sh
+	nu ./scripts/check-version.nu
 
 
 

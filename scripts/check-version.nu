@@ -62,5 +62,27 @@ let allVersionsInReadme = getVersionsUsedInLinks ./README.md
 
 checkHasOutdatedVersion "readme" $allVersionsInReadme
 
+# Interactive docs version
 
-print "✅ Current version is OK."
+let versionInInteractiveDocs = open ./interactive-docs/src/Constants.elm
+  | parse --regex '    "([0-9.]+)"'
+  | get capture0
+  | first
+
+checkHasCurrentVersion "interactive docs" $versionInInteractiveDocs
+
+# Interactive docs file
+
+let gitHasInteractiveDocsCurrentVersionFileCheck = $"HEAD:./interactive-docs/output/($currentVersion)/index.html"
+  | do { ^git cat-file -e $in }
+  | complete
+
+print $"🔍 Checking if there is interactive documentation for the current version…"
+
+if ($gitHasInteractiveDocsCurrentVersionFileCheck | get exit_code) != 0 {
+  print "❌ Interactive documentation for the current version not found in git."
+  exit 1
+}
+
+
+print "✅ Current version checks OK."
