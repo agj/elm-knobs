@@ -6,7 +6,7 @@ docs: ## Preview the documentation.
 	elm-doc-preview --port 8001 --no-browser
 
 interactive-docs: interactive-docs-install ## Preview the interactive documentation.
-	cd interactive-docs && pnpx parcel
+	cd interactive-docs && pnpm exec parcel
 
 interactive-docs-build: interactive-docs-install ## Build the interactive documentation.
 	cd interactive-docs && pnpx parcel build --dist-dir "./output/$(shell bash ./scripts/get-current-version.sh)"
@@ -14,7 +14,7 @@ interactive-docs-build: interactive-docs-install ## Build the interactive docume
 
 interactive-docs-deploy: interactive-docs-build ## Deploy interactive documentation to GH pages.
 	pnpm install
-	pnpx gh-pages --remote github --dist ./interactive-docs/output
+	pnpm exec gh-pages --remote github --dist ./interactive-docs/output
 
 interactive-docs-install:
 	cd interactive-docs && pnpm install
