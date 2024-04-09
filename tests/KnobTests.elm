@@ -53,29 +53,21 @@ floatConstrained =
         [ Test.fuzz (Fuzz.listOfLength 4 Fuzz.niceFloat) "Can input valid values" <|
             \floatValues ->
                 let
-                    floatValuesArray =
-                        Array.fromList floatValues
+                    { rangeFrom, rangeTo } =
+                        case List.sort floatValues of
+                            [ lowest, _, _, highest ] ->
+                                { rangeFrom = lowest, rangeTo = highest }
 
-                    sorted =
-                        floatValues
-                            |> List.sort
-                            |> Array.fromList
+                            _ ->
+                                { rangeFrom = 0, rangeTo = 0 }
 
-                    rangeFrom =
-                        Array.get 0 sorted
-                            |> Maybe.withDefault 0
+                    { initial, input } =
+                        case floatValues of
+                            initial_ :: (input_ :: _) ->
+                                { initial = initial_, input = input_ }
 
-                    rangeTo =
-                        Array.get (Array.length sorted - 1) sorted
-                            |> Maybe.withDefault 0
-
-                    initial =
-                        Array.get 0 floatValuesArray
-                            |> Maybe.withDefault 0
-
-                    input =
-                        Array.get 1 floatValuesArray
-                            |> Maybe.withDefault 0
+                            _ ->
+                                { initial = 10, input = 10 }
                 in
                 Knob.floatConstrained { step = 0.1, range = ( rangeFrom, rangeTo ), initial = initial }
                     |> simulateInput (String.fromFloat input)
