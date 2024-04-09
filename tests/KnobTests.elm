@@ -90,11 +90,11 @@ floatConstrained =
                                 }
 
                             _ ->
-                                { tooLow = 0
-                                , tooHigh = 0
+                                { tooLow = 10
+                                , tooHigh = 10
                                 , rangeFrom = 0
                                 , rangeTo = 0
-                                , initial = 0
+                                , initial = 10
                                 }
                 in
                 Knob.floatConstrained { step = 0.1, range = ( rangeFrom, rangeTo ), initial = initial }
