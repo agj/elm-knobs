@@ -1,6 +1,5 @@
 module KnobTests exposing (..)
 
-import Array
 import Expect
 import Fuzz
 import Knob exposing (Knob)
