@@ -104,6 +104,36 @@ floatConstrained =
                         , simulateInput (String.fromFloat tooHigh)
                             >> Expect.equal (Just rangeTo)
                         ]
+        , Test.fuzz2 (Fuzz.listOfLength 5 Fuzz.niceFloat) Fuzz.string "Invalid values after a correct value still result in the initial value" <|
+            \floatValues stringInput ->
+                let
+                    { rangeFrom, rangeTo } =
+                        case List.sort floatValues of
+                            [ lowest, _, _, _, highest ] ->
+                                { rangeFrom = lowest, rangeTo = highest }
+
+                            _ ->
+                                { rangeFrom = 0, rangeTo = 0 }
+
+                    { initial, input1, input2 } =
+                        case floatValues of
+                            initial_ :: (input1_ :: (input2_ :: _)) ->
+                                { initial = initial_, input1 = input1_, input2 = input2_ }
+
+                            _ ->
+                                { initial = 10, input1 = 10, input2 = 10 }
+
+                    invalidInput =
+                        case String.toInt stringInput of
+                            Just _ ->
+                                "x"
+
+                            Nothing ->
+                                stringInput ++ "x"
+                in
+                Knob.floatConstrained { step = 0.1, range = ( rangeFrom, rangeTo ), initial = initial }
+                    |> simulateInputs (String.fromFloat input1) [ String.fromFloat input2, invalidInput ]
+                    |> Expect.equal (Just initial)
         ]
 
 
