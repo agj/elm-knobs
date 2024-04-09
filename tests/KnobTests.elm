@@ -90,8 +90,8 @@ floatConstrained =
                     { tooLow, tooHigh, rangeFrom, rangeTo, initial } =
                         case sorted of
                             [ tooLow_, rangeFrom_, initial_, rangeTo_, tooHigh_ ] ->
-                                { tooLow = tooLow_ - 1
-                                , tooHigh = tooHigh_ + 1
+                                { tooLow = tooLow_
+                                , tooHigh = tooHigh_
                                 , rangeFrom = rangeFrom_
                                 , rangeTo = rangeTo_
                                 , initial = initial_
