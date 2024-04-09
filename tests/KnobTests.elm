@@ -104,6 +104,36 @@ floatConstrained =
                         , simulateInput (String.fromFloat tooHigh)
                             >> Expect.equal (Just rangeTo)
                         ]
+        , Test.fuzz2 (Fuzz.listOfLength 3 Fuzz.niceFloat) Fuzz.string "Invalid values result in the initial value" <|
+            \floatValues stringInput ->
+                let
+                    { rangeFrom, rangeTo } =
+                        case List.sort floatValues of
+                            [ lowest, _, highest ] ->
+                                { rangeFrom = lowest, rangeTo = highest }
+
+                            _ ->
+                                { rangeFrom = 0, rangeTo = 0 }
+
+                    initial =
+                        case floatValues of
+                            initial_ :: _ ->
+                                initial_
+
+                            _ ->
+                                10
+
+                    invalidInput =
+                        case String.toInt stringInput of
+                            Just _ ->
+                                "x"
+
+                            Nothing ->
+                                stringInput ++ "x"
+                in
+                Knob.floatConstrained { step = 0.1, range = ( rangeFrom, rangeTo ), initial = initial }
+                    |> simulateInput invalidInput
+                    |> Expect.equal (Just initial)
         , Test.fuzz2 (Fuzz.listOfLength 5 Fuzz.niceFloat) Fuzz.string "Invalid values after a correct value still result in the initial value" <|
             \floatValues stringInput ->
                 let
@@ -126,10 +156,10 @@ floatConstrained =
                     invalidInput =
                         case String.toInt stringInput of
                             Just _ ->
-                                "x"
+                                ""
 
                             Nothing ->
-                                stringInput ++ "x"
+                                stringInput
                 in
                 Knob.floatConstrained { step = 0.1, range = ( rangeFrom, rangeTo ), initial = initial }
                     |> simulateInputs (String.fromFloat input1) [ String.fromFloat input2, invalidInput ]
