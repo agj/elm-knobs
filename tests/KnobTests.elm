@@ -1,5 +1,6 @@
 module KnobTests exposing (..)
 
+import Array
 import Expect
 import Fuzz
 import Knob exposing (Knob)
@@ -49,6 +50,73 @@ float =
                 Knob.int { step = 1, initial = initial }
                     |> simulateInputs "123" [ "45.2", invalidInput ]
                     |> Expect.equal (Just initial)
+        ]
+
+
+floatConstrained =
+    Test.describe "floatConstrained"
+        [ Test.fuzz (Fuzz.listOfLength 4 Fuzz.niceFloat) "Can input valid values" <|
+            \floatValues ->
+                let
+                    floatValuesArray =
+                        Array.fromList floatValues
+
+                    sorted =
+                        floatValues
+                            |> List.sort
+                            |> Array.fromList
+
+                    rangeFrom =
+                        Array.get 0 sorted
+                            |> Maybe.withDefault 0
+
+                    rangeTo =
+                        Array.get (Array.length sorted - 1) sorted
+                            |> Maybe.withDefault 0
+
+                    initial =
+                        Array.get 0 floatValuesArray
+                            |> Maybe.withDefault 0
+
+                    input =
+                        Array.get 1 floatValuesArray
+                            |> Maybe.withDefault 0
+                in
+                Knob.floatConstrained { step = 0.1, range = ( rangeFrom, rangeTo ), initial = initial }
+                    |> simulateInput (String.fromFloat input)
+                    |> Expect.equal (Just input)
+        , Test.fuzz (Fuzz.listOfLength 5 Fuzz.niceFloat) "Out of range values result in a clamped value" <|
+            \floatValues ->
+                let
+                    sorted =
+                        floatValues
+                            |> List.sort
+
+                    { tooLow, tooHigh, rangeFrom, rangeTo, initial } =
+                        case sorted of
+                            [ tooLow_, rangeFrom_, initial_, rangeTo_, tooHigh_ ] ->
+                                { tooLow = tooLow_ - 1
+                                , tooHigh = tooHigh_ + 1
+                                , rangeFrom = rangeFrom_
+                                , rangeTo = rangeTo_
+                                , initial = initial_
+                                }
+
+                            _ ->
+                                { tooLow = 0
+                                , tooHigh = 0
+                                , rangeFrom = 0
+                                , rangeTo = 0
+                                , initial = 0
+                                }
+                in
+                Knob.floatConstrained { step = 0.1, range = ( rangeFrom, rangeTo ), initial = initial }
+                    |> Expect.all
+                        [ simulateInput (String.fromFloat tooLow)
+                            >> Expect.equal (Just rangeFrom)
+                        , simulateInput (String.fromFloat tooHigh)
+                            >> Expect.equal (Just rangeTo)
+                        ]
         ]
 
 
