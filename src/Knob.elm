@@ -194,16 +194,16 @@ floatConstrained { range, step, initial } =
         ( rangeLow, rangeHigh ) =
             range
     in
-    floatConstrainedInternal ( rangeLow, rangeHigh ) step (String.fromFloat initial)
+    floatConstrainedInternal ( rangeLow, rangeHigh ) step initial (String.fromFloat initial)
 
 
-floatConstrainedInternal : ( Float, Float ) -> Float -> String -> Knob Float
-floatConstrainedInternal ( rangeLow, rangeHigh ) step initial =
+floatConstrainedInternal : ( Float, Float ) -> Float -> Float -> String -> Knob Float
+floatConstrainedInternal ( rangeLow, rangeHigh ) step initial current =
     let
         floatValue : Float
         floatValue =
-            String.toFloat initial
-                |> Maybe.withDefault 0
+            String.toFloat current
+                |> Maybe.withDefault initial
                 |> max rangeLow
                 |> min rangeHigh
 
@@ -211,10 +211,10 @@ floatConstrainedInternal ( rangeLow, rangeHigh ) step initial =
         input () =
             Html.input
                 [ Html.Attributes.type_ "number"
-                , Html.Attributes.value initial
+                , Html.Attributes.value current
                 , Html.Attributes.step (String.fromFloat step)
-                , Html.Events.onInput (floatConstrainedInternal ( rangeLow, rangeHigh ) step)
-                , Html.Events.onBlur (floatConstrainedInternal ( rangeLow, rangeHigh ) step (String.fromFloat floatValue))
+                , Html.Events.onInput (floatConstrainedInternal ( rangeLow, rangeHigh ) step initial)
+                , Html.Events.onBlur (floatConstrainedInternal ( rangeLow, rangeHigh ) step initial (String.fromFloat floatValue))
                 ]
                 []
     in
@@ -226,7 +226,7 @@ floatConstrainedInternal ( rangeLow, rangeHigh ) step initial =
         , decode =
             Just
                 (Json.Decode.map
-                    (String.fromFloat >> floatConstrainedInternal ( rangeLow, rangeHigh ) step)
+                    (String.fromFloat >> floatConstrainedInternal ( rangeLow, rangeHigh ) step initial)
                     Json.Decode.float
                 )
         }
