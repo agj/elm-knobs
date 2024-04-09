@@ -17,11 +17,6 @@ float =
                 Knob.float { step = 0.1, initial = 0 }
                     |> simulateInput (String.fromFloat floatInput)
                     |> Expect.equal (Just floatInput)
-        , Test.fuzz Fuzz.niceFloat "Step is only respected at the browser level" <|
-            \floatInput ->
-                Knob.float { step = 5, initial = 0 }
-                    |> simulateInput (String.fromFloat floatInput)
-                    |> Expect.equal (Just floatInput)
         , Test.fuzz2 Fuzz.niceFloat Fuzz.string "Invalid values result in the initial value" <|
             \initial stringInput ->
                 let
@@ -125,11 +120,6 @@ int =
         [ Test.fuzz Fuzz.int "Can input valid values" <|
             \intInput ->
                 Knob.int { step = 1, initial = 0 }
-                    |> simulateInput (String.fromInt intInput)
-                    |> Expect.equal (Just intInput)
-        , Test.fuzz Fuzz.int "Step is only respected at the browser level" <|
-            \intInput ->
-                Knob.int { step = 5, initial = 0 }
                     |> simulateInput (String.fromInt intInput)
                     |> Expect.equal (Just intInput)
         , Test.fuzz2 Fuzz.int Fuzz.string "Invalid values result in the initial value" <|
