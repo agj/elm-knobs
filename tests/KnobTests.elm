@@ -7,6 +7,7 @@ import Test
 import Test.Html.Event as Event
 import Test.Html.Query as Query
 import Test.Html.Selector as Selector
+import Util.Test.Knob exposing (Vegetable(..), knobSelect)
 
 
 floatTests =
@@ -195,6 +196,16 @@ boolCheckboxTests =
         ]
 
 
+selectTests =
+    Test.describe "select"
+        [ Test.test "Can input valid values" <|
+            \() ->
+                knobSelect Carrot
+                    |> simulateSelectInput "beet"
+                    |> Expect.equal (Just Beet)
+        ]
+
+
 
 -- FUZZERS
 
@@ -342,4 +353,11 @@ simulateCheckInput input knob =
         |> Event.simulate (Event.check input)
         |> Event.toResult
         |> Result.toMaybe
+        |> Maybe.map Knob.value
+
+
+simulateSelectInput : String -> Knob a -> Maybe a
+simulateSelectInput input knob =
+    knob
+        |> simulateInputAnd "select" input
         |> Maybe.map Knob.value
