@@ -248,47 +248,43 @@ floatSlider :
     }
     -> Knob Float
 floatSlider { range, step, initial } =
+    floatSliderInternal range step initial (String.fromFloat initial)
+
+
+floatSliderInternal : ( Float, Float ) -> Float -> Float -> String -> Knob Float
+floatSliderInternal ( rangeLow, rangeHigh ) step initial current =
     let
-        ( rangeLow, rangeHigh ) =
-            range
+        floatValue : Float
+        floatValue =
+            String.toFloat current
+                |> Maybe.withDefault initial
+                |> max rangeLow
+                |> min rangeHigh
 
         input : () -> Html (Knob Float)
         input () =
             Html.div []
                 [ Html.input
                     [ Html.Attributes.type_ "range"
+                    , Html.Attributes.value current
                     , Html.Attributes.min (String.fromFloat rangeLow)
                     , Html.Attributes.max (String.fromFloat rangeHigh)
                     , Html.Attributes.step (String.fromFloat step)
-                    , Html.Events.onInput
-                        (\val ->
-                            floatSlider
-                                { range = ( rangeLow, rangeHigh )
-                                , step = step
-                                , initial = String.toFloat val |> Maybe.withDefault rangeLow
-                                }
-                        )
-                    , Html.Attributes.value (String.fromFloat initial)
+                    , Html.Events.onInput (floatSliderInternal ( rangeLow, rangeHigh ) step initial)
                     ]
                     []
-                , Html.div [] [ Html.text (String.fromFloat initial) ]
+                , Html.div [] [ Html.text (String.fromFloat floatValue) ]
                 ]
     in
     Knob
-        { value = initial
+        { value = floatValue
         , keepOpen = False
         , view = SingleView input
-        , encode = Just (\() -> Json.Encode.float initial)
+        , encode = Just (\() -> Json.Encode.float floatValue)
         , decode =
             Just
                 (Json.Decode.map
-                    (\decodedValue ->
-                        floatSlider
-                            { range = ( rangeLow, rangeHigh )
-                            , step = step
-                            , initial = decodedValue
-                            }
-                    )
+                    (String.fromFloat >> floatSliderInternal ( rangeLow, rangeHigh ) step initial)
                     Json.Decode.float
                 )
         }
