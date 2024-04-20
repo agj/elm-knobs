@@ -148,27 +148,27 @@ float { step, initial } =
 
 
 floatInternal : Float -> Float -> String -> Knob Float
-floatInternal step initial current =
+floatInternal step initial userInput =
     let
-        floatValue : Float
-        floatValue =
-            String.toFloat current |> Maybe.withDefault initial
+        newValue : Float
+        newValue =
+            String.toFloat userInput |> Maybe.withDefault initial
 
         input : () -> Html (Knob Float)
         input () =
             Html.input
                 [ Html.Attributes.type_ "number"
-                , Html.Attributes.value current
+                , Html.Attributes.value userInput
                 , Html.Attributes.step (String.fromFloat step)
                 , Html.Events.onInput (floatInternal step initial)
                 ]
                 []
     in
     Knob
-        { value = floatValue
+        { value = newValue
         , keepOpen = False
         , view = SingleView input
-        , encode = Just (\() -> Json.Encode.float floatValue)
+        , encode = Just (\() -> Json.Encode.float newValue)
         , decode =
             Just
                 (Json.Decode.map (String.fromFloat >> floatInternal step initial)
@@ -198,11 +198,11 @@ floatConstrained { range, step, initial } =
 
 
 floatConstrainedInternal : ( Float, Float ) -> Float -> Float -> String -> Knob Float
-floatConstrainedInternal ( rangeLow, rangeHigh ) step initial current =
+floatConstrainedInternal ( rangeLow, rangeHigh ) step initial userInput =
     let
-        floatValue : Float
-        floatValue =
-            String.toFloat current
+        newValue : Float
+        newValue =
+            String.toFloat userInput
                 |> Maybe.withDefault initial
                 |> max rangeLow
                 |> min rangeHigh
@@ -211,18 +211,18 @@ floatConstrainedInternal ( rangeLow, rangeHigh ) step initial current =
         input () =
             Html.input
                 [ Html.Attributes.type_ "number"
-                , Html.Attributes.value current
+                , Html.Attributes.value userInput
                 , Html.Attributes.step (String.fromFloat step)
                 , Html.Events.onInput (floatConstrainedInternal ( rangeLow, rangeHigh ) step initial)
-                , Html.Events.onBlur (floatConstrainedInternal ( rangeLow, rangeHigh ) step initial (String.fromFloat floatValue))
+                , Html.Events.onBlur (floatConstrainedInternal ( rangeLow, rangeHigh ) step initial (String.fromFloat newValue))
                 ]
                 []
     in
     Knob
-        { value = floatValue
+        { value = newValue
         , keepOpen = False
         , view = SingleView input
-        , encode = Just (\() -> Json.Encode.float floatValue)
+        , encode = Just (\() -> Json.Encode.float newValue)
         , decode =
             Just
                 (Json.Decode.map
@@ -252,11 +252,11 @@ floatSlider { range, step, initial } =
 
 
 floatSliderInternal : ( Float, Float ) -> Float -> Float -> String -> Knob Float
-floatSliderInternal ( rangeLow, rangeHigh ) step initial current =
+floatSliderInternal ( rangeLow, rangeHigh ) step initial userInput =
     let
-        floatValue : Float
-        floatValue =
-            String.toFloat current
+        newValue : Float
+        newValue =
+            String.toFloat userInput
                 |> Maybe.withDefault initial
                 |> max rangeLow
                 |> min rangeHigh
@@ -266,21 +266,21 @@ floatSliderInternal ( rangeLow, rangeHigh ) step initial current =
             Html.div []
                 [ Html.input
                     [ Html.Attributes.type_ "range"
-                    , Html.Attributes.value current
+                    , Html.Attributes.value userInput
                     , Html.Attributes.min (String.fromFloat rangeLow)
                     , Html.Attributes.max (String.fromFloat rangeHigh)
                     , Html.Attributes.step (String.fromFloat step)
                     , Html.Events.onInput (floatSliderInternal ( rangeLow, rangeHigh ) step initial)
                     ]
                     []
-                , Html.div [] [ Html.text (String.fromFloat floatValue) ]
+                , Html.div [] [ Html.text (String.fromFloat newValue) ]
                 ]
     in
     Knob
-        { value = floatValue
+        { value = newValue
         , keepOpen = False
         , view = SingleView input
-        , encode = Just (\() -> Json.Encode.float floatValue)
+        , encode = Just (\() -> Json.Encode.float newValue)
         , decode =
             Just
                 (Json.Decode.map
@@ -305,27 +305,27 @@ int { step, initial } =
 
 
 intInternal : Int -> Int -> String -> Knob Int
-intInternal step initial current =
+intInternal step initial userInput =
     let
-        intValue : Int
-        intValue =
-            String.toInt current |> Maybe.withDefault initial
+        newValue : Int
+        newValue =
+            String.toInt userInput |> Maybe.withDefault initial
 
         input : () -> Html (Knob Int)
         input () =
             Html.input
                 [ Html.Attributes.type_ "number"
-                , Html.Attributes.value current
+                , Html.Attributes.value userInput
                 , Html.Attributes.step (String.fromInt step)
                 , Html.Events.onInput (intInternal step initial)
                 ]
                 []
     in
     Knob
-        { value = intValue
+        { value = newValue
         , keepOpen = False
         , view = SingleView input
-        , encode = Just (\() -> Json.Encode.int intValue)
+        , encode = Just (\() -> Json.Encode.int newValue)
         , decode =
             Just
                 (Json.Decode.map (String.fromInt >> intInternal step initial)
@@ -354,11 +354,11 @@ intConstrained { range, step, initial } =
 
 
 intConstrainedInternal : ( Int, Int ) -> Int -> Int -> String -> Knob Int
-intConstrainedInternal ( rangeLow, rangeHigh ) step initial current =
+intConstrainedInternal ( rangeLow, rangeHigh ) step initial userInput =
     let
-        intValue : Int
-        intValue =
-            String.toInt current
+        newValue : Int
+        newValue =
+            String.toInt userInput
                 |> Maybe.withDefault initial
                 |> max rangeLow
                 |> min rangeHigh
@@ -367,18 +367,18 @@ intConstrainedInternal ( rangeLow, rangeHigh ) step initial current =
         input () =
             Html.input
                 [ Html.Attributes.type_ "number"
-                , Html.Attributes.value current
+                , Html.Attributes.value userInput
                 , Html.Attributes.step (String.fromInt step)
                 , Html.Events.onInput (intConstrainedInternal ( rangeLow, rangeHigh ) step initial)
-                , Html.Events.onBlur (intConstrainedInternal ( rangeLow, rangeHigh ) step initial (String.fromInt intValue))
+                , Html.Events.onBlur (intConstrainedInternal ( rangeLow, rangeHigh ) step initial (String.fromInt newValue))
                 ]
                 []
     in
     Knob
-        { value = intValue
+        { value = newValue
         , keepOpen = False
         , view = SingleView input
-        , encode = Just (\() -> Json.Encode.int intValue)
+        , encode = Just (\() -> Json.Encode.int newValue)
         , decode =
             Just
                 (Json.Decode.map
@@ -408,11 +408,11 @@ intSlider { range, step, initial } =
 
 
 intSliderInternal : ( Int, Int ) -> Int -> Int -> String -> Knob Int
-intSliderInternal ( rangeLow, rangeHigh ) step initial current =
+intSliderInternal ( rangeLow, rangeHigh ) step initial userInput =
     let
-        intValue : Int
-        intValue =
-            String.toInt current
+        newValue : Int
+        newValue =
+            String.toInt userInput
                 |> Maybe.withDefault initial
                 |> max rangeLow
                 |> min rangeHigh
@@ -422,21 +422,21 @@ intSliderInternal ( rangeLow, rangeHigh ) step initial current =
             Html.div []
                 [ Html.input
                     [ Html.Attributes.type_ "range"
-                    , Html.Attributes.value current
+                    , Html.Attributes.value userInput
                     , Html.Attributes.min (String.fromInt rangeLow)
                     , Html.Attributes.max (String.fromInt rangeHigh)
                     , Html.Attributes.step (String.fromInt step)
                     , Html.Events.onInput (intSliderInternal ( rangeLow, rangeHigh ) step initial)
                     ]
                     []
-                , Html.div [] [ Html.text (String.fromInt intValue) ]
+                , Html.div [] [ Html.text (String.fromInt newValue) ]
                 ]
     in
     Knob
-        { value = intValue
+        { value = newValue
         , keepOpen = False
         , view = SingleView input
-        , encode = Just (\() -> Json.Encode.int intValue)
+        , encode = Just (\() -> Json.Encode.int newValue)
         , decode =
             Just
                 (Json.Decode.map
