@@ -58,6 +58,35 @@ floatConstrainedTests =
         ]
 
 
+floatSliderTests =
+    Test.describe "floatSlider"
+        [ Test.fuzz fuzzFloatRangeInputs "Can input valid values" <|
+            \{ lowest, highest, any, any2 } ->
+                Knob.floatSlider { step = 0.1, range = ( lowest, highest ), initial = any }
+                    |> simulateInput (String.fromFloat any2)
+                    |> Expect.equal (Just any2)
+        , Test.fuzz fuzzFloatRangeInputs "Out of range values result in a clamped value" <|
+            \{ low, high, lowest, highest, mid } ->
+                Knob.floatSlider { step = 0.1, range = ( low, high ), initial = mid }
+                    |> Expect.all
+                        [ simulateInput (String.fromFloat lowest)
+                            >> Expect.equal (Just low)
+                        , simulateInput (String.fromFloat highest)
+                            >> Expect.equal (Just high)
+                        ]
+        , Test.fuzz2 fuzzFloatRangeInputs fuzzNonEmptyNonNumericString "Invalid values result in the initial value" <|
+            \{ lowest, highest, mid } invalidInput ->
+                Knob.floatSlider { step = 0.1, range = ( lowest, highest ), initial = mid }
+                    |> simulateInput invalidInput
+                    |> Expect.equal (Just mid)
+        , Test.fuzz2 fuzzFloatRangeInputs fuzzNonNumericString "Invalid values after a correct value still result in the initial value" <|
+            \{ lowest, highest, mid, any, any2 } invalidInput ->
+                Knob.floatSlider { step = 0.1, range = ( lowest, highest ), initial = mid }
+                    |> simulateInputs (String.fromFloat any) [ String.fromFloat any2, invalidInput ]
+                    |> Expect.equal (Just mid)
+        ]
+
+
 intTests =
     Test.describe "int"
         [ Test.fuzz Fuzz.int "Can input valid values" <|
