@@ -1,7 +1,7 @@
 module KnobTests exposing (..)
 
 import Expect
-import Fuzz
+import Fuzz exposing (Fuzzer)
 import Knob exposing (Knob)
 import Test
 import Test.Html.Event as Event
@@ -9,7 +9,7 @@ import Test.Html.Query as Query
 import Test.Html.Selector as Selector
 
 
-float =
+floatTests =
     Test.describe "float"
         [ Test.fuzz Fuzz.niceFloat "Can input valid values" <|
             \floatInput ->
@@ -47,81 +47,25 @@ float =
         ]
 
 
-floatConstrained =
+floatConstrainedTests =
     Test.describe "floatConstrained"
-        [ Test.fuzz (Fuzz.listOfLength 4 Fuzz.niceFloat) "Can input valid values" <|
-            \floatValues ->
-                let
-                    { rangeFrom, rangeTo } =
-                        case List.sort floatValues of
-                            [ lowest, _, _, highest ] ->
-                                { rangeFrom = lowest, rangeTo = highest }
-
-                            _ ->
-                                { rangeFrom = 0, rangeTo = 0 }
-
-                    { initial, input } =
-                        case floatValues of
-                            initial_ :: (input_ :: _) ->
-                                { initial = initial_, input = input_ }
-
-                            _ ->
-                                { initial = 10, input = 10 }
-                in
-                Knob.floatConstrained { step = 0.1, range = ( rangeFrom, rangeTo ), initial = initial }
-                    |> simulateInput (String.fromFloat input)
-                    |> Expect.equal (Just input)
-        , Test.fuzz (Fuzz.listOfLength 5 Fuzz.niceFloat) "Out of range values result in a clamped value" <|
-            \floatValues ->
-                let
-                    sorted =
-                        floatValues
-                            |> List.sort
-
-                    { tooLow, tooHigh, rangeFrom, rangeTo, initial } =
-                        case sorted of
-                            [ tooLow_, rangeFrom_, initial_, rangeTo_, tooHigh_ ] ->
-                                { tooLow = tooLow_
-                                , tooHigh = tooHigh_
-                                , rangeFrom = rangeFrom_
-                                , rangeTo = rangeTo_
-                                , initial = initial_
-                                }
-
-                            _ ->
-                                { tooLow = 10
-                                , tooHigh = 10
-                                , rangeFrom = 0
-                                , rangeTo = 0
-                                , initial = 10
-                                }
-                in
-                Knob.floatConstrained { step = 0.1, range = ( rangeFrom, rangeTo ), initial = initial }
+        [ Test.fuzz fuzzFloatRangeInputs "Can input valid values" <|
+            \{ lowest, highest, any, any2 } ->
+                Knob.floatConstrained { step = 0.1, range = ( lowest, highest ), initial = any }
+                    |> simulateInput (String.fromFloat any2)
+                    |> Expect.equal (Just any2)
+        , Test.fuzz fuzzFloatRangeInputs "Out of range values result in a clamped value" <|
+            \{ low, high, lowest, highest, mid } ->
+                Knob.floatConstrained { step = 0.1, range = ( low, high ), initial = mid }
                     |> Expect.all
-                        [ simulateInput (String.fromFloat tooLow)
-                            >> Expect.equal (Just rangeFrom)
-                        , simulateInput (String.fromFloat tooHigh)
-                            >> Expect.equal (Just rangeTo)
+                        [ simulateInput (String.fromFloat lowest)
+                            >> Expect.equal (Just low)
+                        , simulateInput (String.fromFloat highest)
+                            >> Expect.equal (Just high)
                         ]
-        , Test.fuzz2 (Fuzz.listOfLength 3 Fuzz.niceFloat) Fuzz.string "Invalid values result in the initial value" <|
-            \floatValues stringInput ->
+        , Test.fuzz2 fuzzFloatRangeInputs Fuzz.string "Invalid values result in the initial value" <|
+            \{ lowest, highest, mid } stringInput ->
                 let
-                    { rangeFrom, rangeTo } =
-                        case List.sort floatValues of
-                            [ lowest, _, highest ] ->
-                                { rangeFrom = lowest, rangeTo = highest }
-
-                            _ ->
-                                { rangeFrom = 0, rangeTo = 0 }
-
-                    initial =
-                        case floatValues of
-                            initial_ :: _ ->
-                                initial_
-
-                            _ ->
-                                10
-
                     invalidInput =
                         case String.toInt stringInput of
                             Just _ ->
@@ -130,28 +74,12 @@ floatConstrained =
                             Nothing ->
                                 stringInput ++ "x"
                 in
-                Knob.floatConstrained { step = 0.1, range = ( rangeFrom, rangeTo ), initial = initial }
+                Knob.floatConstrained { step = 0.1, range = ( lowest, highest ), initial = mid }
                     |> simulateInput invalidInput
-                    |> Expect.equal (Just initial)
-        , Test.fuzz2 (Fuzz.listOfLength 5 Fuzz.niceFloat) Fuzz.string "Invalid values after a correct value still result in the initial value" <|
-            \floatValues stringInput ->
+                    |> Expect.equal (Just mid)
+        , Test.fuzz2 fuzzFloatRangeInputs Fuzz.string "Invalid values after a correct value still result in the initial value" <|
+            \{ lowest, highest, mid, any, any2 } stringInput ->
                 let
-                    { rangeFrom, rangeTo } =
-                        case List.sort floatValues of
-                            [ lowest, _, _, _, highest ] ->
-                                { rangeFrom = lowest, rangeTo = highest }
-
-                            _ ->
-                                { rangeFrom = 0, rangeTo = 0 }
-
-                    { initial, input1, input2 } =
-                        case floatValues of
-                            initial_ :: (input1_ :: (input2_ :: _)) ->
-                                { initial = initial_, input1 = input1_, input2 = input2_ }
-
-                            _ ->
-                                { initial = 10, input1 = 10, input2 = 10 }
-
                     invalidInput =
                         case String.toInt stringInput of
                             Just _ ->
@@ -160,13 +88,13 @@ floatConstrained =
                             Nothing ->
                                 stringInput
                 in
-                Knob.floatConstrained { step = 0.1, range = ( rangeFrom, rangeTo ), initial = initial }
-                    |> simulateInputs (String.fromFloat input1) [ String.fromFloat input2, invalidInput ]
-                    |> Expect.equal (Just initial)
+                Knob.floatConstrained { step = 0.1, range = ( lowest, highest ), initial = mid }
+                    |> simulateInputs (String.fromFloat any) [ String.fromFloat any2, invalidInput ]
+                    |> Expect.equal (Just mid)
         ]
 
 
-int =
+intTests =
     Test.describe "int"
         [ Test.fuzz Fuzz.int "Can input valid values" <|
             \intInput ->
@@ -204,8 +132,57 @@ int =
         ]
 
 
-{-| Creates a test event of the type of the knob, for a given string input on the
-knob's HTML <input> tag.
+
+-- FUZZERS
+
+
+fuzzFloatRangeInputs :
+    Fuzzer
+        { lowest : Float
+        , low : Float
+        , mid : Float
+        , high : Float
+        , highest : Float
+        , any : Float
+        , any2 : Float
+        }
+fuzzFloatRangeInputs =
+    Fuzz.listOfLength 5 Fuzz.niceFloat
+        |> Fuzz.map
+            (\unsorted ->
+                let
+                    sorted =
+                        List.sort unsorted
+                in
+                case ( unsorted, sorted ) of
+                    ( any_ :: any2_ :: _, [ lowest_, low_, mid_, high_, highest_ ] ) ->
+                        { lowest = lowest_
+                        , low = low_
+                        , mid = mid_
+                        , high = high_
+                        , highest = highest_
+                        , any = any_
+                        , any2 = any2_
+                        }
+
+                    _ ->
+                        { lowest = 10
+                        , low = 0
+                        , mid = 10
+                        , high = 0
+                        , highest = 10
+                        , any = 0
+                        , any2 = 0
+                        }
+            )
+
+
+
+-- INPUT
+
+
+{-| Simulates entering some text into the knob's `<input>` element, and returns
+a `Maybe` of the value that the knob emits out of the interaction.
 -}
 simulateInput : String -> Knob a -> Maybe a
 simulateInput inputString knob =
@@ -214,6 +191,9 @@ simulateInput inputString knob =
         |> Maybe.map Knob.value
 
 
+{-| Same as `simulateInput`, but simulates a sequence of inputs instead of just
+one. The first input is required, the rest are supplied as an array.
+-}
 simulateInputs : String -> List String -> Knob a -> Maybe a
 simulateInputs firstInputString restInputStrings knob =
     let
@@ -228,6 +208,10 @@ simulateInputs firstInputString restInputStrings knob =
         |> Maybe.map Knob.value
 
 
+{-| Used to string multiple inputs into the same knob, this function simulates
+entering one text input into its `<input>` element, and returns a `Maybe` of the
+updated knob.
+-}
 simulateInputAnd : String -> Knob a -> Maybe (Knob a)
 simulateInputAnd inputString knob =
     knob
