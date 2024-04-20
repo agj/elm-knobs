@@ -136,6 +136,35 @@ intConstrainedTests =
         ]
 
 
+intSliderTests =
+    Test.describe "intSlider"
+        [ Test.fuzz fuzzIntRangeInputs "Can input valid values" <|
+            \{ lowest, highest, any, any2 } ->
+                Knob.intSlider { step = 1, range = ( lowest, highest ), initial = any }
+                    |> simulateInput (String.fromInt any2)
+                    |> Expect.equal (Just any2)
+        , Test.fuzz fuzzIntRangeInputs "Out of range values result in a clamped value" <|
+            \{ low, high, lowest, highest, mid } ->
+                Knob.intSlider { step = 1, range = ( low, high ), initial = mid }
+                    |> Expect.all
+                        [ simulateInput (String.fromInt lowest)
+                            >> Expect.equal (Just low)
+                        , simulateInput (String.fromInt highest)
+                            >> Expect.equal (Just high)
+                        ]
+        , Test.fuzz2 fuzzIntRangeInputs fuzzNonEmptyNonNumericString "Invalid values result in the initial value" <|
+            \{ lowest, highest, mid } invalidInput ->
+                Knob.intSlider { step = 1, range = ( lowest, highest ), initial = mid }
+                    |> simulateInput invalidInput
+                    |> Expect.equal (Just mid)
+        , Test.fuzz2 fuzzIntRangeInputs fuzzNonNumericString "Invalid values after a correct value still result in the initial value" <|
+            \{ lowest, highest, mid, any, any2 } invalidInput ->
+                Knob.intSlider { step = 1, range = ( lowest, highest ), initial = mid }
+                    |> simulateInputs (String.fromInt any) [ String.fromInt any2, invalidInput ]
+                    |> Expect.equal (Just mid)
+        ]
+
+
 
 -- FUZZERS
 
