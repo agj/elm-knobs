@@ -404,47 +404,43 @@ intSlider :
     }
     -> Knob Int
 intSlider { range, step, initial } =
+    intSliderInternal range step initial (String.fromInt initial)
+
+
+intSliderInternal : ( Int, Int ) -> Int -> Int -> String -> Knob Int
+intSliderInternal ( rangeLow, rangeHigh ) step initial current =
     let
-        ( rangeLow, rangeHigh ) =
-            range
+        intValue : Int
+        intValue =
+            String.toInt current
+                |> Maybe.withDefault initial
+                |> max rangeLow
+                |> min rangeHigh
 
         input : () -> Html (Knob Int)
         input () =
             Html.div []
                 [ Html.input
                     [ Html.Attributes.type_ "range"
+                    , Html.Attributes.value current
                     , Html.Attributes.min (String.fromInt rangeLow)
                     , Html.Attributes.max (String.fromInt rangeHigh)
                     , Html.Attributes.step (String.fromInt step)
-                    , Html.Events.onInput
-                        (\val ->
-                            intSlider
-                                { range = ( rangeLow, rangeHigh )
-                                , step = step
-                                , initial = String.toInt val |> Maybe.withDefault rangeLow
-                                }
-                        )
-                    , Html.Attributes.value (String.fromInt initial)
+                    , Html.Events.onInput (intSliderInternal ( rangeLow, rangeHigh ) step initial)
                     ]
                     []
-                , Html.div [] [ Html.text (String.fromInt initial) ]
+                , Html.div [] [ Html.text (String.fromInt intValue) ]
                 ]
     in
     Knob
-        { value = initial
+        { value = intValue
         , keepOpen = False
         , view = SingleView input
-        , encode = Just (\() -> Json.Encode.int initial)
+        , encode = Just (\() -> Json.Encode.int intValue)
         , decode =
             Just
                 (Json.Decode.map
-                    (\decodedValue ->
-                        intSlider
-                            { range = ( rangeLow, rangeHigh )
-                            , step = step
-                            , initial = decodedValue
-                            }
-                    )
+                    (String.fromInt >> intSliderInternal ( rangeLow, rangeHigh ) step initial)
                     Json.Decode.int
                 )
         }
