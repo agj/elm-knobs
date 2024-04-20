@@ -7,7 +7,7 @@ import Test
 import Test.Html.Event as Event
 import Test.Html.Query as Query
 import Test.Html.Selector as Selector
-import Util.Test.Knob exposing (Vegetable(..), knobSelect)
+import Util.Test.Knob exposing (knobSelect, vegetableStrings, vegetables)
 
 
 floatTests =
@@ -198,11 +198,48 @@ boolCheckboxTests =
 
 selectTests =
     Test.describe "select"
-        [ Test.test "Can input valid values" <|
-            \() ->
-                knobSelect Carrot
-                    |> simulateSelectInput "beet"
-                    |> Expect.equal (Just Beet)
+        [ Test.fuzz3
+            (Fuzz.oneOfValues vegetables)
+            (Fuzz.oneOfValues vegetables)
+            (Fuzz.oneOfValues vegetableStrings)
+            "Can input valid values"
+          <|
+            \default initial input ->
+                let
+                    { knob, fromString } =
+                        knobSelect default initial
+                in
+                knob
+                    |> simulateSelectInput input
+                    |> Expect.equal (Just (fromString input))
+        , Test.fuzz3
+            (Fuzz.oneOfValues vegetables)
+            (Fuzz.oneOfValues vegetables)
+            Fuzz.string
+            "Invalid values result in the fromString default value"
+          <|
+            \default initial invalidInput ->
+                let
+                    { knob } =
+                        knobSelect default initial
+                in
+                knob
+                    |> simulateSelectInput invalidInput
+                    |> Expect.equal (Just default)
+        , Test.fuzz3
+            (Fuzz.oneOfValues vegetables)
+            (Fuzz.oneOfValues vegetables)
+            (Fuzz.pair (Fuzz.oneOfValues vegetableStrings) Fuzz.string)
+            "Invalid values after a correct value still result in the fromString default value"
+          <|
+            \default initial ( input, invalidInput ) ->
+                let
+                    { knob } =
+                        knobSelect default initial
+                in
+                knob
+                    |> simulateSelectInputs input [ invalidInput ]
+                    |> Expect.equal (Just default)
         ]
 
 
@@ -360,4 +397,18 @@ simulateSelectInput : String -> Knob a -> Maybe a
 simulateSelectInput input knob =
     knob
         |> simulateInputAnd "select" input
+        |> Maybe.map Knob.value
+
+
+simulateSelectInputs : String -> List String -> Knob a -> Maybe a
+simulateSelectInputs firstInputString restInputStrings knob =
+    let
+        proc : String -> Maybe (Knob a) -> Maybe (Knob a)
+        proc inputString =
+            Maybe.andThen (simulateInputAnd "select" inputString)
+    in
+    List.foldl
+        proc
+        (Just knob)
+        (firstInputString :: restInputStrings)
         |> Maybe.map Knob.value
