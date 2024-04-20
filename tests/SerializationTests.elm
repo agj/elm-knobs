@@ -4,6 +4,7 @@ import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer)
 import Knob exposing (Knob)
 import Test
+import Util.Test.Knob exposing (knobSelect, vegetables)
 
 
 transitiveEqualityTests =
@@ -141,59 +142,6 @@ roundTripSerializationTests =
                         |> Knob.map String.fromInt
                 )
         ]
-
-
-
--- KNOB PRODUCTION
-
-
-knobSelect : Vegetable -> Knob Vegetable
-knobSelect initial =
-    Knob.select
-        { options = vegetableStrings
-        , toString = vegetableToString
-        , fromString = vegetableFromString
-        , initial = initial
-        }
-
-
-type Vegetable
-    = Carrot
-    | Lettuce
-    | Beet
-
-
-vegetables =
-    [ Carrot, Lettuce, Beet ]
-
-
-vegetableStrings =
-    vegetables
-        |> List.map vegetableToString
-
-
-vegetableToString vegetable =
-    case vegetable of
-        Carrot ->
-            "Carrot"
-
-        Lettuce ->
-            "Lettuce"
-
-        Beet ->
-            "Beet"
-
-
-vegetableFromString string =
-    case string of
-        "Lettuce" ->
-            Lettuce
-
-        "Beet" ->
-            Beet
-
-        _ ->
-            Carrot
 
 
 
