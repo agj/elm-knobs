@@ -94,31 +94,13 @@ intTests =
                 Knob.int { step = 1, initial = 0 }
                     |> simulateInput (String.fromInt intInput)
                     |> Expect.equal (Just intInput)
-        , Test.fuzz2 Fuzz.int Fuzz.string "Invalid values result in the initial value" <|
-            \initial stringInput ->
-                let
-                    invalidInput =
-                        case String.toInt stringInput of
-                            Just _ ->
-                                ""
-
-                            Nothing ->
-                                stringInput
-                in
+        , Test.fuzz2 Fuzz.int fuzzNonNumericString "Invalid values result in the initial value" <|
+            \initial invalidInput ->
                 Knob.int { step = 1, initial = initial }
                     |> simulateInput invalidInput
                     |> Expect.equal (Just initial)
-        , Test.fuzz2 Fuzz.int Fuzz.string "Invalid values after a correct value still result in the initial value" <|
-            \initial stringInput ->
-                let
-                    invalidInput =
-                        case String.toInt stringInput of
-                            Just _ ->
-                                "x"
-
-                            Nothing ->
-                                stringInput ++ "x"
-                in
+        , Test.fuzz2 Fuzz.int fuzzNonEmptyNonNumericString "Invalid values after a correct value still result in the initial value" <|
+            \initial invalidInput ->
                 Knob.int { step = 1, initial = initial }
                     |> simulateInputs "123" [ "45", invalidInput ]
                     |> Expect.equal (Just initial)
