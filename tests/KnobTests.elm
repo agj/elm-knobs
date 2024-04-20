@@ -185,6 +185,16 @@ stringTextareaTests =
         ]
 
 
+boolCheckboxTests =
+    Test.describe "boolCheckbox"
+        [ Test.fuzz2 Fuzz.bool Fuzz.bool "Can input" <|
+            \initial input ->
+                Knob.boolCheckbox initial
+                    |> simulateCheckInput input
+                    |> Expect.equal (Just input)
+        ]
+
+
 
 -- FUZZERS
 
@@ -321,3 +331,15 @@ simulateInputAnd tag inputString knob =
         |> Event.simulate (Event.input inputString)
         |> Event.toResult
         |> Result.toMaybe
+
+
+simulateCheckInput : Bool -> Knob Bool -> Maybe Bool
+simulateCheckInput input knob =
+    knob
+        |> Knob.view identity
+        |> Query.fromHtml
+        |> Query.find [ Selector.tag "input" ]
+        |> Event.simulate (Event.check input)
+        |> Event.toResult
+        |> Result.toMaybe
+        |> Maybe.map Knob.value
