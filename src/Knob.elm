@@ -350,16 +350,16 @@ intConstrained { range, step, initial } =
         ( rangeLow, rangeHigh ) =
             range
     in
-    intConstrainedInternal ( rangeLow, rangeHigh ) step (String.fromInt initial)
+    intConstrainedInternal ( rangeLow, rangeHigh ) step initial (String.fromInt initial)
 
 
-intConstrainedInternal : ( Int, Int ) -> Int -> String -> Knob Int
-intConstrainedInternal ( rangeLow, rangeHigh ) step initial =
+intConstrainedInternal : ( Int, Int ) -> Int -> Int -> String -> Knob Int
+intConstrainedInternal ( rangeLow, rangeHigh ) step initial current =
     let
         intValue : Int
         intValue =
-            String.toInt initial
-                |> Maybe.withDefault 0
+            String.toInt current
+                |> Maybe.withDefault initial
                 |> max rangeLow
                 |> min rangeHigh
 
@@ -367,10 +367,10 @@ intConstrainedInternal ( rangeLow, rangeHigh ) step initial =
         input () =
             Html.input
                 [ Html.Attributes.type_ "number"
-                , Html.Attributes.value initial
+                , Html.Attributes.value current
                 , Html.Attributes.step (String.fromInt step)
-                , Html.Events.onInput (intConstrainedInternal ( rangeLow, rangeHigh ) step)
-                , Html.Events.onBlur (intConstrainedInternal ( rangeLow, rangeHigh ) step (String.fromInt intValue))
+                , Html.Events.onInput (intConstrainedInternal ( rangeLow, rangeHigh ) step initial)
+                , Html.Events.onBlur (intConstrainedInternal ( rangeLow, rangeHigh ) step initial (String.fromInt intValue))
                 ]
                 []
     in
@@ -382,7 +382,7 @@ intConstrainedInternal ( rangeLow, rangeHigh ) step initial =
         , decode =
             Just
                 (Json.Decode.map
-                    (String.fromInt >> intConstrainedInternal ( rangeLow, rangeHigh ) step)
+                    (String.fromInt >> intConstrainedInternal ( rangeLow, rangeHigh ) step initial)
                     Json.Decode.int
                 )
         }
