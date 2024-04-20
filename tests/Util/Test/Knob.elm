@@ -1,4 +1,4 @@
-module Util.Test.Knob exposing (..)
+module Util.Test.Knob exposing (Vegetable, knobSelect, vegetableStrings, vegetables)
 
 import Knob exposing (Knob)
 
@@ -7,20 +7,35 @@ import Knob exposing (Knob)
 -- KNOB PRODUCTION
 
 
-knobSelect : Vegetable -> Knob Vegetable
-knobSelect initial =
-    Knob.select
-        { options = vegetableStrings
-        , toString = vegetableToString
-        , fromString = vegetableFromString
-        , initial = initial
+knobSelect :
+    Vegetable
+    -> Vegetable
+    ->
+        { knob : Knob Vegetable
+        , fromString : String -> Vegetable
+        , toString : Vegetable -> String
         }
+knobSelect default initial =
+    { knob =
+        Knob.select
+            { options = vegetableStrings
+            , toString = vegetableToString
+            , fromString = vegetableFromString >> Maybe.withDefault default
+            , initial = initial
+            }
+    , fromString = vegetableFromString >> Maybe.withDefault default
+    , toString = vegetableToString
+    }
 
 
 type Vegetable
     = Carrot
     | Lettuce
     | Beet
+
+
+
+-- INTERNAL
 
 
 vegetables =
@@ -44,13 +59,17 @@ vegetableToString vegetable =
             "Beet"
 
 
+vegetableFromString : String -> Maybe Vegetable
 vegetableFromString string =
     case string of
+        "Carrot" ->
+            Just Carrot
+
         "Lettuce" ->
-            Lettuce
+            Just Lettuce
 
         "Beet" ->
-            Beet
+            Just Beet
 
         _ ->
-            Carrot
+            Nothing
