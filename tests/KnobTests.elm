@@ -165,6 +165,26 @@ intSliderTests =
         ]
 
 
+stringInputTests =
+    Test.describe "stringInput"
+        [ Test.fuzz2 Fuzz.string Fuzz.string "Can input" <|
+            \initial input ->
+                Knob.stringInput initial
+                    |> simulateInput input
+                    |> Expect.equal (Just input)
+        ]
+
+
+stringTextareaTests =
+    Test.describe "stringTextarea"
+        [ Test.fuzz2 Fuzz.string Fuzz.string "Can input" <|
+            \initial input ->
+                Knob.stringTextarea { initial = initial, columns = Nothing, rows = Nothing }
+                    |> simulateTextareaInput input
+                    |> Expect.equal (Just input)
+        ]
+
+
 
 -- FUZZERS
 
@@ -258,7 +278,7 @@ a `Maybe` of the value that the knob emits out of the interaction.
 simulateInput : String -> Knob a -> Maybe a
 simulateInput inputString knob =
     knob
-        |> simulateInputAnd inputString
+        |> simulateInputAnd "input" inputString
         |> Maybe.map Knob.value
 
 
@@ -270,7 +290,7 @@ simulateInputs firstInputString restInputStrings knob =
     let
         proc : String -> Maybe (Knob a) -> Maybe (Knob a)
         proc inputString =
-            Maybe.andThen (simulateInputAnd inputString)
+            Maybe.andThen (simulateInputAnd "input" inputString)
     in
     List.foldl
         proc
@@ -279,16 +299,25 @@ simulateInputs firstInputString restInputStrings knob =
         |> Maybe.map Knob.value
 
 
-{-| Used to string multiple inputs into the same knob, this function simulates
-entering one text input into its `<input>` element, and returns a `Maybe` of the
-updated knob.
+{-| The same as `simulateInput`, but the element is `<textarea>`.
 -}
-simulateInputAnd : String -> Knob a -> Maybe (Knob a)
-simulateInputAnd inputString knob =
+simulateTextareaInput : String -> Knob a -> Maybe a
+simulateTextareaInput inputString knob =
+    knob
+        |> simulateInputAnd "textarea" inputString
+        |> Maybe.map Knob.value
+
+
+{-| Used to string multiple inputs into the same knob, this function simulates
+entering one text input into an element of the supplied tag (usually `"input"`),
+and returns a `Maybe` of the updated knob.
+-}
+simulateInputAnd : String -> String -> Knob a -> Maybe (Knob a)
+simulateInputAnd tag inputString knob =
     knob
         |> Knob.view identity
         |> Query.fromHtml
-        |> Query.find [ Selector.tag "input" ]
+        |> Query.find [ Selector.tag tag ]
         |> Event.simulate (Event.input inputString)
         |> Event.toResult
         |> Result.toMaybe
