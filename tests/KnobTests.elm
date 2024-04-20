@@ -16,31 +16,13 @@ floatTests =
                 Knob.float { step = 0.1, initial = 0 }
                     |> simulateInput (String.fromFloat floatInput)
                     |> Expect.equal (Just floatInput)
-        , Test.fuzz2 Fuzz.niceFloat Fuzz.string "Invalid values result in the initial value" <|
-            \initial stringInput ->
-                let
-                    invalidInput =
-                        case String.toFloat stringInput of
-                            Just _ ->
-                                ""
-
-                            Nothing ->
-                                stringInput
-                in
+        , Test.fuzz2 Fuzz.niceFloat fuzzNonNumericString "Invalid values result in the initial value" <|
+            \initial invalidInput ->
                 Knob.float { step = 1, initial = initial }
                     |> simulateInput invalidInput
                     |> Expect.equal (Just initial)
-        , Test.fuzz2 Fuzz.int Fuzz.string "Invalid values after a correct value still result in the initial value" <|
-            \initial stringInput ->
-                let
-                    invalidInput =
-                        case String.toInt stringInput of
-                            Just _ ->
-                                "x"
-
-                            Nothing ->
-                                stringInput ++ "x"
-                in
+        , Test.fuzz2 Fuzz.int fuzzNonEmptyNonNumericString "Invalid values after a correct value still result in the initial value" <|
+            \initial invalidInput ->
                 Knob.int { step = 1, initial = initial }
                     |> simulateInputs "123" [ "45.2", invalidInput ]
                     |> Expect.equal (Just initial)
@@ -63,31 +45,13 @@ floatConstrainedTests =
                         , simulateInput (String.fromFloat highest)
                             >> Expect.equal (Just high)
                         ]
-        , Test.fuzz2 fuzzFloatRangeInputs Fuzz.string "Invalid values result in the initial value" <|
-            \{ lowest, highest, mid } stringInput ->
-                let
-                    invalidInput =
-                        case String.toInt stringInput of
-                            Just _ ->
-                                "x"
-
-                            Nothing ->
-                                stringInput ++ "x"
-                in
+        , Test.fuzz2 fuzzFloatRangeInputs fuzzNonEmptyNonNumericString "Invalid values result in the initial value" <|
+            \{ lowest, highest, mid } invalidInput ->
                 Knob.floatConstrained { step = 0.1, range = ( lowest, highest ), initial = mid }
                     |> simulateInput invalidInput
                     |> Expect.equal (Just mid)
-        , Test.fuzz2 fuzzFloatRangeInputs Fuzz.string "Invalid values after a correct value still result in the initial value" <|
-            \{ lowest, highest, mid, any, any2 } stringInput ->
-                let
-                    invalidInput =
-                        case String.toInt stringInput of
-                            Just _ ->
-                                ""
-
-                            Nothing ->
-                                stringInput
-                in
+        , Test.fuzz2 fuzzFloatRangeInputs fuzzNonNumericString "Invalid values after a correct value still result in the initial value" <|
+            \{ lowest, highest, mid, any, any2 } invalidInput ->
                 Knob.floatConstrained { step = 0.1, range = ( lowest, highest ), initial = mid }
                     |> simulateInputs (String.fromFloat any) [ String.fromFloat any2, invalidInput ]
                     |> Expect.equal (Just mid)
@@ -134,6 +98,34 @@ intTests =
 
 
 -- FUZZERS
+
+
+fuzzNonNumericString : Fuzzer String
+fuzzNonNumericString =
+    Fuzz.string
+        |> Fuzz.map
+            (\string ->
+                case String.toFloat string of
+                    Just _ ->
+                        ""
+
+                    Nothing ->
+                        string
+            )
+
+
+fuzzNonEmptyNonNumericString : Fuzzer String
+fuzzNonEmptyNonNumericString =
+    Fuzz.string
+        |> Fuzz.map
+            (\string ->
+                case String.toFloat string of
+                    Just _ ->
+                        "x"
+
+                    Nothing ->
+                        string
+            )
 
 
 fuzzFloatRangeInputs :
