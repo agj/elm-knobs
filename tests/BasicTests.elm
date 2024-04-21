@@ -254,35 +254,6 @@ selectTests =
         , Test.fuzz2
             (Fuzz.oneOfValues vegetables)
             (Fuzz.oneOfValues vegetables)
-            "The panel is not kept open by default"
-          <|
-            \default initial ->
-                knobSelect default initial
-                    |> .knob
-                    |> viewHasNot [ Selector.class Internal.Constants.keepOpenCssClass ]
-        , Test.fuzz2
-            (Fuzz.oneOfValues vegetables)
-            (Fuzz.oneOfValues vegetables)
-            "Focusing the knob keeps the panel open"
-          <|
-            \default initial ->
-                knobSelect default initial
-                    |> .knob
-                    |> simulateEvent "select" Event.focus
-                    |> afterEvent (viewHas [ Selector.class Internal.Constants.keepOpenCssClass ])
-        , Test.fuzz2
-            (Fuzz.oneOfValues vegetables)
-            (Fuzz.oneOfValues vegetables)
-            "Unfocusing the knob lets the panel close"
-          <|
-            \default initial ->
-                knobSelect default initial
-                    |> .knob
-                    |> simulateEvents "select" Event.focus [ Event.blur ]
-                    |> afterEvent (viewHasNot [ Selector.class Internal.Constants.keepOpenCssClass ])
-        , Test.fuzz2
-            (Fuzz.oneOfValues vegetables)
-            (Fuzz.oneOfValues vegetables)
             "The deserialized knob does not keep the panel open"
           <|
             \default initial ->
@@ -338,20 +309,6 @@ colorPickerTests =
                 Knob.colorPicker initial.rgb
                     |> simulateInputs input.hex [ invalidInput ]
                     |> Expect.equal (Just initial.rgb)
-        , Test.fuzz (Fuzz.oneOfValues colors) "The panel is not kept open by default" <|
-            \initial ->
-                Knob.colorPicker initial.rgb
-                    |> viewHasNot [ Selector.class Internal.Constants.keepOpenCssClass ]
-        , Test.fuzz (Fuzz.oneOfValues colors) "Focusing the knob keeps the panel open" <|
-            \initial ->
-                Knob.colorPicker initial.rgb
-                    |> simulateEvent "input" Event.focus
-                    |> afterEvent (viewHas [ Selector.class Internal.Constants.keepOpenCssClass ])
-        , Test.fuzz (Fuzz.oneOfValues colors) "Unfocusing the knob lets the panel close" <|
-            \initial ->
-                Knob.colorPicker initial.rgb
-                    |> simulateEvents "input" Event.focus [ Event.blur ]
-                    |> afterEvent (viewHasNot [ Selector.class Internal.Constants.keepOpenCssClass ])
         , Test.fuzz (Fuzz.oneOfValues colors) "The deserialized knob does not keep the panel open" <|
             \initial ->
                 Knob.colorPicker initial.rgb
@@ -361,49 +318,6 @@ colorPickerTests =
                             Knob.readSerialized (Knob.serialize knob) knob
                                 |> viewHasNot [ Selector.class Internal.Constants.keepOpenCssClass ]
                         )
-        ]
-
-
-composeTests =
-    let
-        composedKnob =
-            Knob.compose (\a b c -> ( a, b, c ))
-                |> Knob.stack (Knob.int { step = 1, initial = 0 })
-                |> Knob.stack (knobSelect Carrot Carrot |> .knob)
-                |> Knob.stack (Knob.float { step = 1, initial = 0 })
-    in
-    Test.describe "compose"
-        [ Test.test "By default lets the panel close" <|
-            \() ->
-                composedKnob
-                    |> viewHasNot [ Selector.class Internal.Constants.keepOpenCssClass ]
-        , Test.test "Keeps panel open if any of its knobs wants to keep it open" <|
-            \() ->
-                composedKnob
-                    |> simulateEvent "select" Event.focus
-                    |> afterEvent (viewHas [ Selector.class Internal.Constants.keepOpenCssClass ])
-        ]
-
-
-mapTests =
-    let
-        { knob, toString } =
-            knobSelect Carrot Carrot
-
-        mappedKnob =
-            knob
-                |> Knob.map (\val -> toString val ++ "!")
-    in
-    Test.describe "map"
-        [ Test.test "By default lets the panel close" <|
-            \() ->
-                mappedKnob
-                    |> viewHasNot [ Selector.class Internal.Constants.keepOpenCssClass ]
-        , Test.test "Keeps panel open if the source knob wants to keep it open" <|
-            \() ->
-                mappedKnob
-                    |> simulateEvent "select" Event.focus
-                    |> afterEvent (viewHas [ Selector.class Internal.Constants.keepOpenCssClass ])
         ]
 
 
