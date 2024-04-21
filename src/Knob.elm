@@ -641,40 +641,46 @@ Below is an example mapping it into [avh4/elm-color](/packages/avh4/elm-color/1.
 -}
 colorPicker : Color -> Knob Color
 colorPicker initial =
-    colorPickerInternal False initial
+    colorPickerInternal False initial (colorToString initial)
 
 
-colorPickerInternal : Bool -> Color -> Knob Color
-colorPickerInternal keepOpen initial =
+colorPickerInternal : Bool -> Color -> String -> Knob Color
+colorPickerInternal keepOpen initial userInput =
     let
+        newValue : Color
+        newValue =
+            colorFromString initial userInput
+
         picker : () -> Html (Knob Color)
         picker () =
             Html.input
                 [ Html.Attributes.type_ "color"
-                , Html.Attributes.value (colorToString initial)
-                , Html.Events.onInput (\colorString -> colorPickerInternal keepOpen (colorFromString initial colorString))
-                , Html.Events.onFocus (colorPickerInternal True initial)
-                , Html.Events.onBlur (colorPickerInternal False initial)
+                , Html.Attributes.value userInput
+                , Html.Events.onInput (colorPickerInternal keepOpen initial)
+                , Html.Events.onFocus (colorPickerInternal True initial userInput)
+                , Html.Events.onBlur (colorPickerInternal False initial userInput)
                 ]
                 []
     in
     Knob
-        { value = initial
+        { value = newValue
         , keepOpen = keepOpen
         , view = SingleView picker
         , encode =
             Just
                 (\() ->
                     Json.Encode.object
-                        [ ( "red", Json.Encode.float initial.red )
-                        , ( "green", Json.Encode.float initial.green )
-                        , ( "blue", Json.Encode.float initial.blue )
+                        [ ( "red", Json.Encode.float newValue.red )
+                        , ( "green", Json.Encode.float newValue.green )
+                        , ( "blue", Json.Encode.float newValue.blue )
                         ]
                 )
         , decode =
             Just
                 (Json.Decode.map3
-                    (\red green blue -> colorPickerInternal keepOpen { red = red, green = green, blue = blue })
+                    (\red green blue ->
+                        colorPickerInternal keepOpen initial (colorToString { red = red, green = green, blue = blue })
+                    )
                     (Json.Decode.field "red" Json.Decode.float)
                     (Json.Decode.field "green" Json.Decode.float)
                     (Json.Decode.field "blue" Json.Decode.float)
@@ -1127,28 +1133,36 @@ colorFromString default colorString =
     case String.uncons colorString of
         Just ( '#', rest ) ->
             let
-                parse : String -> Float
+                parse : String -> Maybe Float
                 parse str =
                     str
                         |> Hex.fromString
-                        |> Result.withDefault 0
-                        |> (\n -> toFloat n / 255)
+                        |> Result.toMaybe
+                        |> Maybe.map (\n -> toFloat n / 255)
+
+                red =
+                    rest
+                        |> String.left 2
+                        |> parse
+
+                green =
+                    rest
+                        |> String.dropLeft 2
+                        |> String.left 2
+                        |> parse
+
+                blue =
+                    rest
+                        |> String.dropLeft 4
+                        |> String.left 2
+                        |> parse
             in
-            { red =
-                rest
-                    |> String.left 2
-                    |> parse
-            , green =
-                rest
-                    |> String.dropLeft 2
-                    |> String.left 2
-                    |> parse
-            , blue =
-                rest
-                    |> String.dropLeft 4
-                    |> String.left 2
-                    |> parse
-            }
+            case ( red, green, blue ) of
+                ( Just r, Just g, Just b ) ->
+                    { red = r, green = g, blue = b }
+
+                _ ->
+                    default
 
         _ ->
             default
