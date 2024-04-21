@@ -235,6 +235,25 @@ selectTests =
                     |> .knob
                     |> simulateSelectInputs input [ invalidInput ]
                     |> Expect.equal (Just default)
+        , Test.fuzz2
+            (Fuzz.oneOfValues vegetables)
+            (Fuzz.oneOfValues vegetables)
+            "The panel is not kept open by default"
+          <|
+            \default initial ->
+                knobSelect default initial
+                    |> .knob
+                    |> viewHasNot [ Selector.class "knobs-keep-open" ]
+        , Test.fuzz2
+            (Fuzz.oneOfValues vegetables)
+            (Fuzz.oneOfValues vegetables)
+            "Focusing the knob keeps the panel open"
+          <|
+            \default initial ->
+                knobSelect default initial
+                    |> .knob
+                    |> simulateEvent "select" Event.focus
+                    |> afterEvent (viewHas [ Selector.class "knobs-keep-open" ])
         ]
 
 
