@@ -680,7 +680,7 @@ colorPickerInternal keepOpen initial userInput =
             Just
                 (Json.Decode.map3
                     (\red green blue ->
-                        colorPickerInternal keepOpen initial (colorToString { red = red, green = green, blue = blue })
+                        colorPickerInternal False initial (colorToString { red = red, green = green, blue = blue })
                     )
                     (Json.Decode.field "red" Json.Decode.float)
                     (Json.Decode.field "green" Json.Decode.float)

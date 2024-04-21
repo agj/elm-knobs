@@ -323,8 +323,29 @@ colorPickerTests =
                 Knob.colorPicker initial.rgb
                     |> simulateInputs input.hex [ invalidInput ]
                     |> Expect.equal (Just initial.rgb)
-
-        -- TODO: Add "keepOpen" tests.
+        , Test.fuzz (Fuzz.oneOfValues colors) "The panel is not kept open by default" <|
+            \initial ->
+                Knob.colorPicker initial.rgb
+                    |> viewHasNot [ Selector.class Internal.Constants.keepOpenCssClass ]
+        , Test.fuzz (Fuzz.oneOfValues colors) "Focusing the knob keeps the panel open" <|
+            \initial ->
+                Knob.colorPicker initial.rgb
+                    |> simulateEvent "input" Event.focus
+                    |> afterEvent (viewHas [ Selector.class Internal.Constants.keepOpenCssClass ])
+        , Test.fuzz (Fuzz.oneOfValues colors) "Unfocusing the knob lets the panel close" <|
+            \initial ->
+                Knob.colorPicker initial.rgb
+                    |> simulateEvents "input" Event.focus [ Event.blur ]
+                    |> afterEvent (viewHasNot [ Selector.class Internal.Constants.keepOpenCssClass ])
+        , Test.fuzz (Fuzz.oneOfValues colors) "The deserialized knob does not keep the panel open" <|
+            \initial ->
+                Knob.colorPicker initial.rgb
+                    |> simulateEvent "input" Event.focus
+                    |> afterEvent
+                        (\knob ->
+                            Knob.readSerialized (Knob.serialize knob) knob
+                                |> viewHasNot [ Selector.class Internal.Constants.keepOpenCssClass ]
+                        )
         ]
 
 
