@@ -1,12 +1,13 @@
 module KnobTests exposing (..)
 
-import Expect
+import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer)
+import Json.Encode exposing (Value)
 import Knob exposing (Knob)
 import Test
 import Test.Html.Event as Event
 import Test.Html.Query as Query
-import Test.Html.Selector as Selector
+import Test.Html.Selector as Selector exposing (Selector)
 import Util.Test.Knob exposing (fuzzColor, knobSelect, vegetableStrings, vegetables)
 
 
@@ -374,7 +375,7 @@ a `Maybe` of the value that the knob emits out of the interaction.
 simulateInput : String -> Knob a -> Maybe a
 simulateInput inputString knob =
     knob
-        |> simulateInputAnd "input" inputString
+        |> simulateEvent "input" (Event.input inputString)
         |> Maybe.map Knob.value
 
 
@@ -386,7 +387,7 @@ simulateInputs firstInputString restInputStrings knob =
     let
         proc : String -> Maybe (Knob a) -> Maybe (Knob a)
         proc inputString =
-            Maybe.andThen (simulateInputAnd "input" inputString)
+            Maybe.andThen (simulateEvent "input" (Event.input inputString))
     in
     List.foldl
         proc
@@ -400,41 +401,21 @@ simulateInputs firstInputString restInputStrings knob =
 simulateTextareaInput : String -> Knob a -> Maybe a
 simulateTextareaInput inputString knob =
     knob
-        |> simulateInputAnd "textarea" inputString
+        |> simulateEvent "textarea" (Event.input inputString)
         |> Maybe.map Knob.value
-
-
-{-| Used to string multiple inputs into the same knob, this function simulates
-entering one text input into an element of the supplied tag (usually `"input"`),
-and returns a `Maybe` of the updated knob.
--}
-simulateInputAnd : String -> String -> Knob a -> Maybe (Knob a)
-simulateInputAnd tag inputString knob =
-    knob
-        |> Knob.view identity
-        |> Query.fromHtml
-        |> Query.find [ Selector.tag tag ]
-        |> Event.simulate (Event.input inputString)
-        |> Event.toResult
-        |> Result.toMaybe
 
 
 simulateCheckInput : Bool -> Knob Bool -> Maybe Bool
 simulateCheckInput input knob =
     knob
-        |> Knob.view identity
-        |> Query.fromHtml
-        |> Query.find [ Selector.tag "input" ]
-        |> Event.simulate (Event.check input)
-        |> Event.toResult
-        |> Result.toMaybe
+        |> simulateEvent "input" (Event.check input)
         |> Maybe.map Knob.value
 
 
 simulateSelectInput : String -> Knob a -> Maybe a
 simulateSelectInput input knob =
     knob
-        |> simulateInputAnd "select" input
+        |> simulateEvent "select" (Event.input input)
         |> Maybe.map Knob.value
 
 
@@ -443,10 +424,45 @@ simulateSelectInputs firstInputString restInputStrings knob =
     let
         proc : String -> Maybe (Knob a) -> Maybe (Knob a)
         proc inputString =
-            Maybe.andThen (simulateInputAnd "select" inputString)
+            Maybe.andThen (simulateEvent "select" (Event.input inputString))
     in
     List.foldl
         proc
         (Just knob)
         (firstInputString :: restInputStrings)
         |> Maybe.map Knob.value
+
+
+simulateEvent : String -> ( String, Value ) -> Knob a -> Maybe (Knob a)
+simulateEvent tag event knob =
+    knob
+        |> Knob.view identity
+        |> Query.fromHtml
+        |> Query.find [ Selector.tag tag ]
+        |> Event.simulate event
+        |> Event.toResult
+        |> Result.toMaybe
+
+
+viewHas : List Selector -> Knob a -> Expectation
+viewHas selectors =
+    queryView >> Query.has selectors
+
+
+viewHasNot : List Selector -> Knob a -> Expectation
+viewHasNot selectors =
+    queryView >> Query.hasNot selectors
+
+
+queryView : Knob a -> Query.Single (Knob a)
+queryView knob =
+    knob
+        |> Knob.view identity
+        |> Query.fromHtml
+
+
+afterEvent : (Knob a -> Expectation) -> Maybe (Knob a) -> Expectation
+afterEvent expect maybeKnob =
+    maybeKnob
+        |> Maybe.map expect
+        |> Maybe.withDefault (Expect.fail "Event did not trigger.")
