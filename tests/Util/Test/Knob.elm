@@ -1,5 +1,6 @@
-module Util.Test.Knob exposing (Vegetable, knobSelect, vegetableStrings, vegetables)
+module Util.Test.Knob exposing (Vegetable, fuzzColor, fuzzColorChannel, knobSelect, vegetableStrings, vegetables)
 
+import Fuzz exposing (Fuzzer)
 import Knob exposing (Knob)
 
 
@@ -32,6 +33,24 @@ type Vegetable
     = Carrot
     | Lettuce
     | Beet
+
+
+
+-- FUZZERS
+
+
+fuzzColor : Fuzzer Knob.Color
+fuzzColor =
+    Fuzz.map3
+        (\r g b -> { red = r, green = g, blue = b })
+        fuzzColorChannel
+        fuzzColorChannel
+        fuzzColorChannel
+
+
+fuzzColorChannel : Fuzzer Float
+fuzzColorChannel =
+    Fuzz.floatRange 0 1
 
 
 

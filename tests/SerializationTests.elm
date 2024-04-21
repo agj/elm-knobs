@@ -4,7 +4,7 @@ import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer)
 import Knob exposing (Knob)
 import Test
-import Util.Test.Knob exposing (knobSelect, vegetables)
+import Util.Test.Knob exposing (fuzzColor, knobSelect, vegetables)
 
 
 transitiveEqualityTests =
@@ -220,21 +220,3 @@ expectFloatRoundTripSerializationToWork toKnob value1 value2 =
     else
         -- Don't bother when both values are the same.
         Expect.pass
-
-
-
--- FUZZERS
-
-
-fuzzColor : Fuzzer Knob.Color
-fuzzColor =
-    Fuzz.map3
-        (\r g b -> { red = r, green = g, blue = b })
-        fuzzColorChannel
-        fuzzColorChannel
-        fuzzColorChannel
-
-
-fuzzColorChannel : Fuzzer Float
-fuzzColorChannel =
-    Fuzz.floatRange 0 1
