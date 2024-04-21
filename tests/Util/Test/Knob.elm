@@ -48,9 +48,14 @@ fuzzColor =
         fuzzColorChannel
 
 
+{-| Generates a float value between 0 and 1, but constrained to 255 possible
+values, to make it directly map to a two-digit hexadecimal integer
+representation. This is to make serialization tests work.
+-}
 fuzzColorChannel : Fuzzer Float
 fuzzColorChannel =
     Fuzz.floatRange 0 1
+        |> Fuzz.map (\n -> toFloat (floor (n * 0xFF)) / 0xFF)
 
 
 
