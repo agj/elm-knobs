@@ -7,7 +7,7 @@ import Test
 import Test.Html.Event as Event
 import Test.Html.Query as Query
 import Test.Html.Selector as Selector
-import Util.Test.Knob exposing (knobSelect, vegetableStrings, vegetables)
+import Util.Test.Knob exposing (fuzzColor, knobSelect, vegetableStrings, vegetables)
 
 
 floatTests =
@@ -240,6 +240,50 @@ selectTests =
                 knob
                     |> simulateSelectInputs input [ invalidInput ]
                     |> Expect.equal (Just default)
+        ]
+
+
+colorPickerTests =
+    let
+        colors =
+            [ { hex = "#000000"
+              , rgb = { red = 0, green = 0, blue = 0 }
+              }
+            , { hex = "#ffffff"
+              , rgb = { red = 1, green = 1, blue = 1 }
+              }
+            , { hex = "#fff5ee"
+              , rgb = { red = 0xFF / 0xFF, green = 0xF5 / 0xFF, blue = 0xEE / 0xFF }
+              }
+            , { hex = "#fa8072"
+              , rgb = { red = 0xFA / 0xFF, green = 0x80 / 0xFF, blue = 0x72 / 0xFF }
+              }
+            , { hex = "#dda0dd"
+              , rgb = { red = 0xDD / 0xFF, green = 0xA0 / 0xFF, blue = 0xDD / 0xFF }
+              }
+            ]
+    in
+    Test.describe "colorPicker"
+        [ Test.fuzz2 (Fuzz.oneOfValues colors) (Fuzz.oneOfValues colors) "Can input valid values" <|
+            \initial input ->
+                Knob.colorPicker initial.rgb
+                    |> simulateInput input.hex
+                    |> Expect.equal (Just input.rgb)
+        , Test.fuzz2 (Fuzz.oneOfValues colors) Fuzz.string "Invalid values result in the initial value" <|
+            \initial invalidInput ->
+                Knob.colorPicker initial.rgb
+                    |> simulateInput invalidInput
+                    |> Expect.equal (Just initial.rgb)
+        , Test.fuzz3
+            (Fuzz.oneOfValues colors)
+            (Fuzz.oneOfValues colors)
+            Fuzz.string
+            "Invalid values after a correct value still result in the initial value"
+          <|
+            \initial input invalidInput ->
+                Knob.colorPicker initial.rgb
+                    |> simulateInputs input.hex [ invalidInput ]
+                    |> Expect.equal (Just initial.rgb)
         ]
 
 
