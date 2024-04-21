@@ -1,4 +1,4 @@
-module Util.Test.Knob exposing (Vegetable, fuzzColor, fuzzColorChannel, knobSelect, vegetableStrings, vegetables)
+module Util.Test.Knob exposing (Vegetable(..), fuzzColor, fuzzColorChannel, knobSelect, vegetableStrings, vegetables)
 
 import Fuzz exposing (Fuzzer)
 import Knob exposing (Knob)

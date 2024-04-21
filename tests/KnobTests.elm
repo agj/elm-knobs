@@ -9,7 +9,7 @@ import Test
 import Test.Html.Event as Event
 import Test.Html.Query as Query
 import Test.Html.Selector as Selector exposing (Selector)
-import Util.Test.Knob exposing (fuzzColor, knobSelect, vegetableStrings, vegetables)
+import Util.Test.Knob exposing (Vegetable(..), knobSelect, vegetableStrings, vegetables)
 
 
 floatTests =
@@ -323,6 +323,29 @@ colorPickerTests =
                 Knob.colorPicker initial.rgb
                     |> simulateInputs input.hex [ invalidInput ]
                     |> Expect.equal (Just initial.rgb)
+
+        -- TODO: Add "keepOpen" tests.
+        ]
+
+
+composeTests =
+    let
+        composedKnob =
+            Knob.compose (\a b c -> ( a, b, c ))
+                |> Knob.stack (Knob.int { step = 1, initial = 0 })
+                |> Knob.stack (knobSelect Carrot Carrot |> .knob)
+                |> Knob.stack (Knob.float { step = 1, initial = 0 })
+    in
+    Test.describe "compose"
+        [ Test.test "By default lets the panel close" <|
+            \() ->
+                composedKnob
+                    |> viewHasNot [ Selector.class Internal.Constants.keepOpenCssClass ]
+        , Test.test "Keeps panel open if any of its knobs wants to keep it open" <|
+            \() ->
+                composedKnob
+                    |> simulateEvent "select" Event.focus
+                    |> afterEvent (viewHas [ Selector.class Internal.Constants.keepOpenCssClass ])
         ]
 
 
