@@ -402,17 +402,9 @@ simulateInput inputString knob =
 one. The first input is required, the rest are supplied as an array.
 -}
 simulateInputs : String -> List String -> Knob a -> Maybe a
-simulateInputs firstInputString restInputStrings knob =
-    let
-        proc : String -> Maybe (Knob a) -> Maybe (Knob a)
-        proc inputString =
-            Maybe.andThen (simulateEvent "input" (Event.input inputString))
-    in
-    List.foldl
-        proc
-        (Just knob)
-        (firstInputString :: restInputStrings)
-        |> Maybe.map Knob.value
+simulateInputs firstInputString restInputStrings =
+    simulateEvents "input" (Event.input firstInputString) (List.map Event.input restInputStrings)
+        >> Maybe.map Knob.value
 
 
 {-| The same as `simulateInput`, but the element is `<textarea>`.
@@ -461,6 +453,19 @@ simulateEvent tag event knob =
         |> Event.simulate event
         |> Event.toResult
         |> Result.toMaybe
+
+
+simulateEvents : String -> ( String, Value ) -> List ( String, Value ) -> Knob a -> Maybe (Knob a)
+simulateEvents tag firstEvent restEvents knob =
+    let
+        proc : ( String, Value ) -> Maybe (Knob a) -> Maybe (Knob a)
+        proc currentEvent =
+            Maybe.andThen (simulateEvent tag currentEvent)
+    in
+    List.foldl
+        proc
+        (Just knob)
+        (firstEvent :: restEvents)
 
 
 viewHas : List Selector -> Knob a -> Expectation
