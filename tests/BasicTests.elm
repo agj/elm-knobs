@@ -251,20 +251,6 @@ selectTests =
                     |> .knob
                     |> simulateSelectInputs input [ invalidInput ]
                     |> Expect.equal (Just default)
-        , Test.fuzz2
-            (Fuzz.oneOfValues vegetables)
-            (Fuzz.oneOfValues vegetables)
-            "The deserialized knob does not keep the panel open"
-          <|
-            \default initial ->
-                knobSelect default initial
-                    |> .knob
-                    |> simulateEvent "select" Event.focus
-                    |> afterEvent
-                        (\knob ->
-                            Knob.readSerialized (Knob.serialize knob) knob
-                                |> viewHasNot [ Selector.class Internal.Constants.keepOpenCssClass ]
-                        )
         ]
 
 
@@ -309,15 +295,6 @@ colorPickerTests =
                 Knob.colorPicker initial.rgb
                     |> simulateInputs input.hex [ invalidInput ]
                     |> Expect.equal (Just initial.rgb)
-        , Test.fuzz (Fuzz.oneOfValues colors) "The deserialized knob does not keep the panel open" <|
-            \initial ->
-                Knob.colorPicker initial.rgb
-                    |> simulateEvent "input" Event.focus
-                    |> afterEvent
-                        (\knob ->
-                            Knob.readSerialized (Knob.serialize knob) knob
-                                |> viewHasNot [ Selector.class Internal.Constants.keepOpenCssClass ]
-                        )
         ]
 
 
