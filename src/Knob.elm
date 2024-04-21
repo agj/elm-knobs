@@ -611,7 +611,7 @@ selectInternal keepOpen config =
             Just
                 (Json.Decode.map
                     (\decodedValue ->
-                        selectInternal keepOpen { config | initial = config.fromString decodedValue }
+                        selectInternal False { config | initial = config.fromString decodedValue }
                     )
                     Json.Decode.string
                 )

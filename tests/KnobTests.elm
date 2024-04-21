@@ -254,6 +254,30 @@ selectTests =
                     |> .knob
                     |> simulateEvent "select" Event.focus
                     |> afterEvent (viewHas [ Selector.class "knobs-keep-open" ])
+        , Test.fuzz2
+            (Fuzz.oneOfValues vegetables)
+            (Fuzz.oneOfValues vegetables)
+            "Unfocusing the knob lets the panel close"
+          <|
+            \default initial ->
+                knobSelect default initial
+                    |> .knob
+                    |> simulateEvents "select" Event.focus [ Event.blur ]
+                    |> afterEvent (viewHasNot [ Selector.class "knobs-keep-open" ])
+        , Test.fuzz2
+            (Fuzz.oneOfValues vegetables)
+            (Fuzz.oneOfValues vegetables)
+            "The deserialized knob does not keep the panel open"
+          <|
+            \default initial ->
+                knobSelect default initial
+                    |> .knob
+                    |> simulateEvent "select" Event.focus
+                    |> afterEvent
+                        (\knob ->
+                            Knob.readSerialized (Knob.serialize knob) knob
+                                |> viewHasNot [ Selector.class "knobs-keep-open" ]
+                        )
         ]
 
 
