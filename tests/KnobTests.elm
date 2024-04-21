@@ -219,11 +219,8 @@ selectTests =
             "Invalid values result in the fromString default value"
           <|
             \default initial invalidInput ->
-                let
-                    { knob } =
-                        knobSelect default initial
-                in
-                knob
+                knobSelect default initial
+                    |> .knob
                     |> simulateSelectInput invalidInput
                     |> Expect.equal (Just default)
         , Test.fuzz3
@@ -233,11 +230,8 @@ selectTests =
             "Invalid values after a correct value still result in the fromString default value"
           <|
             \default initial ( input, invalidInput ) ->
-                let
-                    { knob } =
-                        knobSelect default initial
-                in
-                knob
+                knobSelect default initial
+                    |> .knob
                     |> simulateSelectInputs input [ invalidInput ]
                     |> Expect.equal (Just default)
         ]
