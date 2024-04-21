@@ -1,10 +1,10 @@
 module SerializationTests exposing (..)
 
 import Expect exposing (Expectation)
-import Fuzz exposing (Fuzzer)
+import Fuzz
 import Knob exposing (Knob)
 import Test
-import Util.Test.Knob exposing (fuzzColor, knobSelect, vegetables)
+import Util.TestKnob exposing (fuzzColor, knobSelect, vegetables)
 
 
 transitiveEqualityTests =
