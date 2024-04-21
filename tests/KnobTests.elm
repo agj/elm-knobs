@@ -2,6 +2,7 @@ module KnobTests exposing (..)
 
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer)
+import Internal.Constants
 import Json.Encode exposing (Value)
 import Knob exposing (Knob)
 import Test
@@ -243,7 +244,7 @@ selectTests =
             \default initial ->
                 knobSelect default initial
                     |> .knob
-                    |> viewHasNot [ Selector.class "knobs-keep-open" ]
+                    |> viewHasNot [ Selector.class Internal.Constants.keepOpenCssClass ]
         , Test.fuzz2
             (Fuzz.oneOfValues vegetables)
             (Fuzz.oneOfValues vegetables)
@@ -253,7 +254,7 @@ selectTests =
                 knobSelect default initial
                     |> .knob
                     |> simulateEvent "select" Event.focus
-                    |> afterEvent (viewHas [ Selector.class "knobs-keep-open" ])
+                    |> afterEvent (viewHas [ Selector.class Internal.Constants.keepOpenCssClass ])
         , Test.fuzz2
             (Fuzz.oneOfValues vegetables)
             (Fuzz.oneOfValues vegetables)
@@ -263,7 +264,7 @@ selectTests =
                 knobSelect default initial
                     |> .knob
                     |> simulateEvents "select" Event.focus [ Event.blur ]
-                    |> afterEvent (viewHasNot [ Selector.class "knobs-keep-open" ])
+                    |> afterEvent (viewHasNot [ Selector.class Internal.Constants.keepOpenCssClass ])
         , Test.fuzz2
             (Fuzz.oneOfValues vegetables)
             (Fuzz.oneOfValues vegetables)
@@ -276,7 +277,7 @@ selectTests =
                     |> afterEvent
                         (\knob ->
                             Knob.readSerialized (Knob.serialize knob) knob
-                                |> viewHasNot [ Selector.class "knobs-keep-open" ]
+                                |> viewHasNot [ Selector.class Internal.Constants.keepOpenCssClass ]
                         )
         ]
 

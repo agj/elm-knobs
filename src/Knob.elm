@@ -101,6 +101,7 @@ import Hex
 import Html exposing (Html)
 import Html.Attributes
 import Html.Events
+import Internal.Constants
 import Json.Decode
 import Json.Encode
 
@@ -829,7 +830,7 @@ view toMsg (Knob config) =
         classes : List ( String, Bool )
         classes =
             [ ( "knobs", True )
-            , ( "knobs-keep-open", config.keepOpen )
+            , ( Internal.Constants.keepOpenCssClass, config.keepOpen )
             ]
     in
     Html.aside [ Html.Attributes.classList classes ]
