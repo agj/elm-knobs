@@ -370,6 +370,28 @@ composeTests =
         ]
 
 
+mapTests =
+    let
+        { knob, toString } =
+            knobSelect Carrot Carrot
+
+        mappedKnob =
+            knob
+                |> Knob.map (\val -> toString val ++ "!")
+    in
+    Test.describe "map"
+        [ Test.test "By default lets the panel close" <|
+            \() ->
+                mappedKnob
+                    |> viewHasNot [ Selector.class Internal.Constants.keepOpenCssClass ]
+        , Test.test "Keeps panel open if the source knob wants to keep it open" <|
+            \() ->
+                mappedKnob
+                    |> simulateEvent "select" Event.focus
+                    |> afterEvent (viewHas [ Selector.class Internal.Constants.keepOpenCssClass ])
+        ]
+
+
 
 -- FUZZERS
 
