@@ -74,11 +74,11 @@ checkHasCurrentVersion "interactive docs" $versionInInteractiveDocs
 
 # Interactive docs file
 
-let gitHasInteractiveDocsCurrentVersionFileCheck = $"HEAD:./interactive-docs/output/($currentVersion)/index.html"
+let gitHasInteractiveDocsCurrentVersionFileCheck = $"($currentVersion):./interactive-docs/output/($currentVersion)/index.html"
   | do { ^git cat-file -e $in }
   | complete
 
-print $"🔍 Checking if there is interactive documentation for the current version…"
+print "🔍 Checking if there is interactive documentation for the current version…"
 
 if ($gitHasInteractiveDocsCurrentVersionFileCheck | get exit_code) != 0 {
   print "❌ Interactive documentation for the current version not found in git."
