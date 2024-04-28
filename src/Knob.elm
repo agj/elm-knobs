@@ -12,6 +12,7 @@ module Knob exposing
     , map
     , serialize, readSerialized
     , custom
+    , viewWithOptions
     )
 
 {-| Let's get started creating a control panel full of “knobs” to interactively tweak values in our application.
@@ -102,8 +103,10 @@ import Html exposing (Html)
 import Html.Attributes
 import Html.Events
 import Internal.Constants
+import Internal.Option exposing (Option(..))
 import Json.Decode
 import Json.Encode
+import Knob.Option exposing (Option)
 
 
 {-| Represents one user-interactive control mapped to one value of type `a`,
@@ -825,22 +828,43 @@ for a full demonstration on how to wire things up.
 
 -}
 view : (Knob a -> msg) -> Knob a -> Html msg
-view toMsg (Knob config) =
+view =
+    viewWithOptions []
+
+
+viewWithOptions : List Option -> (Knob a -> msg) -> Knob a -> Html msg
+viewWithOptions options toMsg (Knob config) =
     let
+        isDetached : Bool
+        isDetached =
+            List.member OptionDetached options
+
         classes : List ( String, Bool )
         classes =
             [ ( "knobs", True )
             , ( Internal.Constants.keepOpenCssClass, config.keepOpen )
+            , ( "knobs-detached", isDetached )
             ]
+
+        content : List (Html msg)
+        content =
+            [ if isDetached then
+                []
+
+              else
+                [ Html.div [ Html.Attributes.class "knobs-icon" ]
+                    [ Html.div []
+                        [ Html.text "🎛" ]
+                    ]
+                ]
+            , [ Html.div []
+                    [ viewInternal toMsg config ]
+              ]
+            ]
+                |> List.concat
     in
     Html.aside [ Html.Attributes.classList classes ]
-        [ Html.div [ Html.Attributes.class "knobs-icon" ]
-            [ Html.div []
-                [ Html.text "🎛" ]
-            ]
-        , Html.div []
-            [ viewInternal toMsg config ]
-        ]
+        content
 
 
 viewInternal : (Knob a -> b) -> Config a -> Html b
@@ -1196,6 +1220,8 @@ noAttribute =
 css : String
 css =
     """
+    /* Main container */
+
     .knobs {
         --separation: 0.5em;
 
@@ -1206,14 +1232,21 @@ css =
         gap: var(--separation);
         left: 0;
         max-height: 100vh;
-        position: fixed;
         z-index: 888;
     }
+
+    .knobs:not(.knobs-detached) {
+        position: fixed;
+    }
     
+    /* Panel and icon container */
+
     .knobs > * {
         background-color: white;
         box-shadow: 0 0 0.4em rgba(0, 0, 0, 0.2);
     }
+
+    /* Panel */
 
     .knobs > :not(.knobs-icon) {
         display: none;
@@ -1221,10 +1254,13 @@ css =
         overflow-y: auto;
     }
 
+    .knobs.knobs-detached > :not(.knobs-icon),
     .knobs:hover > :not(.knobs-icon),
     .knobs.knobs-keep-open > :not(.knobs-icon) {
         display: block;
     }
+
+    /* Icon container */
 
     .knobs .knobs-icon {
         --size: 3.5em;
@@ -1248,6 +1284,8 @@ css =
         display: none;
     }
 
+    /* Knobs */
+
     .knobs .knobs-stack {
         display: flex;
         flex-direction: column;
@@ -1265,9 +1303,9 @@ css =
         align-items: center;
     }
 
-    /* The following use of :has() is so that browsers that don't support that selector
-       may ignore this block.
-    */
+    /* The following use of `:has()` is so that browsers that don't support that
+       selector may ignore this block.
+     */
     .knobs label:has(> input) > input[type="checkbox"] {
         order: -1;
     }
