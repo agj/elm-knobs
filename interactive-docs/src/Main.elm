@@ -12,6 +12,7 @@ import ElmBook.StatefulOptions
 import ElmBook.ThemeOptions
 import Html
 import Html.Attributes
+import Knob
 
 
 type alias Model =
@@ -38,7 +39,9 @@ main =
             [ ElmBook.ThemeOptions.subtitle "interactive docs"
             , ElmBook.ThemeOptions.logo
                 (Html.div [ Html.Attributes.class "page-logo" ]
-                    [ Html.text "🎛" ]
+                    [ Html.text "🎛"
+                    , Knob.styles
+                    ]
                 )
             , ElmBook.ThemeOptions.useHashBasedNavigation
             ]

@@ -6,6 +6,7 @@ import ElmBook.Actions
 import Html exposing (Html)
 import Html.Attributes
 import Knob exposing (Knob)
+import Knob.Option
 import String.Extra
 
 
@@ -84,7 +85,8 @@ toComponent getModel setModel knobDoc =
             in
             Html.div [ Html.Attributes.class "component-preview" ]
                 [ knobDoc.get model
-                    |> Knob.view (ElmBook.Actions.updateStateWith (knobDoc.set model >> setModel))
+                    |> Knob.viewWithOptions [ Knob.Option.detached ]
+                        (ElmBook.Actions.updateStateWith (knobDoc.set model >> setModel))
                 , Html.div []
                     [ Html.text ("Value: " ++ (model |> knobDoc.get |> Knob.value |> knobDoc.toString)) ]
                 ]
