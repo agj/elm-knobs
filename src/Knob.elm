@@ -5,14 +5,13 @@ module Knob exposing
     , stringInput, stringTextarea
     , boolCheckbox
     , select, Color, colorPicker
-    , view, styles
+    , view, viewWithOptions, styles
     , value
     , compose, stack
     , label, stackLabel
     , map
     , serialize, readSerialized
     , custom
-    , viewWithOptions
     )
 
 {-| Let's get started creating a control panel full of “knobs” to interactively tweak values in our application.
@@ -50,7 +49,7 @@ The following are the functions you can use to create basic knobs that map to a 
 
 The next step is to actually display our knob in the page.
 
-@docs view, styles
+@docs view, viewWithOptions, styles
 
 
 # Retrieving the value
@@ -832,6 +831,15 @@ view =
     viewWithOptions []
 
 
+{-| The same as [`view`](#view), but you can also specify options that change
+the way the knobs panel is rendered. You may pass a `List` of options you can
+find in the [`Knob.Option`](Knob.Option) module.
+
+Be aware that these options may change the HTML that is produced or only the CSS
+classes that are added to it, so if you don't use [the provided styles](#styles)
+and instead use your own, the effect might not be what you expected.
+
+-}
 viewWithOptions : List Option -> (Knob a -> msg) -> Knob a -> Html msg
 viewWithOptions options toMsg (Knob config) =
     let
