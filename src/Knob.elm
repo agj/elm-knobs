@@ -103,7 +103,7 @@ import Html exposing (Html)
 import Html.Attributes
 import Html.Events
 import Internal.Constants
-import Internal.Option exposing (Option(..))
+import Internal.Option exposing (Anchor(..), Option(..))
 import Json.Decode
 import Json.Encode
 import Knob.Option exposing (Option)
@@ -839,9 +839,24 @@ viewWithOptions options toMsg (Knob config) =
         isDetached =
             List.member OptionDetached options
 
+        maybeAnchor : Maybe Anchor
+        maybeAnchor =
+            options
+                |> List.filterMap
+                    (\option ->
+                        case option of
+                            OptionAnchor anchor ->
+                                Just anchor
+
+                            _ ->
+                                Nothing
+                    )
+                |> List.head
+
         classes : List ( String, Bool )
         classes =
             [ ( "knobs", True )
+            , ( anchorClass maybeAnchor, True )
             , ( Internal.Constants.keepOpenCssClass, config.keepOpen )
             , ( "knobs-detached", isDetached )
             ]
@@ -1217,6 +1232,22 @@ noAttribute =
     Html.Attributes.classList []
 
 
+anchorClass : Maybe Anchor -> String
+anchorClass maybeAnchor =
+    case maybeAnchor of
+        Just AnchorBottomRight ->
+            "knobs-anchor-bottom-right"
+
+        Just AnchorTopLeft ->
+            "knobs-anchor-top-left"
+
+        Just AnchorTopRight ->
+            "knobs-anchor-top-right"
+
+        _ ->
+            "knobs-anchor-bottom-left"
+
+
 css : String
 css =
     """
@@ -1225,18 +1256,36 @@ css =
     .knobs {
         --separation: 0.5em;
 
-        bottom: 0;
         color: black;
         display: flex;
         font-size: 14px;
         gap: var(--separation);
-        left: 0;
         max-height: 100vh;
         z-index: 888;
     }
 
     .knobs:not(.knobs-detached) {
+        bottom: 0;
+        left: 0;
         position: fixed;
+    }
+
+    .knobs.knobs-anchor-bottom-right:not(.knobs-detached) {
+        bottom: 0;
+        left: unset;
+        right: 0;
+    }
+
+    .knobs.knobs-anchor-top-left:not(.knobs-detached) {
+        bottom: unset;
+        top: 0;
+    }
+
+    .knobs.knobs-anchor-top-right:not(.knobs-detached) {
+        bottom: unset;
+        left: unset;
+        right: 0;
+        top: 0;
     }
     
     /* Panel and icon container */
