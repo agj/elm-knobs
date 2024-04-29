@@ -65,7 +65,10 @@ config =
     , NoUnused.Exports.rule
         |> Rule.ignoreErrorsForDirectories [ "tests/" ]
     , NoUnused.Parameters.rule
+        |> Rule.ignoreErrorsForDirectories [ "tests/" ]
     , NoUnused.Patterns.rule
+        |> Rule.ignoreErrorsForDirectories [ "tests/" ]
     , NoUnused.Variables.rule
+        |> Rule.ignoreErrorsForDirectories [ "tests/" ]
     , Simplify.rule Simplify.defaults
     ]
