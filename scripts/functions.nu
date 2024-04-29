@@ -10,3 +10,7 @@ export def getExamples [] {
       { dir: $dir, name: $folderName }
     }
 }
+
+export def minifyHtml [file] {
+  (^pnpm exec html-minifier-terser --collapse-whitespace --remove-comments --remove-tag-whitespace --minify-css=true --minify-js=true $file)
+}

@@ -1,10 +1,6 @@
-use functions.nu [getExamples, getCurrentVersion]
+use functions.nu [getExamples, getCurrentVersion, minifyHtml]
 
 let version = getCurrentVersion
-
-def minifyHtml [file] {
-  (^pnpm exec html-minifier-terser --collapse-whitespace --remove-comments --remove-tag-whitespace --minify-css=true --minify-js=true $file)
-}
 
 getExamples
   | each { |example|

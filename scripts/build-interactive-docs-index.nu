@@ -1,4 +1,7 @@
+use functions.nu minifyHtml
+
 let outputDir = "./interactive-docs/output"
+  | path expand
 
 print "ℹ️ Generating interactive docs version index."
 
@@ -23,4 +26,7 @@ let versionLinks = $versions
 
 open ./interactive-docs/src/versions-index.html
   | str replace '#versionLinks#' ($versionLinks | str join '')
+  | save --force $"($outputDir)/index.html"
+
+minifyHtml $"($outputDir)/index.html"
   | save --force $"($outputDir)/index.html"
