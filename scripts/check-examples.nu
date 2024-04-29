@@ -1,4 +1,3 @@
-use std log
 use functions.nu getExamples
 
 print "ℹ️ Checking examples…"
