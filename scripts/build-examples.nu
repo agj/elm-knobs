@@ -3,28 +3,34 @@ use functions.nu [getExamples, getCurrentVersion]
 let version = getCurrentVersion
 
 def minifyHtml [file] {
-  (^html-minifier --collapse-whitespace --remove-comments --remove-tag-whitespace --minify-css=true --minify-js=true $file)
+  (^pnpm exec html-minifier-terser --collapse-whitespace --remove-comments --remove-tag-whitespace --minify-css=true --minify-js=true $file)
 }
 
 getExamples
   | each { |example|
     print $"ℹ️ Building example: ($example.name)"
-    cd $example.dir
 
-    let outputDir = $"../../interactive-docs/output/($version)/examples/($example.name)"
+    let inputHtmlFile = $"($example.dir)/index.html"
+    let inputElmFile = $"($example.dir)/Main.elm"
+    let outputDir = $"./interactive-docs/output/($version)/examples/($example.name)"
+      | path expand
     let outputHtmlFile = $"($outputDir)/index.html"
     let outputJsFile = $"($outputDir)/main.js"
 
-    if ("index.html" | path exists) {
-      (^elm make ./*.elm --output $outputJsFile --optimize)
+    if ($inputHtmlFile | path exists) {
+      enter $example.dir
+      (^elm make $inputElmFile --output $outputJsFile --optimize)
+      dexit
 
       (^uglifyjs --compress --mangle -- $outputJsFile)
         | save --force $outputJsFile
 
-      minifyHtml "./index.html"
+      minifyHtml $inputHtmlFile
         | save --force $outputHtmlFile
     } else {
-      (^elm make ./*.elm --output $outputHtmlFile --optimize)
+      enter $example.dir
+      (^elm make $inputElmFile --output $outputHtmlFile --optimize)
+      dexit
 
       minifyHtml $outputHtmlFile
         | save --force $outputHtmlFile
