@@ -1,12 +1,12 @@
 use std log
+use functions.nu getExamples
 
 print "ℹ️ Checking examples…"
 
-glob ./examples/* --no-file --exclude [elm-stuff, .* ]
-  | each { |dir|
-    let folderName = $dir | split row '/' | last
-    print $"🔍 Checking '($folderName)' example"
-    cd $dir
+getExamples
+  | each { |example|
+    print $"🔍 Checking '($example.name)' example"
+    cd $example.dir
     let elmMakeResult = do { ^elm make ./*.elm --output /dev/null }
       | complete
     if ($elmMakeResult | get exit_code) != 0 {
