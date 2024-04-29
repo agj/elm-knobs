@@ -23,8 +23,10 @@
             elmPackages.elm-json
             elmPackages.elm-review
             elmPackages.elm-test
+            html-minifier
             nodejs-slim_21
             nodePackages.pnpm
+            nodePackages.uglify-js
             nushell
           ];
         };
