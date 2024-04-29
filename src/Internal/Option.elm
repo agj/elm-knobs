@@ -1,4 +1,4 @@
-module Internal.Option exposing (..)
+module Internal.Option exposing (Anchor(..), Option(..))
 
 
 type Option

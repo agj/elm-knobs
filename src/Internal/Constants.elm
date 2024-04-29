@@ -1,4 +1,4 @@
-module Internal.Constants exposing (..)
+module Internal.Constants exposing (keepOpenCssClass)
 
 
 keepOpenCssClass : String

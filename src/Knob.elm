@@ -1188,17 +1188,20 @@ colorFromString default colorString =
                         |> Result.toMaybe
                         |> Maybe.map (\n -> toFloat n / 255)
 
+                red : Maybe Float
                 red =
                     rest
                         |> String.left 2
                         |> parse
 
+                green : Maybe Float
                 green =
                     rest
                         |> String.dropLeft 2
                         |> String.left 2
                         |> parse
 
+                blue : Maybe Float
                 blue =
                     rest
                         |> String.dropLeft 4
