@@ -1,4 +1,4 @@
-module ChapterIntroduction exposing (..)
+module ChapterIntroduction exposing (chapter)
 
 import Constants
 import ElmBook exposing (Msg)
