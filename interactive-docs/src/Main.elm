@@ -5,6 +5,7 @@ import ChapterIntroduction
 import ChapterMap
 import ChapterNumber
 import ChapterOtherTypes
+import ChaptersFull
 import Constants
 import ElmBook exposing (Book)
 import ElmBook.Chapter
@@ -66,5 +67,8 @@ main =
                 , ChapterComposing.chapter
                 , ChapterMap.chapter
                 ]
+              )
+            , ( "Full examples"
+              , ChaptersFull.chapters
               )
             ]

@@ -5,8 +5,12 @@ init: ## Load a shell with all dependencies (if you don't use direnv).
 docs: ## Preview the documentation.
 	elm-doc-preview --port 8001 --no-browser
 
-interactive-docs: interactive-docs-install ## Preview the interactive documentation.
+interactive-docs: interactive-docs-install ## Preview and develop the interactive documentation.
 	cd interactive-docs && pnpm exec parcel
+
+interactive-docs-full: interactive-docs-build ## Preview the interactive docs in full.
+	pnpm install
+	pnpm exec http-server ./interactive-docs/output/
 
 interactive-docs-build: interactive-docs-install ## Build the interactive documentation.
 	cd interactive-docs && pnpm exec parcel build --dist-dir "./output/$(shell nu ./scripts/get-current-version.nu)"
