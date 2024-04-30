@@ -7,18 +7,19 @@ import Html
 import Html.Attributes
 
 
+chapters : List (Chapter x)
 chapters =
     [ { name = "Basic"
       , slug = "basic"
-      , heightEm = 25
+      , height = "7em"
       }
     , { name = "Polygon"
       , slug = "polygon"
-      , heightEm = 25
+      , height = "500px"
       }
     , { name = "Web Storage API"
       , slug = "web-storage"
-      , heightEm = 25
+      , height = "13em"
       }
     ]
         |> List.map toChapter
@@ -27,7 +28,7 @@ chapters =
 type alias Desc =
     { name : String
     , slug : String
-    , heightEm : Int
+    , height : String
     }
 
 
@@ -54,7 +55,7 @@ toChapter desc =
               , Html.iframe
                     [ Html.Attributes.src exampleUrl
                     , Html.Attributes.class "full-example"
-                    , Html.Attributes.style "height" "25em"
+                    , Html.Attributes.style "height" desc.height
                     ]
                     []
               )
@@ -64,8 +65,8 @@ toChapter desc =
 
 contentTemplate =
     """
-- [Source code on Github]($sourceUrl$)
-- [Open full-screen]($exampleUrl$)
+- [Source code on Github.]($sourceUrl$)
+- [Open full-screen.]($exampleUrl$)
 
 <component
     with-label="iframe"
