@@ -645,7 +645,7 @@ Below is an example mapping it into [avh4/elm-color](/packages/avh4/elm-color/1.
     -- We set magenta as the initial color.
     Knob.colorPicker { red = 1, green = 0, blue = 1 }
         -- We map it into avh4/elm-color format.
-        |> Knob.map (c -> Color.rgb c.red c.green c.blue)
+        |> Knob.map (\c -> Color.rgb c.red c.green c.blue)
 
 -}
 colorPicker : Color -> Knob Color
