@@ -3,25 +3,30 @@ use functions.nu getCurrentVersion
 print "ℹ️ Checking package version consistency…"
 
 let currentVersion = getCurrentVersion
+mut errors = []
 
 print $"ℹ️ Current version: ($currentVersion)"
 
-def checkHasCurrentVersion [place versions] {
+def checkHasCurrentVersion [place versions errors] {
   print $"🔍 Checking that ($place) has the current version…"
   if ($currentVersion not-in $versions) {
     print $"❌ Current version not found."
-    exit 1
+    $errors | prepend $place
+  } else {
+    $errors
   }
 }
 
-def checkHasOutdatedVersion [place versions] {
+def checkHasOutdatedVersion [place versions errors] {
   let outdatedVersions = $versions
     | filter { $in != $currentVersion }
   print $"🔍 Checking if outdated versions remain in ($place)…"
   if ($outdatedVersions | length | $in > 0) {
     print $"❌ Outdated versions found in ($place)."
     print $outdatedVersions
-    exit 1
+    $errors | prepend $place
+  } else {
+    $errors
   }
 }
 
@@ -41,7 +46,7 @@ let allVersionsInChangelog = open CHANGELOG.md
   | filter { length | $in > 0 }
   | each { get 0 | get capture0 }
 
-checkHasCurrentVersion "changelog" $allVersionsInChangelog
+$errors = (checkHasCurrentVersion "changelog" $allVersionsInChangelog $errors)
 
 # Git tags
 
@@ -49,19 +54,19 @@ let allVersionsInGitTags = (^git tag)
   | split row "\n"
   | find --regex '^[0-9.]+$'
 
-checkHasCurrentVersion "git tags" $allVersionsInGitTags
+$errors = (checkHasCurrentVersion "git tags" $allVersionsInGitTags $errors)
 
 # Links in code
 
 let allVersionsInCode = getVersionsUsedInLinks ./src/*.elm
 
-checkHasOutdatedVersion "code" $allVersionsInCode
+$errors = (checkHasOutdatedVersion "code" $allVersionsInCode $errors)
 
 # Links in readme
 
 let allVersionsInReadme = getVersionsUsedInLinks ./README.md
 
-checkHasOutdatedVersion "readme" $allVersionsInReadme
+$errors = (checkHasOutdatedVersion "readme" $allVersionsInReadme $errors)
 
 # Interactive docs version
 
@@ -70,7 +75,7 @@ let versionInInteractiveDocs = open ./interactive-docs/src/Constants.elm
   | get capture0
   | first
 
-checkHasCurrentVersion "interactive docs" $versionInInteractiveDocs
+$errors = (checkHasCurrentVersion "interactive docs" $versionInInteractiveDocs $errors)
 
 # Interactive docs file
 
@@ -82,8 +87,12 @@ print "🔍 Checking if there is interactive documentation for the current versi
 
 if ($gitHasInteractiveDocsCurrentVersionFileCheck | get exit_code) != 0 {
   print "❌ Interactive documentation for the current version not found in git."
-  exit 1
+  $errors = $errors | prepend "interactive documentation"
 }
 
 
-print "✅ Current version checks OK."
+if (($errors | length) > 0) {
+  exit 1
+} else {
+  print "✅ Current version checks OK."
+}
