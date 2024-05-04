@@ -48,6 +48,13 @@ toChapter desc =
             contentTemplate
                 |> String.replace "$exampleUrl$" exampleUrl
                 |> String.replace "$sourceUrl$" sourceUrl
+
+        linkNewTab url label =
+            Html.a
+                [ Html.Attributes.target "blank_"
+                , Html.Attributes.href url
+                ]
+                [ Html.text label ]
     in
     ElmBook.Chapter.chapter desc.name
         |> ElmBook.Chapter.withComponentList
@@ -59,14 +66,20 @@ toChapter desc =
                     ]
                     []
               )
+            , ( "link-source"
+              , linkNewTab sourceUrl "Source code on Github. ↗"
+              )
+            , ( "link-full-page"
+              , linkNewTab exampleUrl "Open full-screen. ↗"
+              )
             ]
         |> ElmBook.Chapter.render content
 
 
 contentTemplate =
     """
-- [Source code on Github.]($sourceUrl$)
-- [Open full-screen.]($exampleUrl$)
+- <component with-label="link-source" with-display="inline" />
+- <component with-label="link-full-page" with-display="inline" />
 
 <component
     with-label="iframe"
