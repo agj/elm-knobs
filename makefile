@@ -40,6 +40,9 @@ lint-fix: ## Automatically fix linting errors.
 	elm-format src --yes
 	elm-review --fix
 
+lint-suppress: ## Suppress al remaining errors.
+	elm-review suppress
+
 check-build: ## Make sure it compiles.
 	elm make --output /dev/null
 
