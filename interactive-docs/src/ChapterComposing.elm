@@ -55,7 +55,7 @@ type alias Compose =
 
 
 composeToString compose =
-    "{ name = $name$, credits = $float$ }"
+    """{ name = "$name$", credits = $float$ }"""
         |> String.replace "$name$" compose.name
         |> String.replace "$float$" (String.fromFloat compose.credits)
 
