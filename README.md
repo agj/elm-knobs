@@ -42,7 +42,7 @@ is shown at the top of this page, though, but you can [find that and other
 examples in the Github repo][examples].
 
 ```elm
-module BasicExample exposing (main)
+module Main exposing (main)
 
 import Browser
 import Html
