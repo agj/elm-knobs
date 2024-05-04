@@ -13,6 +13,7 @@ interactive-docs-full: interactive-docs-build ## Preview the interactive docs in
 	pnpm exec http-server ./interactive-docs/output/
 
 interactive-docs-build: interactive-docs-install ## Build the interactive documentation.
+	rm -rf ./interactive-docs/.parcel-cache # Sad workaround.
 	cd interactive-docs && pnpm exec parcel build --dist-dir "./output/$(shell nu ./scripts/get-current-version.nu)"
 	nu ./scripts/build-examples.nu
 	nu ./scripts/build-interactive-docs-index.nu
