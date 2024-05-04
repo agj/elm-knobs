@@ -22,7 +22,7 @@ import Internal.Option exposing (Anchor(..), Option(..))
 
 
 {-| An option that [`Knob.viewWithOptions`](Knob#viewWithOptions) receives,
-which change how the knobs panel is rendered.
+which changes how the knobs panel is rendered.
 -}
 type alias Option =
     Internal.Option.Option

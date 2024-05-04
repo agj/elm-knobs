@@ -14,17 +14,20 @@ module Knob exposing
     , custom
     )
 
-{-| Let's get started creating a control panel full of “knobs” to interactively tweak values in our application.
+{-| Let's get started creating a control panel full of “knobs” to interactively
+tweak values in our application.
 
-When creating a knob, two considerations are important.
-The first is the type of the value you need to control.
-This package currently provides knobs for numbers, booleans, enumerated choices (custom types or anything like that)
-and colors out of the box, and there is a way to either transform one into another type ([`map`](#map)),
-or to create an entirely new knob ([`custom`](#custom)).
+When creating a knob, two considerations are important. The first is the type
+of the value you need to control. This package currently provides knobs for
+numbers, strings, booleans, enumerated choices (custom types or anything like
+that) and colors out of the box, and there is a way to either transform one into
+another type ([`map`](#map)), or to create an entirely new knob
+([`custom`](#custom)).
 
-The second important consideration is the interface you want to provide to manipulate that value,
-i.e. the control itself. Many knobs offer different controls for the same type,
-particularly number-related ones, so pick the one that best suits your needs!
+The second important consideration is the interface you want to provide to
+manipulate that value, i.e. the control itself. Many knobs offer different
+controls for the same type, particularly number-related ones, so pick the one
+that best suits your needs!
 
 @docs Knob
 
@@ -32,9 +35,11 @@ particularly number-related ones, so pick the one that best suits your needs!
 # Creating knobs for base values
 
 First up, within our app's `init` let's create a `Knob` and put it in the model.
-The following are the functions you can use to create basic knobs that map to a single value.
+The following are the functions you can use to create basic knobs that map to a
+single value.
 
-👀 Tip: Check the [**interactive documentation**][interactive-docs] to see working examples of these!
+👀 Tip: Check the [**interactive documentation**][interactive-docs] to see
+working examples of these!
 
 [interactive-docs]: https://agj.github.io/elm-knobs/1.1.0/
 
@@ -54,23 +59,24 @@ The next step is to actually display our knob in the page.
 
 # Retrieving the value
 
-Of course, our knobs are of no use to us if we can't read the value entered by the user.
+Of course, our knobs are of no use to us if we can't read the value entered by
+the user.
 
 @docs value
 
 
 # Composing knobs
 
-Most of the time you'll want to control multiple values.
-For that purpose we're going to “stack” our knobs together.
+Most of the time you'll want to control multiple values. For that purpose we're
+going to “stack” our knobs together.
 
 @docs compose, stack
 
 
 # Organization
 
-We could have a bunch of similar knobs in our panel and not know what each of them does,
-so let's make sure we do!
+We could have a bunch of similar knobs in our panel and not know what each of
+them does, so let's make sure we do!
 
 @docs label, stackLabel
 
@@ -82,11 +88,11 @@ so let's make sure we do!
 
 # Serialization
 
-The value of your knobs will be reset every time you refresh the page,
-unless you persist their value somehow.
-Knob serialization is a way to make it easier to do this using the Web Storage API
-or other such techniques.
-Check [this example](https://github.com/agj/elm-knobs/blob/1.1.0/examples/web-storage/) to see how to do it.
+The value of your knobs will be reset every time you refresh the page, unless
+you persist their value somehow. Knob serialization is a way to make it easier
+to do this using the Web Storage API or other such techniques. Check [this
+example](https://github.com/agj/elm-knobs/blob/1.1.0/examples/web-storage/) to
+see how to do it.
 
 @docs serialize, readSerialized
 
