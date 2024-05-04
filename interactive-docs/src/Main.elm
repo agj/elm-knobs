@@ -2,9 +2,9 @@ module Main exposing (main)
 
 import ChapterComposing
 import ChapterIntroduction
-import ChapterMap
 import ChapterNumber
 import ChapterOtherTypes
+import ChapterTransformation
 import ChaptersFull
 import Constants
 import ElmBook exposing (Book)
@@ -20,7 +20,7 @@ type alias Model =
     { number : ChapterNumber.Model
     , otherTypes : ChapterOtherTypes.Model
     , composing : ChapterComposing.Model
-    , transformation : ChapterMap.Model
+    , transformation : ChapterTransformation.Model
     }
 
 
@@ -29,7 +29,7 @@ init =
     { number = ChapterNumber.init
     , otherTypes = ChapterOtherTypes.init
     , composing = ChapterComposing.init
-    , transformation = ChapterMap.init
+    , transformation = ChapterTransformation.init
     }
 
 
@@ -65,7 +65,7 @@ main =
               , [ ChapterNumber.chapter
                 , ChapterOtherTypes.chapter
                 , ChapterComposing.chapter
-                , ChapterMap.chapter
+                , ChapterTransformation.chapter
                 ]
               )
             , ( "Full examples"

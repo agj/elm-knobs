@@ -1,4 +1,4 @@
-module ChapterMap exposing (Model, chapter, init)
+module ChapterTransformation exposing (Model, chapter, init)
 
 import ElmBook.Chapter
 import Html exposing (Html)
