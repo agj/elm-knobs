@@ -41,7 +41,7 @@ single value.
 👀 Tip: Check the [**interactive documentation**][interactive-docs] to see
 working examples of these!
 
-[interactive-docs]: https://agj.github.io/elm-knobs/1.1.0/
+[interactive-docs]: https://agj.github.io/elm-knobs/1.2.0/
 
 @docs float, floatConstrained, floatSlider
 @docs int, intConstrained, intSlider
@@ -91,7 +91,7 @@ them does, so let's make sure we do!
 The value of your knobs will be reset every time you refresh the page, unless
 you persist their value somehow. Knob serialization is a way to make it easier
 to do this using the Web Storage API or other such techniques. Check [this
-example](https://github.com/agj/elm-knobs/blob/1.1.0/examples/web-storage/) to
+example](https://github.com/agj/elm-knobs/blob/1.2.0/examples/web-storage/) to
 see how to do it.
 
 @docs serialize, readSerialized
@@ -828,7 +828,7 @@ in your page to make it display properly, or provide your own custom styles.
     -- Put this as an HTML node within your view:
     Knob.view KnobUpdated yourKnob
 
-Check [the documentation's readme](/packages/agj/elm-knobs/1.1.0/)
+Check [the documentation's readme](/packages/agj/elm-knobs/1.2.0/)
 for a full demonstration on how to wire things up.
 
 -}

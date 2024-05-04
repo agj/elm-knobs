@@ -19,9 +19,9 @@ API][webstorage].
 - [Interactive docs.][interactive-docs]
 - [Code examples.][examples]
 
-[docs]: https://package.elm-lang.org/packages/agj/elm-knobs/1.1.0
-[interactive-docs]: https://agj.github.io/elm-knobs/1.1.0/
-[examples]: https://github.com/agj/elm-knobs/blob/1.1.0/examples/
+[docs]: https://package.elm-lang.org/packages/agj/elm-knobs/1.2.0
+[interactive-docs]: https://agj.github.io/elm-knobs/1.2.0/
+[examples]: https://github.com/agj/elm-knobs/blob/1.2.0/examples/
 
 ## Why?
 
