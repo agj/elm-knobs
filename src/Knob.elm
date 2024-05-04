@@ -978,7 +978,10 @@ compose constructor =
         , encode = Just (\_ -> Json.Encode.null)
         , decode =
             Just
-                (Json.Decode.succeed (compose constructor))
+                (Json.Decode.map
+                    (\_ -> compose constructor)
+                    (Json.Decode.succeed ())
+                )
         }
 
 
