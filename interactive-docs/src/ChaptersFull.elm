@@ -70,7 +70,7 @@ toChapter desc =
               , linkNewTab sourceUrl "Source code on Github. ↗"
               )
             , ( "link-full-page"
-              , linkNewTab exampleUrl "Open full-screen. ↗"
+              , linkNewTab exampleUrl "Open on its own. ↗"
               )
             ]
         |> ElmBook.Chapter.render content
