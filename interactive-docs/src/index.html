@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>elm-knobs</title>
+
+    <style>
+      .page-logo {
+        font-size: 0.8em;
+      }
+
+      .component-preview {
+        display: flex;
+        gap: 1em;
+        flex-direction: column;
+      }
+
+      iframe.full-example {
+        width: 100%;
+        border: none;
+      }
+
+      /* Overrides */
+
+      .elm-book--wrapper--main--footer {
+        display: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <main></main>
+
+    <script type="module">
+      import { Elm } from "./Main.elm";
+
+      Elm.Main.init(document.querySelector("main"));
+    </script>
+  </body>
+</html>

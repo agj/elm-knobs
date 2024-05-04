@@ -50,9 +50,12 @@ config =
     , NoDebug.TodoOrToString.rule
         |> Rule.ignoreErrorsForDirectories [ "tests/" ]
     , NoExposingEverything.rule
+        |> Rule.ignoreErrorsForDirectories [ "tests/" ]
     , NoImportingEverything.rule []
     , NoMissingTypeAnnotation.rule
+        |> Rule.ignoreErrorsForDirectories [ "tests/" ]
     , NoMissingTypeAnnotationInLetIn.rule
+        |> Rule.ignoreErrorsForDirectories [ "tests/" ]
     , NoMissingTypeExpose.rule
     , NoSimpleLetBody.rule
     , NoPrematureLetComputation.rule
@@ -60,8 +63,12 @@ config =
     , NoUnused.CustomTypeConstructorArgs.rule
     , NoUnused.Dependencies.rule
     , NoUnused.Exports.rule
+        |> Rule.ignoreErrorsForDirectories [ "tests/" ]
     , NoUnused.Parameters.rule
+        |> Rule.ignoreErrorsForDirectories [ "tests/" ]
     , NoUnused.Patterns.rule
+        |> Rule.ignoreErrorsForDirectories [ "tests/" ]
     , NoUnused.Variables.rule
+        |> Rule.ignoreErrorsForDirectories [ "tests/" ]
     , Simplify.rule Simplify.defaults
     ]

@@ -1,0 +1,7 @@
+{
+  "source": "src/index.html",
+  "devDependencies": {
+    "@parcel/transformer-elm": "2.12.0",
+    "parcel": "2.12.0"
+  }
+}

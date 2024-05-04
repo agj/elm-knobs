@@ -1,24 +1,48 @@
-# elm-knobs
+# elm-knobs 🎛
 
 [![Elm package](https://img.shields.io/elm-package/v/agj/elm-knobs?style=flat-square&logo=elm&labelColor=white&color=%231293D8)](https://package.elm-lang.org/packages/agj/elm-knobs/latest)
 
-A way to easily tweak values interactively within a running Elm app, using a panel of input controls that map to those values, which we call “knobs” here. While not in use, they recede to an icon in the lower-left corner.
+A way to easily tweak values interactively within a running Elm app, using a
+panel of input controls that map to those values, which we call “knobs” here.
+While not in use, they recede to an icon in the lower-left corner. The library
+supports easy serialization, enabling you to persist the values even after a
+page refresh by, for example, interfacing with the [Web Storage
+API][webstorage].
+
+[webstorage]: https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API
 
 ![Example of elm-knobs in action](https://raw.githubusercontent.com/agj/elm-knobs/d2167d12ded679174e6678b2de29b9132ffac104/examples/polygon-example.png)
 
-Sometimes it's hard to find the right value for something in your design,
-and having actual controls in the browser that instantly update the view helps tremendously in the development process.
-It also enables non-technical people to explore how things change when different values are used,
-with immediate feedback.
+## Links
 
-Since its intended use case is aiding the development process and facilitating rough prototypes,
-visual customization is not a priority,
-but you can still define your own CSS styles to customize how it looks.
+- [API docs (package.elm-lang.org).][docs]
+- [Interactive docs.][interactive-docs]
+- [Code examples.][examples]
 
-Here's a very basic yet complete example of using elm-knobs:
+[docs]: https://package.elm-lang.org/packages/agj/elm-knobs/1.2.0
+[interactive-docs]: https://agj.github.io/elm-knobs/1.2.0/
+[examples]: https://github.com/agj/elm-knobs/blob/1.2.0/examples/
+
+## Why?
+
+Sometimes it's hard to find the right value for something in your design, and
+having actual controls in the browser that instantly update the view helps
+tremendously in the development process. It also enables non-technical people
+to explore how things change when different values are used, with immediate
+feedback.
+
+Since its intended use case is aiding the development process and facilitating
+rough prototypes, visual customization is not a priority, but you can still
+define your own CSS styles to customize how it looks.
+
+## What it looks like to use elm-knobs
+
+Below is a very basic yet complete example of using elm-knobs. It is not what
+is shown at the top of this page, though, but you can [find that and other
+examples in the Github repo][examples].
 
 ```elm
-module BasicExample exposing (main)
+module Main exposing (main)
 
 import Browser
 import Html
@@ -72,15 +96,13 @@ view model =
         ]
 ```
 
-The picture at the top of this page is a more involved example, though.
-You can take a look at it in the [Github repo][in-github],
-or [play with it directly in your browser][in-elm-editor] thanks to the magic of Elm Editor (opens latest version of the code.)
-
-[in-github]: https://github.com/agj/elm-knobs/blob/1.1.0/examples/src/
-[in-elm-editor]: https://elm-editor.com/?project-state=https://github.com/agj/elm-knobs
-
 ## Not exactly what you were looking for?
 
-For a more complete package that does much more than elm-knobs, at the cost of setup complexity, try [jamesgary/elm-config-ui](https://package.elm-lang.org/packages/jamesgary/elm-config-ui/latest/).
+For a more complete package that does much more than elm-knobs, at the cost of
+setup complexity, try
+[jamesgary/elm-config-ui](https://package.elm-lang.org/packages/jamesgary/elm-config-ui/latest/).
 
-Also check out [avh4/elm-debug-controls](https://package.elm-lang.org/packages/avh4/elm-debug-controls/latest/), a library with some overlap with this one, and whose source code inspired my approach to building this library.
+Also check out
+[avh4/elm-debug-controls](https://package.elm-lang.org/packages/avh4/elm-debug-controls/latest/),
+a library with some overlap with this one, and whose source code inspired my
+approach to building this library.
