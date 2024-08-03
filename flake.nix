@@ -1,6 +1,4 @@
 {
-  description = "elm-knobs";
-
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
     flake-utils.url = "github:numtide/flake-utils";
