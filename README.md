@@ -18,10 +18,12 @@ API][webstorage].
 - [API docs (package.elm-lang.org).][docs]
 - [Interactive docs.][interactive-docs]
 - [Code examples.][examples]
+- [Changelog.][changelog]
 
 [docs]: https://package.elm-lang.org/packages/agj/elm-knobs/1.2.0
 [interactive-docs]: https://agj.github.io/elm-knobs/1.2.0/
 [examples]: https://github.com/agj/elm-knobs/blob/1.2.0/examples/
+[changelog]: https://github.com/agj/elm-knobs/blob/main/CHANGELOG.md
 
 ## Why?
 
