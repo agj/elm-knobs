@@ -567,7 +567,7 @@ select :
     }
     -> Knob a
 select config =
-    selectInternal False config
+    selectInternal False config ""
 
 
 selectInternal :
@@ -576,8 +576,9 @@ selectInternal :
         { options : Dict String a
         , initial : a
         }
+    -> String
     -> Knob a
-selectInternal keepOpen config =
+selectInternal keepOpen config userInput =
     let
         fromString : String -> a
         fromString text =
@@ -591,6 +592,10 @@ selectInternal keepOpen config =
                 |> Internal.Utils.listFind (\( _, v ) -> v == val)
                 |> Maybe.map (\( k, _ ) -> k)
                 |> Maybe.withDefault ""
+
+        newValue : a
+        newValue =
+            fromString userInput
 
         optionElement : String -> Html (Knob a)
         optionElement text =
@@ -615,25 +620,21 @@ selectInternal keepOpen config =
         selectElement () =
             Html.select
                 [ Html.Events.onInput
-                    (\selectionString ->
-                        selectInternal False { config | initial = fromString selectionString }
-                    )
-                , Html.Events.onFocus (selectInternal True config)
-                , Html.Events.onBlur (selectInternal False config)
+                    (\newUserInput -> selectInternal False config newUserInput)
+                , Html.Events.onFocus (selectInternal True config userInput)
+                , Html.Events.onBlur (selectInternal False config userInput)
                 ]
                 optionElements
     in
     Knob
-        { value = config.initial
+        { value = newValue
         , keepOpen = keepOpen
         , view = SingleView selectElement
-        , encode = Just (\() -> config.initial |> toString |> Json.Encode.string)
+        , encode = Just (\() -> toString newValue |> Json.Encode.string)
         , decode =
             Just
                 (Json.Decode.map
-                    (\decodedValue ->
-                        selectInternal False { config | initial = fromString decodedValue }
-                    )
+                    (\decodedValue -> selectInternal False config decodedValue)
                     Json.Decode.string
                 )
         }
