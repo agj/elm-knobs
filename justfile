@@ -11,31 +11,31 @@ docs:
     elm-doc-preview --port 8001 --no-browser
 
 # Preview and develop the interactive documentation.
-interactive-docs: interactive-docs-install
+intdocs: intdocs-install
     cd interactive-docs && pnpm exec parcel
 
 # Preview the interactive docs in full.
-interactive-docs-full: interactive-docs-build
+intdocs-full: intdocs-build
     pnpm install
     pnpm exec http-server ./interactive-docs/output/
 
 # Update interactive doc example code.
-interactive-docs-update-examples:
+intdocs-update-examples:
     nu ./scripts/update-example-code-strings.nu
 
 # Build the interactive documentation.
-interactive-docs-build: interactive-docs-install
+intdocs-build: intdocs-install
     rm -rf ./interactive-docs/.parcel-cache # Sad workaround.
     cd interactive-docs && pnpm exec parcel build --dist-dir "./output/$(shell nu ./scripts/get-current-version.nu)"
     nu ./scripts/build-examples.nu
     nu ./scripts/build-interactive-docs-index.nu
 
 # Deploy interactive documentation to GH pages.
-interactive-docs-deploy: interactive-docs-build
+intdocs-deploy: intdocs-build
     pnpm install
     pnpm exec gh-pages --remote github --dist ./interactive-docs/output
 
-interactive-docs-install:
+intdocs-install:
     cd interactive-docs && pnpm install
 
 # Run all tests, checks and lint.
