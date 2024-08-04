@@ -21,9 +21,10 @@
             elmPackages.elm-json
             elmPackages.elm-review
             elmPackages.elm-test
-            nodejs-slim_21
+            just
             nodePackages.pnpm
             nodePackages.uglify-js
+            nodejs-slim_21
             nushell
           ];
         };
