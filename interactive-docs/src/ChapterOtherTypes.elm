@@ -59,8 +59,12 @@ stringInputDoc =
     { name = "stringInput"
     , link = Nothing
     , description = Nothing
-    , init_ = Knob.stringInput "Enter text here"
-    , code = "Knob.stringInput \"Enter text here\""
+    , init_ =
+        Knob.stringInput "Enter text here"
+    , code =
+        """
+        Knob.stringInput "Enter text here"
+        """
     , get = \model -> model.stringInput
     , set = \model new -> { model | stringInput = new }
     , toString = identity
@@ -97,8 +101,12 @@ boolCheckboxDoc =
     { name = "boolCheckbox"
     , link = Nothing
     , description = Nothing
-    , init_ = Knob.boolCheckbox False
-    , code = "Knob.boolCheckbox False"
+    , init_ =
+        Knob.boolCheckbox False
+    , code =
+        """
+        Knob.boolCheckbox False
+        """
     , get = \model -> model.boolCheckbox
     , set = \model new -> { model | boolCheckbox = new }
     , toString =
@@ -205,8 +213,12 @@ colorPickerDoc =
     { name = "colorPicker"
     , link = Nothing
     , description = Nothing
-    , init_ = Knob.colorPicker { red = 1, green = 1, blue = 1 }
-    , code = "Knob.colorPicker { red = 1, green = 1, blue = 1 }"
+    , init_ =
+        Knob.colorPicker { red = 1, green = 1, blue = 1 }
+    , code =
+        """
+        Knob.colorPicker { red = 1, green = 1, blue = 1 }
+        """
     , get = \model -> model.colorPicker
     , set = \model new -> { model | colorPicker = new }
     , toString =
