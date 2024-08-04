@@ -1,16 +1,17 @@
-let patternToMatch = '
-    { name = :[name]
+def makeDocRecordPattern [codePattern] {
+    $"{ name = :[name]
     , link = :[link]
     , description = :[description]
     , init_ = :[init]
-    , code = :[code]
+    , code = ($codePattern)
     , get = :[get]
     , set = :[set]
     , toString = :[toString]
-    }'
+    }"
+}
 
 (comby -in-place
-    $patternToMatch
+    (makeDocRecordPattern ":[code]")
     # Replacement pattern:
     '{ name = :[name]
     , link = :[link]
@@ -28,15 +29,8 @@ let patternToMatch = '
     ./interactive-docs/src/**/*.elm)
 
 (comby -in-place
-    '{ name = :[name]
-    , link = :[link]
-    , description = :[description]
-    , init_ = :[init]
-    , code = """:[code]"""
-    , get = :[get]
-    , set = :[set]
-    , toString = :[toString]
-    }'
+    (makeDocRecordPattern '""":[code]"""')
+    # Replacement pattern:
     '{ name = :[name]
     , link = :[link]
     , description = :[description]
@@ -48,6 +42,7 @@ let patternToMatch = '
     , set = :[set]
     , toString = :[toString]
     }'
+    # Escape backslashes in code string.
     -rule 'where rewrite :[code] { "\\" -> "\\\\" }'
     ./interactive-docs/src/**/*.elm)
 
