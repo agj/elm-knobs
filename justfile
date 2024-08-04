@@ -24,7 +24,7 @@ intdocs-update-examples:
     nu ./scripts/update-example-code-strings.nu
 
 # Build the interactive documentation.
-intdocs-build: intdocs-install
+intdocs-build: intdocs-install intdocs-update-examples
     rm -rf ./interactive-docs/.parcel-cache # Sad workaround.
     cd interactive-docs && pnpm exec parcel build --dist-dir "./output/$(shell nu ./scripts/get-current-version.nu)"
     nu ./scripts/build-examples.nu
