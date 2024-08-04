@@ -1,5 +1,6 @@
 module ChapterOtherTypes exposing (Model, chapter, init)
 
+import Dict
 import ElmBook.Chapter exposing (Chapter)
 import Knob exposing (Knob)
 import KnobDoc exposing (KnobDoc)
@@ -128,57 +129,23 @@ selectDoc =
         """
     , init_ =
         Knob.select
-            { options = [ "Carrot", "Lettuce", "Beet" ]
-            , toString =
-                \vegetable ->
-                    case vegetable of
-                        Carrot ->
-                            "Carrot"
-
-                        Lettuce ->
-                            "Lettuce"
-
-                        Beet ->
-                            "Beet"
-            , fromString =
-                \string ->
-                    case string of
-                        "Lettuce" ->
-                            Lettuce
-
-                        "Beet" ->
-                            Beet
-
-                        _ ->
-                            Carrot
+            { options =
+                Dict.fromList
+                    [ ( "Carrot", Carrot )
+                    , ( "Lettuce", Lettuce )
+                    , ( "Beet", Beet )
+                    ]
             , initial = Carrot
             }
     , code =
         """
         Knob.select
-            { options = [ "Carrot", "Lettuce", "Beet" ]
-            , toString =
-                \\vegetable ->
-                    case vegetable of
-                        Carrot ->
-                            "Carrot"
-
-                        Lettuce ->
-                            "Lettuce"
-
-                        Beet ->
-                            "Beet"
-            , fromString =
-                \\string ->
-                    case string of
-                        "Lettuce" ->
-                            Lettuce
-
-                        "Beet" ->
-                            Beet
-
-                        _ ->
-                            Carrot
+            { options =
+                Dict.fromList
+                    [ ( "Carrot", Carrot )
+                    , ( "Lettuce", Lettuce )
+                    , ( "Beet", Beet )
+                    ]
             , initial = Carrot
             }
         """
