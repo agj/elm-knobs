@@ -2,6 +2,7 @@ module Main exposing (main)
 
 import Browser
 import Color exposing (Color)
+import Dict
 import Html exposing (Html)
 import Html.Attributes exposing (style)
 import Knob exposing (Knob)
@@ -75,9 +76,11 @@ init =
                 )
             |> Knob.stackLabel "Sit on"
                 (Knob.select
-                    { options = [ "Vertex", "Edge" ]
-                    , toString = sitOnToString
-                    , fromString = sitOnFromString
+                    { options =
+                        Dict.fromList
+                            [ ( "Vertex", SitOnVertex )
+                            , ( "Edge", SitOnEdge )
+                            ]
                     , initial = SitOnVertex
                     }
                 )
@@ -94,31 +97,11 @@ type SitOn
     | SitOnVertex
 
 
-sitOnFromString : String -> SitOn
-sitOnFromString string =
-    case string of
-        "Edge" ->
-            SitOnEdge
-
-        _ ->
-            SitOnVertex
-
-
-sitOnToString : SitOn -> String
-sitOnToString sitOn =
-    case sitOn of
-        SitOnEdge ->
-            "Edge"
-
-        SitOnVertex ->
-            "Vertex"
-
-
 update msg model =
     case msg of
         -- We update the knob in the model.
         ControlsKnobUpdated knobState ->
-            { controls = knobState }
+            { model | controls = knobState }
 
 
 view model =
