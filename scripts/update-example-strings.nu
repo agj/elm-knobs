@@ -1,6 +1,7 @@
 
-comby -in-place '
-    { name = :[name]
+(comby -in-place
+    # Pattern to match:
+    '{ name = :[name]
     , link = :[link]
     , description = :[description]
     , init_ = :[init]
@@ -8,8 +9,9 @@ comby -in-place '
     , get = :[get]
     , set = :[set]
     , toString = :[toString]
-    }' '
-    { name = :[name]
+    }'
+    # Replacement pattern:
+    '{ name = :[name]
     , link = :[link]
     , description = :[description]
     , init_ =
@@ -21,5 +23,9 @@ comby -in-place '
     , get = :[get]
     , set = :[set]
     , toString = :[toString]
-    }' ./interactive-docs/src/**/*.elm
+    }'
+    # Escape backslashes:
+    -rule 'where rewrite :[init] { "\\" -> "\\\\" }'
+    # Input:
+    ./interactive-docs/src/**/*.elm)
 
