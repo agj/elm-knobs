@@ -129,48 +129,58 @@ selectDoc =
     , init_ =
         Knob.select
             { options = [ "Carrot", "Lettuce", "Beet" ]
-            , toString = vegetableToString
-            , fromString = vegetableFromString
+            , toString =
+                \vegetable ->
+                    case vegetable of
+                        Carrot ->
+                            "Carrot"
+
+                        Lettuce ->
+                            "Lettuce"
+
+                        Beet ->
+                            "Beet"
+            , fromString =
+                \string ->
+                    case string of
+                        "Lettuce" ->
+                            Lettuce
+
+                        "Beet" ->
+                            Beet
+
+                        _ ->
+                            Carrot
             , initial = Carrot
             }
     , code =
         """
         Knob.select
             { options = [ "Carrot", "Lettuce", "Beet" ]
-            , toString = vegetableToString
-            , fromString = vegetableFromString
+            , toString =
+                \\vegetable ->
+                    case vegetable of
+                        Carrot ->
+                            "Carrot"
+
+                        Lettuce ->
+                            "Lettuce"
+
+                        Beet ->
+                            "Beet"
+            , fromString =
+                \\string ->
+                    case string of
+                        "Lettuce" ->
+                            Lettuce
+
+                        "Beet" ->
+                            Beet
+
+                        _ ->
+                            Carrot
             , initial = Carrot
             }
-
-
-        type Vegetable
-            = Carrot
-            | Lettuce
-            | Beet
-
-
-        vegetableToString vegetable =
-            case vegetable of
-                Carrot ->
-                    "Carrot"
-
-                Lettuce ->
-                    "Lettuce"
-
-                Beet ->
-                    "Beet"
-
-
-        vegetableFromString string =
-            case string of
-                "Lettuce" ->
-                    Lettuce
-
-                "Beet" ->
-                    Beet
-
-                _ ->
-                    Carrot
         """
     , get = \model -> model.select
     , set = \model new -> { model | select = new }
@@ -184,6 +194,7 @@ type Vegetable
     | Beet
 
 
+vegetableToString : Vegetable -> String
 vegetableToString vegetable =
     case vegetable of
         Carrot ->
@@ -194,18 +205,6 @@ vegetableToString vegetable =
 
         Beet ->
             "Beet"
-
-
-vegetableFromString string =
-    case string of
-        "Lettuce" ->
-            Lettuce
-
-        "Beet" ->
-            Beet
-
-        _ ->
-            Carrot
 
 
 colorPickerDoc : KnobDoc Knob.Color Model
