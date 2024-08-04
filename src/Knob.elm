@@ -539,24 +539,18 @@ boolCheckbox initial =
         }
 
 
-{-| Creates a dropdown select input for a custom type or any arbitrary value you wish.
-You'll need to provide a list of `String`s that represent each selectable option.
-You'll also need a `fromString` function that maps these strings to your type,
-and the reverse `toString` which converts a value of your type to one of the option strings.
+{-| Creates a dropdown select input for a custom type or arbitrary values of any
+type you wish. You'll need to provide a `Dict` mapping unique strings (options
+in the dropdown) to values of your type.
 
 Here's a simple example mapping "yes" and "no" options to `Bool` values:
 
     Knob.select
-        { options = [ "yes", "no" ]
-        , toString =
-            \bool ->
-                case bool of
-                    True ->
-                        "yes"
-
-                    False ->
-                        "no"
-        , fromString = \string -> string == "yes"
+        { options =
+            Dict.fromList
+                [ ( "yes", True )
+                , ( "no", False )
+                ]
         , initial = False
         }
 
