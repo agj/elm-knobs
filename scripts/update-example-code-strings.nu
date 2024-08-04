@@ -16,6 +16,8 @@ let docRecordBottom = (
     }'
 )
 
+print $"ℹ️ Updating example code strings"
+
 # Copy knob example code into the code string.
 
 (comby -in-place
