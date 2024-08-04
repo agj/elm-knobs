@@ -103,12 +103,14 @@ see how to do it.
 
 -}
 
+import Dict exposing (Dict)
 import Hex
 import Html exposing (Html)
 import Html.Attributes
 import Html.Events
 import Internal.Constants
 import Internal.Option exposing (Anchor(..), Option(..))
+import Internal.Utils
 import Json.Decode
 import Json.Encode
 import Knob.Option exposing (Option)
@@ -560,9 +562,7 @@ Here's a simple example mapping "yes" and "no" options to `Bool` values:
 
 -}
 select :
-    { options : List String
-    , toString : a -> String
-    , fromString : String -> a
+    { options : Dict String a
     , initial : a
     }
     -> Knob a
@@ -573,20 +573,31 @@ select config =
 selectInternal :
     Bool
     ->
-        { options : List String
-        , toString : a -> String
-        , fromString : String -> a
+        { options : Dict String a
         , initial : a
         }
     -> Knob a
 selectInternal keepOpen config =
     let
+        fromString : String -> a
+        fromString text =
+            config.options
+                |> Dict.get text
+                |> Maybe.withDefault config.initial
+
+        toString : a -> String
+        toString val =
+            Dict.toList config.options
+                |> Internal.Utils.listFind (\( _, v ) -> v == val)
+                |> Maybe.map (\( k, _ ) -> k)
+                |> Maybe.withDefault ""
+
         optionElement : String -> Html (Knob a)
         optionElement text =
             let
                 parsed : a
                 parsed =
-                    config.fromString text
+                    fromString text
             in
             Html.option
                 [ Html.Attributes.value text
@@ -597,6 +608,7 @@ selectInternal keepOpen config =
         optionElements : List (Html (Knob a))
         optionElements =
             config.options
+                |> Dict.keys
                 |> List.map optionElement
 
         selectElement : () -> Html (Knob a)
@@ -604,7 +616,7 @@ selectInternal keepOpen config =
             Html.select
                 [ Html.Events.onInput
                     (\selectionString ->
-                        selectInternal False { config | initial = config.fromString selectionString }
+                        selectInternal False { config | initial = fromString selectionString }
                     )
                 , Html.Events.onFocus (selectInternal True config)
                 , Html.Events.onBlur (selectInternal False config)
@@ -615,12 +627,12 @@ selectInternal keepOpen config =
         { value = config.initial
         , keepOpen = keepOpen
         , view = SingleView selectElement
-        , encode = Just (\() -> config.initial |> config.toString |> Json.Encode.string)
+        , encode = Just (\() -> config.initial |> toString |> Json.Encode.string)
         , decode =
             Just
                 (Json.Decode.map
                     (\decodedValue ->
-                        selectInternal False { config | initial = config.fromString decodedValue }
+                        selectInternal False { config | initial = fromString decodedValue }
                     )
                     Json.Decode.string
                 )

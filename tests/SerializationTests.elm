@@ -39,7 +39,7 @@ transitiveEqualityTests =
         , Test.fuzz3 (Fuzz.oneOfValues vegetables) (Fuzz.oneOfValues vegetables) (Fuzz.oneOfValues vegetables) "select" <|
             \default ->
                 expectTransitiveEquality
-                    (knobSelect default >> .knob)
+                    (knobSelect >> .knob)
         , Test.fuzz2 fuzzColor fuzzColor "colorPicker" <|
             expectTransitiveEquality
                 Knob.colorPicker
@@ -108,7 +108,7 @@ roundTripSerializationTests =
         , Test.fuzz3 (Fuzz.oneOfValues vegetables) (Fuzz.oneOfValues vegetables) (Fuzz.oneOfValues vegetables) "select" <|
             \default ->
                 expectRoundTripSerializationToWork
-                    (knobSelect default >> .knob)
+                    (knobSelect >> .knob)
         , Test.fuzz2 fuzzColor fuzzColor "colorPicker" <|
             expectRoundTripSerializationToWork
                 Knob.colorPicker

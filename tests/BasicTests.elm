@@ -215,42 +215,39 @@ boolCheckboxTests =
 
 selectTests =
     Test.describe "select"
-        [ Test.fuzz3
-            (Fuzz.oneOfValues vegetables)
+        [ Test.fuzz2
             (Fuzz.oneOfValues vegetables)
             (Fuzz.oneOfValues vegetableStrings)
             "Can input valid values"
           <|
-            \default initial input ->
+            \initial input ->
                 let
                     { knob, fromString } =
-                        knobSelect default initial
+                        knobSelect initial
                 in
                 knob
                     |> simulateSelectInput input
                     |> Expect.equal (Just (fromString input))
-        , Test.fuzz3
-            (Fuzz.oneOfValues vegetables)
+        , Test.fuzz2
             (Fuzz.oneOfValues vegetables)
             Fuzz.string
-            "Invalid values result in the fromString default value"
+            "Invalid values result in the initial value"
           <|
-            \default initial invalidInput ->
-                knobSelect default initial
+            \initial invalidInput ->
+                knobSelect initial
                     |> .knob
                     |> simulateSelectInput invalidInput
-                    |> Expect.equal (Just default)
-        , Test.fuzz3
-            (Fuzz.oneOfValues vegetables)
+                    |> Expect.equal (Just initial)
+        , Test.fuzz2
             (Fuzz.oneOfValues vegetables)
             (Fuzz.pair (Fuzz.oneOfValues vegetableStrings) Fuzz.string)
-            "Invalid values after a correct value still result in the fromString default value"
+            "Invalid values after a correct value still result in the initial value"
           <|
-            \default initial ( input, invalidInput ) ->
-                knobSelect default initial
+            \initial ( input, invalidInput ) ->
+                knobSelect initial
                     |> .knob
                     |> simulateSelectInputs input [ invalidInput ]
-                    |> Expect.equal (Just default)
+                    |> Expect.equal (Just initial)
         ]
 
 

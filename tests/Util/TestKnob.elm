@@ -1,7 +1,9 @@
 module Util.TestKnob exposing (..)
 
+import Dict exposing (Dict)
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer)
+import Internal.Utils
 import Json.Decode exposing (Value)
 import Knob exposing (Knob)
 import Test.Html.Event as Event
@@ -15,21 +17,18 @@ import Test.Html.Selector as Selector exposing (Selector)
 
 knobSelect :
     Vegetable
-    -> Vegetable
     ->
         { knob : Knob Vegetable
         , fromString : String -> Vegetable
         , toString : Vegetable -> String
         }
-knobSelect default initial =
+knobSelect initial =
     { knob =
         Knob.select
-            { options = vegetableStrings
-            , toString = vegetableToString
-            , fromString = vegetableFromString >> Maybe.withDefault default
+            { options = vegetableOptions
             , initial = initial
             }
-    , fromString = vegetableFromString >> Maybe.withDefault default
+    , fromString = vegetableFromString >> Maybe.withDefault initial
     , toString = vegetableToString
     }
 
@@ -40,41 +39,37 @@ type Vegetable
     | Beet
 
 
+vegetableOptions : Dict String Vegetable
+vegetableOptions =
+    [ ( "Carrot", Carrot )
+    , ( "Lettuce", Lettuce )
+    , ( "Beet", Beet )
+    ]
+        |> Dict.fromList
+
+
+vegetables : List Vegetable
 vegetables =
-    [ Carrot, Lettuce, Beet ]
+    Dict.values vegetableOptions
 
 
+vegetableStrings : List String
 vegetableStrings =
-    vegetables
-        |> List.map vegetableToString
+    Dict.keys vegetableOptions
 
 
+vegetableToString : Vegetable -> String
 vegetableToString vegetable =
-    case vegetable of
-        Carrot ->
-            "Carrot"
-
-        Lettuce ->
-            "Lettuce"
-
-        Beet ->
-            "Beet"
+    Dict.toList vegetableOptions
+        |> Internal.Utils.listFind (\( _, v ) -> v == vegetable)
+        |> Maybe.map (\( k, _ ) -> k)
+        |> Maybe.withDefault ""
 
 
 vegetableFromString : String -> Maybe Vegetable
 vegetableFromString string =
-    case string of
-        "Carrot" ->
-            Just Carrot
-
-        "Lettuce" ->
-            Just Lettuce
-
-        "Beet" ->
-            Just Beet
-
-        _ ->
-            Nothing
+    vegetableOptions
+        |> Dict.get string
 
 
 
