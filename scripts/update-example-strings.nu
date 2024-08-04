@@ -1,49 +1,58 @@
-def makeDocRecordPattern [codePattern] {
-    $"{ name = :[name]
-    , link = :[link]
-    , description = :[description]
-    , init_ = :[init]
-    , code = ($codePattern)
-    , get = :[get]
-    , set = :[set]
-    , toString = :[toString]
-    }"
-}
+# This script generates the example code string automatically from the code
+# itself.
 
-(comby -in-place
-    (makeDocRecordPattern ":[code]")
-    # Replacement pattern:
+# We need to match the entire KnobDoc record, but we only want to change the
+# middle part, so we have the top and bottom parts as constants.
+
+let docRecordTop = (
     '{ name = :[name]
     , link = :[link]
-    , description = :[description]
-    , init_ =
-        :[init]
+    , description = :[description]'
+)
+let docRecordBottom = (
+    ', get = :[get]
+    , set = :[set]
+    , toString = :[toString]
+    }'
+)
+
+# Copy knob example code into the code string.
+
+(comby -in-place
+    # Matching pattern:
+    ($docRecordTop + '
+    , init_ = :[init]
+    , code = ...
+    ' + $docRecordBottom)
+    # Replacement pattern:
+    ($docRecordTop + '
+    , init_ = :[init]
     , code =
         """
         :[init]
         """
-    , get = :[get]
-    , set = :[set]
-    , toString = :[toString]
-    }'
+    ' + $docRecordBottom)
     ./interactive-docs/src/**/*.elm)
 
+# Escape backslashes in code string.
+
 (comby -in-place
-    (makeDocRecordPattern '""":[code]"""')
+    # Matching pattern:
+    ($docRecordTop + '
+    , init_ = :[init]
+    , code = """:[code]"""
+    ' + $docRecordBottom)
     # Replacement pattern:
-    '{ name = :[name]
-    , link = :[link]
-    , description = :[description]
+    ($docRecordTop + '
     , init_ =
         :[init]
     , code =
         """:[code]"""
-    , get = :[get]
-    , set = :[set]
-    , toString = :[toString]
-    }'
-    # Escape backslashes in code string.
+    ' + $docRecordBottom)
+    # Rewrite rule (actual escaping).
     -rule 'where rewrite :[code] { "\\" -> "\\\\" }'
     ./interactive-docs/src/**/*.elm)
+
+# Reformat files.
 
 elm-format --yes ./interactive-docs/src/**/*.elm
