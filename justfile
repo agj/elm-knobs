@@ -19,6 +19,10 @@ interactive-docs-full: interactive-docs-build
     pnpm install
     pnpm exec http-server ./interactive-docs/output/
 
+# Update interactive doc example code.
+interactive-docs-update-examples:
+    nu ./scripts/update-example-code-strings.nu
+
 # Build the interactive documentation.
 interactive-docs-build: interactive-docs-install
     rm -rf ./interactive-docs/.parcel-cache # Sad workaround.
