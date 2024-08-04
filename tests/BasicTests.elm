@@ -2,19 +2,13 @@ module BasicTests exposing (..)
 
 import Expect
 import Fuzz exposing (Fuzzer)
-import Internal.Constants
 import Knob
 import Test
-import Test.Html.Event as Event
-import Test.Html.Selector as Selector
 import Util.TestKnob
     exposing
         ( Vegetable(..)
-        , afterEvent
         , knobSelect
         , simulateCheckInput
-        , simulateEvent
-        , simulateEvents
         , simulateInput
         , simulateInputs
         , simulateSelectInput
@@ -22,8 +16,6 @@ import Util.TestKnob
         , simulateTextareaInput
         , vegetableStrings
         , vegetables
-        , viewHas
-        , viewHasNot
         )
 
 

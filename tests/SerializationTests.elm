@@ -36,10 +36,9 @@ transitiveEqualityTests =
         , Test.fuzz2 Fuzz.bool Fuzz.bool "boolCheckbox" <|
             expectTransitiveEquality
                 Knob.boolCheckbox
-        , Test.fuzz3 (Fuzz.oneOfValues vegetables) (Fuzz.oneOfValues vegetables) (Fuzz.oneOfValues vegetables) "select" <|
-            \default ->
-                expectTransitiveEquality
-                    (knobSelect >> .knob)
+        , Test.fuzz2 (Fuzz.oneOfValues vegetables) (Fuzz.oneOfValues vegetables) "select" <|
+            expectTransitiveEquality
+                (knobSelect >> .knob)
         , Test.fuzz2 fuzzColor fuzzColor "colorPicker" <|
             expectTransitiveEquality
                 Knob.colorPicker
@@ -105,10 +104,9 @@ roundTripSerializationTests =
         , Test.fuzz2 Fuzz.bool Fuzz.bool "boolCheckbox" <|
             expectRoundTripSerializationToWork
                 Knob.boolCheckbox
-        , Test.fuzz3 (Fuzz.oneOfValues vegetables) (Fuzz.oneOfValues vegetables) (Fuzz.oneOfValues vegetables) "select" <|
-            \default ->
-                expectRoundTripSerializationToWork
-                    (knobSelect >> .knob)
+        , Test.fuzz2 (Fuzz.oneOfValues vegetables) (Fuzz.oneOfValues vegetables) "select" <|
+            expectRoundTripSerializationToWork
+                (knobSelect >> .knob)
         , Test.fuzz2 fuzzColor fuzzColor "colorPicker" <|
             expectRoundTripSerializationToWork
                 Knob.colorPicker
