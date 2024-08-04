@@ -1,7 +1,5 @@
-
-(comby -in-place
-    # Pattern to match:
-    '{ name = :[name]
+let patternToMatch = '
+    { name = :[name]
     , link = :[link]
     , description = :[description]
     , init_ = :[init]
@@ -10,6 +8,9 @@
     , set = :[set]
     , toString = :[toString]
     }'
+
+(comby -in-place
+    $patternToMatch
     # Replacement pattern:
     '{ name = :[name]
     , link = :[link]
@@ -24,8 +25,30 @@
     , set = :[set]
     , toString = :[toString]
     }'
-    # Escape backslashes:
-    -rule 'where rewrite :[init] { "\\" -> "\\\\" }'
-    # Input:
     ./interactive-docs/src/**/*.elm)
 
+(comby -in-place
+    '{ name = :[name]
+    , link = :[link]
+    , description = :[description]
+    , init_ = :[init]
+    , code = """:[code]"""
+    , get = :[get]
+    , set = :[set]
+    , toString = :[toString]
+    }'
+    '{ name = :[name]
+    , link = :[link]
+    , description = :[description]
+    , init_ =
+        :[init]
+    , code =
+        """:[code]"""
+    , get = :[get]
+    , set = :[set]
+    , toString = :[toString]
+    }'
+    -rule 'where rewrite :[code] { "\\" -> "\\\\" }'
+    ./interactive-docs/src/**/*.elm)
+
+elm-format --yes ./interactive-docs/src/**/*.elm
