@@ -1,6 +1,12 @@
-.DS_Store
-elm-stuff/
+# Editors.
+.helix/
 .vscode/
+
+# Cache.
+elm-stuff/
+node_modules/
 .direnv/
 .parcel-cache/
-node_modules/
+
+# Cruft.
+.DS_Store
