@@ -38,6 +38,10 @@ intdocs-deploy: intdocs-build
 intdocs-install:
     cd interactive-docs && pnpm install
 
+# Updates the example code in the readme.
+readme-update-example:
+    nu ./scripts/update-readme-example.nu
+
 # Run all tests, checks and lint.
 validate: check-build test check-docs lint check-examples check-version
 
