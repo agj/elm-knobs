@@ -1,3 +1,4 @@
+[private]
 default:
     just --list
 
@@ -35,15 +36,13 @@ intdocs-deploy: intdocs-build
     pnpm install
     pnpm exec gh-pages --remote github --dist ./interactive-docs/output
 
+[private]
 intdocs-install:
     cd interactive-docs && pnpm install
 
 # Updates the example code in the readme.
 readme-update-example:
     nu ./scripts/update-readme-example.nu
-
-# Run all tests, checks and lint.
-validate: check-build test check-docs lint check-examples check-version
 
 # Run tests.
 test:
@@ -53,18 +52,21 @@ test:
 test-watch:
     elm-test --watch
 
+# Run all checks and tests.
+check: check-build test check-docs check-lint check-examples check-version
+
 # Check for formatting errors.
-lint:
+check-lint:
     elm-format src --validate
     elm-review
 
-# Automatically fix linting errors.
-lint-fix:
+# Automatically fix formatting errors.
+check-lint-fix:
     elm-format src --yes
     elm-review --fix
 
-# Suppress al remaining errors.
-lint-suppress:
+# Suppress all remaining errors.
+check-lint-suppress:
     elm-review suppress
 
 # Make sure it compiles.
