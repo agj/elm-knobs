@@ -5,7 +5,7 @@ default:
 # Load a shell with all dependencies (if you don't use direnv).
 init:
     @echo "You may type 'exit' to return to the regular shell.\n"
-    nix develop -c "$$SHELL"
+    nix develop -c "$SHELL"
 
 # Preview the documentation.
 docs:
