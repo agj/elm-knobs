@@ -69,6 +69,10 @@ check-lint-fix:
 check-lint-suppress:
     elm-review suppress
 
+# Check suppressed formatting errors.
+check-lint-unsuppress:
+    elm-review --unsuppress
+
 # Make sure it compiles.
 check-build:
     elm make --output /dev/null
