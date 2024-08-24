@@ -844,7 +844,7 @@ hidden until you hover over its icon. However, `view` takes a list of options
 that change the way the knobs panel is rendered, which you can find in the
 [`Knob.Option`](Knob.Option) module. Be aware that these options may only change
 the CSS classes that are added to the HTML, so if you don't use [the provided
-styles] (#styles), the effect might not be what you expected.
+styles](#styles), the effect might not be what you expected.
 
 -}
 view : List Option -> (Knob a -> msg) -> Knob a -> Html msg
