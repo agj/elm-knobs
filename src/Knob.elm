@@ -647,7 +647,7 @@ type alias Color =
 {-| Creates a color picker input.
 Colors are represented using a type alias `Color`,
 which is easily [`map`](#map)pable into other color formats for your convenience.
-Below is an example mapping it into [avh4/elm-color](/packages/avh4/elm-color/1.0.0/) format.
+Below is an example mapping it into [avh4/elm-color](https://package.elm-lang.org/packages/avh4/elm-color/1.0.0/) format.
 
     -- We set magenta as the initial color.
     Knob.colorPicker { red = 1, green = 0, blue = 1 }
@@ -836,13 +836,13 @@ your own custom styles.
     -- Put this as an HTML node within your view:
     Knob.view [] KnobUpdated yourKnob
 
-Check [the documentation's readme](/packages/agj/elm-knobs/1.2.0/)
+Check [the documentation's readme](https://package.elm-lang.org/packages/agj/elm-knobs/1.2.0/)
 for a full demonstration on how to wire things up.
 
 By default, it puts the panel in the lower-left corner of the viewport,
 hidden until you hover over its icon. However, `view` takes a list of options
 that change the way the knobs panel is rendered, which you can find in the
-[`Knob.Option`](Knob.Option) module. Be aware that these options may only change
+[`Knob.Option`](Knob-Option) module. Be aware that these options may only change
 the CSS classes that are added to the HTML, so if you don't use [the provided
 styles](#styles), the effect might not be what you expected.
 
@@ -946,7 +946,7 @@ value (Knob config) =
 {-| Creates a knob that joins multiple knobs to build up a record
 (or actually any data structure you want, depending on the `constructor` argument you pass it!)
 
-Pipe ([`|>`](/packages/elm/core/1.0.5/Basics#%7C%3E)) the knobs into it
+Pipe ([`|>`](https://package.elm-lang.org/packages/elm/core/1.0.5/Basics#%7C%3E)) the knobs into it
 using [`stack`](Knob#stack) or [`stackLabel`](Knob#stackLabel) in order to provide the arguments.
 
     type alias Controls =
@@ -1120,7 +1120,7 @@ map mapper (Knob a) =
 -- SERIALIZATION
 
 
-{-| Convert a knob's value into an [`elm/json`](/packages/elm/json/) `Value`.
+{-| Convert a knob's value into an [`elm/json`](https://package.elm-lang.org/packages/elm/json/) `Value`.
 You can then send this out to JavaScript via a port,
 and store it using the browser's [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API),
 for example. You'll want to use in your update function whenever you get
