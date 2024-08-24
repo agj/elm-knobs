@@ -117,7 +117,7 @@ view model =
         [ viewPolygon (Knob.value model.controls)
 
         -- We display the knobs panel using `view` and `styles`.
-        , Knob.view ControlsKnobUpdated model.controls
+        , Knob.view [] ControlsKnobUpdated model.controls
         , Knob.styles
         ]
 

@@ -85,7 +85,7 @@ toComponent getModel setModel knobDoc =
             in
             Html.div [ Html.Attributes.class "component-preview" ]
                 [ knobDoc.get model
-                    |> Knob.viewWithOptions [ Knob.Option.detached ]
+                    |> Knob.view [ Knob.Option.detached ]
                         (ElmBook.Actions.updateStateWith (knobDoc.set model >> setModel))
                 , Html.div []
                     [ Html.text ("Value: " ++ (model |> knobDoc.get |> Knob.value |> knobDoc.toString)) ]

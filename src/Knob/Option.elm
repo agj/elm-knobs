@@ -21,8 +21,8 @@ Options that determine where in the page the knobs panel will be placed.
 import Internal.Option exposing (Anchor(..), Option(..))
 
 
-{-| An option that [`Knob.viewWithOptions`](Knob#viewWithOptions) receives,
-which changes how the knobs panel is rendered.
+{-| An option that [`Knob.view`](Knob#view) receives, which changes how the
+knobs panel is rendered.
 -}
 type alias Option =
     Internal.Option.Option

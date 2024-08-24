@@ -93,7 +93,7 @@ view model =
         [ Html.text (String.fromInt (Knob.value model.knob))
 
         -- Display the knob controls:
-        , Knob.view KnobUpdated model.knob
+        , Knob.view [] KnobUpdated model.knob
         , Knob.styles
         ]
 ```

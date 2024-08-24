@@ -5,7 +5,7 @@ module Knob exposing
     , stringInput, stringTextarea
     , boolCheckbox
     , select, Color, colorPicker
-    , view, viewWithOptions, styles
+    , view, styles
     , value
     , compose, stack
     , label, stackLabel
@@ -54,7 +54,7 @@ working examples of these!
 
 The next step is to actually display our knob in the page.
 
-@docs view, viewWithOptions, styles
+@docs view, styles
 
 
 # Retrieving the value
@@ -817,44 +817,38 @@ custom config =
 -- VIEW
 
 
-{-| Converts a knob into HTML to put in your view.
-You should display a single [`Knob`](Knob#Knob) value at any which time,
-so if you need multiple knobs, make sure you [`compose`](Knob#compose) them into a single value!
+{-| Converts a knob into HTML to put in your view. You should display a single
+[`Knob`](Knob#Knob) value at any which time, so if you need multiple knobs, make
+sure you [`compose`](Knob#compose) them!
 
-Knobs keep track of their state once they're put in the view,
-but for that you need to wire them up with a message,
-which is the first argument that this function takes.
+Knobs keep track of their state once they're put in the view, but for that
+you need to wire them up with a message, which is the first argument that this
+function takes.
 
-This function produces plain HTML with no styles, so make sure you also include [`styles`](Knob#styles)
-in your page to make it display properly, or provide your own custom styles.
+This function produces plain HTML with no styles, so make sure you also include
+[`styles`](Knob#styles) in your page to make it display properly, or provide
+your own custom styles.
 
     -- Prepare a message for your knob:
     type Msg =
         KnobUpdated (Knob YourType)
 
     -- Put this as an HTML node within your view:
-    Knob.view KnobUpdated yourKnob
+    Knob.view [] KnobUpdated yourKnob
 
 Check [the documentation's readme](/packages/agj/elm-knobs/1.2.0/)
 for a full demonstration on how to wire things up.
 
--}
-view : (Knob a -> msg) -> Knob a -> Html msg
-view =
-    viewWithOptions []
-
-
-{-| The same as [`view`](#view), but you can also specify options that change
-the way the knobs panel is rendered. You may pass a `List` of options you can
-find in the [`Knob.Option`](Knob.Option) module.
-
-Be aware that these options may change the HTML that is produced or only the CSS
-classes that are added to it, so if you don't use [the provided styles](#styles)
-and instead use your own, the effect might not be what you expected.
+By default, it puts the panel in the lower-left corner of the viewport,
+hidden until you hover over its icon. However, `view` takes a list of options
+that change the way the knobs panel is rendered, which you can find in the
+[`Knob.Option`](Knob.Option) module. Be aware that these options may only change
+the CSS classes that are added to the HTML, so if you don't use [the provided
+styles] (#styles), the effect might not be what you expected.
 
 -}
-viewWithOptions : List Option -> (Knob a -> msg) -> Knob a -> Html msg
-viewWithOptions options toMsg (Knob config) =
+view : List Option -> (Knob a -> msg) -> Knob a -> Html msg
+view options toMsg (Knob config) =
     let
         isDetached : Bool
         isDetached =
