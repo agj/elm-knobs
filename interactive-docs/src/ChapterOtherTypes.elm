@@ -68,7 +68,7 @@ stringInputDoc =
         """
     , get = \model -> model.stringInput
     , set = \model new -> { model | stringInput = new }
-    , toString = identity
+    , toString = KnobDoc.string
     }
 
 
@@ -93,7 +93,7 @@ stringTextareaDoc =
         """
     , get = \model -> model.stringTextarea
     , set = \model new -> { model | stringTextarea = new }
-    , toString = identity
+    , toString = KnobDoc.string
     }
 
 

@@ -65,7 +65,7 @@ mapDoc =
         """
     , get = .map
     , set = \model knob -> { model | map = knob }
-    , toString = identity
+    , toString = KnobDoc.string
     }
 
 
@@ -128,7 +128,7 @@ customDoc =
         """
     , get = .custom
     , set = \model knob -> { model | custom = knob }
-    , toString = identity
+    , toString = KnobDoc.string
     }
 
 
