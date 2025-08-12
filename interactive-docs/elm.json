@@ -7,7 +7,7 @@
     "elm-version": "0.19.1",
     "dependencies": {
         "direct": {
-            "dtwrks/elm-book": "1.4.3",
+            "dtwrks/elm-book": "1.5.0",
             "elm/browser": "1.0.2",
             "elm/core": "1.0.5",
             "elm/html": "1.0.0",
@@ -22,8 +22,8 @@
             "elm/svg": "1.0.1",
             "elm/time": "1.0.0",
             "elm/url": "1.0.0",
-            "elm/virtual-dom": "1.0.3",
-            "pablohirafuji/elm-syntax-highlight": "3.5.0"
+            "elm/virtual-dom": "1.0.4",
+            "pablohirafuji/elm-syntax-highlight": "3.7.1"
         }
     },
     "test-dependencies": {
