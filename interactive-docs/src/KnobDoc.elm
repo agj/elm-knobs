@@ -131,7 +131,7 @@ apiDocsLink { name, link } =
             links
                 |> List.map
                     (\linkName ->
-                        "- 📦 [API docs for: `$name$`](https://package.elm-lang.org/packages/agj/elm-knobs/$elmKnobsVersion$/Knob#$name$)"
+                        "- 📦 [API docs](https://package.elm-lang.org/packages/agj/elm-knobs/$elmKnobsVersion$/Knob#$name$) for `$name$`."
                             |> String.replace "$name$" linkName
                             |> String.replace "$elmKnobsVersion$" Constants.elmKnobsVersion
                     )
