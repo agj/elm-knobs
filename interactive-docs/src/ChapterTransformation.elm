@@ -30,6 +30,7 @@ type alias Model =
     }
 
 
+init : Model
 init =
     { map = mapDoc.init_
     , custom = customDoc.init_

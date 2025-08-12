@@ -33,6 +33,7 @@ type alias Model =
     }
 
 
+init : Model
 init =
     { float = floatDoc.init_
     , floatConstrained = floatConstrainedDoc.init_

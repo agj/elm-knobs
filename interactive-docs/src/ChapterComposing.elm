@@ -30,6 +30,7 @@ type alias Model =
     }
 
 
+init : Model
 init =
     { label = labelDoc.init_
     , compose = composeDoc.init_

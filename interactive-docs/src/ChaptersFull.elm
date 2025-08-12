@@ -76,6 +76,7 @@ toChapter desc =
         |> ElmBook.Chapter.render content
 
 
+contentTemplate : String
 contentTemplate =
     """
 - <component with-label="link-source" with-display="inline" />
