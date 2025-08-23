@@ -158,7 +158,7 @@ simulateSelectInputs firstInputString restInputStrings knob =
 simulateEvent : String -> ( String, Value ) -> Knob a -> Maybe (Knob a)
 simulateEvent tag event knob =
     knob
-        |> Knob.view identity
+        |> Knob.view [] identity
         |> Query.fromHtml
         |> Query.find [ Selector.tag tag ]
         |> Event.simulate event
@@ -192,7 +192,7 @@ viewHasNot selectors =
 queryView : Knob a -> Query.Single (Knob a)
 queryView knob =
     knob
-        |> Knob.view identity
+        |> Knob.view [] identity
         |> Query.fromHtml
 
 
