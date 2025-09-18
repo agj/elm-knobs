@@ -76,19 +76,33 @@ vegetableFromString string =
 
 knobCustomBoolSerializable : Bool -> Knob Bool
 knobCustomBoolSerializable initial =
-    let
-        view () =
-            Html.text ""
-    in
     Knob.custom
         { value = initial
-        , view = view
+        , view = \() -> Html.text ""
         , serialization =
             Just
                 { encode = \() -> Json.Encode.bool initial
                 , decoder = Json.Decode.map knobCustomBoolSerializable Json.Decode.bool
                 }
         }
+
+
+knobCustomBoolNonSerializable : Bool -> Knob Bool
+knobCustomBoolNonSerializable initial =
+    Knob.custom
+        { value = initial
+        , view = \() -> Html.text ""
+        , serialization = Nothing
+        }
+
+
+boolToString : Bool -> String
+boolToString bool =
+    if bool then
+        "True"
+
+    else
+        "False"
 
 
 

@@ -4,7 +4,7 @@ import Expect exposing (Expectation)
 import Fuzz
 import Knob exposing (Knob)
 import Test exposing (Test)
-import Util.TestKnob exposing (fuzzColor, knobCustomBoolSerializable, knobSelect, vegetables)
+import Util.TestKnob exposing (boolToString, fuzzColor, knobCustomBoolNonSerializable, knobCustomBoolSerializable, knobSelect, vegetables)
 
 
 transitiveEqualityTests : Test
@@ -79,6 +79,12 @@ transitiveEqualityTests =
                 (\int ->
                     Knob.int { step = 1, initial = int }
                         |> Knob.map String.fromInt
+                )
+        , Test.fuzz2 Fuzz.bool Fuzz.bool "map with custom" <|
+            expectTransitiveEquality
+                (\bool ->
+                    knobCustomBoolSerializable bool
+                        |> Knob.map boolToString
                 )
         , Test.fuzz2 Fuzz.bool Fuzz.bool "custom" <|
             expectTransitiveEquality
@@ -164,10 +170,34 @@ roundTripSerializationTests =
                     Knob.int { step = 1, initial = int }
                         |> Knob.map String.fromInt
                 )
+        , Test.fuzz2 Fuzz.bool Fuzz.bool "map with custom" <|
+            expectMappedRoundTripSerializationToWork
+                boolToString
+                (\bool ->
+                    knobCustomBoolSerializable bool
+                        |> Knob.map boolToString
+                )
         , Test.fuzz2 Fuzz.bool Fuzz.bool "custom" <|
             expectRoundTripSerializationToWork
                 knobCustomBoolSerializable
         ]
+
+
+customWithoutSerializationTests : Test
+customWithoutSerializationTests =
+    Test.only <|
+        Test.fuzz2 Fuzz.bool Fuzz.bool "Knob.custom without serialization deserializes to the initial value." <|
+            \initial other ->
+                let
+                    knobWithInitial =
+                        knobCustomBoolNonSerializable initial
+
+                    serializedWithOther =
+                        Knob.serialize (knobCustomBoolNonSerializable other)
+                in
+                Knob.readSerialized serializedWithOther knobWithInitial
+                    |> Knob.value
+                    |> Expect.equal initial
 
 
 
