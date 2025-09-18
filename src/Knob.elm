@@ -561,7 +561,7 @@ boolCheckbox initial =
 type you wish. You'll need to provide a `Dict` mapping unique strings (options
 in the dropdown) to values of your type.
 
-Here's a simple example mapping "yes" and "no" options to `Bool` values:
+Here's a simple example mapping `"yes"` and `"no"` options to `Bool` values:
 
     Knob.select
         { options =
