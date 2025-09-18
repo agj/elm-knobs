@@ -3,8 +3,10 @@ module Util.TestKnob exposing (..)
 import Dict exposing (Dict)
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer)
+import Html
 import Internal.Utils
 import Json.Decode exposing (Value)
+import Json.Encode
 import Knob exposing (Knob)
 import Test.Html.Event as Event
 import Test.Html.Query as Query
@@ -70,6 +72,23 @@ vegetableFromString : String -> Maybe Vegetable
 vegetableFromString string =
     vegetableOptions
         |> Dict.get string
+
+
+knobCustomBoolSerializable : Bool -> Knob Bool
+knobCustomBoolSerializable initial =
+    let
+        view () =
+            Html.text ""
+    in
+    Knob.custom
+        { value = initial
+        , view = view
+        , serialization =
+            Just
+                { encode = \() -> Json.Encode.bool initial
+                , decoder = Json.Decode.map knobCustomBoolSerializable Json.Decode.bool
+                }
+        }
 
 
 

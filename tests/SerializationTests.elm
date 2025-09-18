@@ -4,7 +4,7 @@ import Expect exposing (Expectation)
 import Fuzz
 import Knob exposing (Knob)
 import Test
-import Util.TestKnob exposing (fuzzColor, knobSelect, vegetables)
+import Util.TestKnob exposing (fuzzColor, knobCustomBoolSerializable, knobSelect, vegetables)
 
 
 transitiveEqualityTests =
@@ -55,6 +55,17 @@ transitiveEqualityTests =
                         |> Knob.stack (Knob.colorPicker color)
                 )
         , Test.fuzz2
+            (Fuzz.pair Fuzz.int Fuzz.bool)
+            (Fuzz.pair Fuzz.int Fuzz.bool)
+            "compose with custom knob"
+          <|
+            expectTransitiveEquality
+                (\( int, bool ) ->
+                    Knob.compose (\a b -> ( a, b ))
+                        |> Knob.stack (Knob.int { step = 1, initial = int })
+                        |> Knob.stack (knobCustomBoolSerializable bool)
+                )
+        , Test.fuzz2
             (Fuzz.triple Fuzz.int Fuzz.niceFloat fuzzColor)
             (Fuzz.triple Fuzz.int Fuzz.niceFloat fuzzColor)
             "compose with label"
@@ -72,6 +83,9 @@ transitiveEqualityTests =
                     Knob.int { step = 1, initial = int }
                         |> Knob.map String.fromInt
                 )
+        , Test.fuzz2 Fuzz.bool Fuzz.bool "custom" <|
+            expectTransitiveEquality
+                knobCustomBoolSerializable
         ]
 
 
@@ -123,6 +137,17 @@ roundTripSerializationTests =
                         |> Knob.stack (Knob.colorPicker color)
                 )
         , Test.fuzz2
+            (Fuzz.pair Fuzz.int Fuzz.bool)
+            (Fuzz.pair Fuzz.int Fuzz.bool)
+            "compose with custom knob"
+          <|
+            expectRoundTripSerializationToWork
+                (\( int, bool ) ->
+                    Knob.compose (\a b -> ( a, b ))
+                        |> Knob.stack (Knob.int { step = 1, initial = int })
+                        |> Knob.stack (knobCustomBoolSerializable bool)
+                )
+        , Test.fuzz2
             (Fuzz.triple Fuzz.int Fuzz.niceFloat fuzzColor)
             (Fuzz.triple Fuzz.int Fuzz.niceFloat fuzzColor)
             "compose with label"
@@ -141,6 +166,9 @@ roundTripSerializationTests =
                     Knob.int { step = 1, initial = int }
                         |> Knob.map String.fromInt
                 )
+        , Test.fuzz2 Fuzz.bool Fuzz.bool "custom" <|
+            expectRoundTripSerializationToWork
+                knobCustomBoolSerializable
         ]
 
 
