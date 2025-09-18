@@ -3,6 +3,8 @@ module ChapterTransformation exposing (Model, chapter, init)
 import ElmBook.Chapter
 import Html exposing (Html)
 import Html.Events
+import Json.Decode
+import Json.Encode
 import Knob exposing (Knob)
 import KnobDoc exposing (KnobDoc)
 
@@ -74,7 +76,12 @@ customDoc =
     { name = "custom"
     , link = Nothing
     , description = Just """
-        A custom knob consisting of three buttons which each emits a different string value.
+        A custom knob consisting of three buttons which each emits a different
+        string value.
+
+        We're making a serializable knob here, but notice that it's an optional
+        feature, so feel free to ignore that part and use `serialization =
+        Nothing`.
         """
     , init_ =
         let
@@ -95,8 +102,17 @@ customDoc =
                                 [ Html.Events.onClick (abcKnob "C") ]
                                 [ Html.text "Set C" ]
                             ]
+
+                    serialization =
+                        { encode = \() -> Json.Encode.string initial
+                        , decoder = Json.Decode.map abcKnob Json.Decode.string
+                        }
                 in
-                Knob.custom { value = initial, view = view }
+                Knob.custom
+                    { value = initial
+                    , view = view
+                    , serialization = Just serialization
+                    }
         in
         -- Using the custom knob.
         abcKnob "A"
@@ -120,8 +136,17 @@ customDoc =
                                 [ Html.Events.onClick (abcKnob "C") ]
                                 [ Html.text "Set C" ]
                             ]
+
+                    serialization =
+                        { encode = \\() -> Json.Encode.string initial
+                        , decoder = Json.Decode.map abcKnob Json.Decode.string
+                        }
                 in
-                Knob.custom { value = initial, view = view }
+                Knob.custom
+                    { value = initial
+                    , view = view
+                    , serialization = Just serialization
+                    }
         in
         -- Using the custom knob.
         abcKnob "A"
