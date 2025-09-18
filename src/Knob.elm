@@ -723,16 +723,18 @@ colorPickerInternal keepOpen initial userInput =
 
 
 {-| Creates a knob for any type, using a custom HTML view that you supply.
-You can use this function if there is some kind of knob you need
-that is not available in this package, and can't be created by using [`map`](#map)
-over a predefined knob.
+You can use this function if there is some kind of knob you need that is not
+available in this package, and can't be created by using [`map`](#map) over a
+predefined knob.
 
-Knobs are comprised of a `value` of the appropriate type,
-and a `view` which listens to user input
-(typically the `Html.Events.onInput` event)
-and emits the updated knob, instead of a regular message like is normally done.
-In this sense, knobs are recursive, as their view needs to construct a new knob,
-typically by calling the very same constructor function that created it in the first place.
+Knobs are comprised of a `value` of the appropriate type, and a `view` which
+listens to user input (typically the `Html.Events.onInput` event) and emits the
+updated knob, instead of a regular message like is normally done. In this sense,
+knobs are recursive, as their view needs to construct a new knob, typically by
+calling the very same constructor function that created it in the first place.
+
+
+## Basic use
 
 Here's how the `boolCheckbox` knob would be created using `custom`:
 
@@ -751,34 +753,65 @@ Here's how the `boolCheckbox` knob would be created using `custom`:
         Knob.custom
             { value = initial
             , view = view
+            , serialization = Nothing
             }
 
-Notice how `view` is a thunk—that is, a function that takes `()` (a placeholder value)
-and returns the view.
-The view is just some HTML that emits knobs instead of messages.
-Take a look at the line with `Html.Events.onCheck` and make note of what we're doing:
-We're directly passing in `ourBoolKnob` because it's a function that takes
-the new "checked" value and with it constructs the knob anew.
-This is how we're transforming the contained value when the user clicks.
+(Ignore the `serialization` part for now.)
 
-A thing to keep in mind: For cases in which you're taking unconstrained user input,
-such as a text field, you can wind up making it so that the user cannot input freely.
-This occurs if you're parsing the input into a different type in a lossy manner.
+Notice how `view` is a thunk—that is, a function that takes `()` (a placeholder
+value) and returns the view. The view is just some HTML that emits knobs instead
+of messages. Take a look at the line with `Html.Events.onCheck` and make note
+of what we're doing: We're directly passing in `ourBoolKnob` because it's a
+function that takes the new “checked” value and with it constructs the knob
+anew. This is how we're transforming the contained value when the user clicks.
 
-Let's imagine we want to display a text field to map a `String` to a `Vegetable` type.
-In the naïve case, our knob's signature could look like this, taking `Vegetable`
-to set the initial value:
+
+## Serialization
+
+If you need to [serialize](Knob#serialize) your knob, you'll need to take care
+of that by setting the `serialization` field in the configuration record. You'll
+need [`elm/json`](https://package.elm-lang.org/packages/elm/json/latest/) for
+this.
+
+This is a record wrapped in `Maybe`, with an `encode` function which should
+return the current value converted into a `Json.Encode.Value`, and a `decoder`
+of type `Json.Decode.Decoder` that reconstructs the whole knob out of a value
+created by `encode`. It's easy to get this pair wrong, so make sure you test
+serializing and deserializing!
+
+This would work for the above `ourCustomBool` example:
+
+    Just
+        { encode = \() -> Json.Encode.bool initial
+        , decoder = Json.Decode.map ourCustomBool Json.Decode.bool
+        }
+
+
+## Keep raw user input and parsed output values separate!
+
+Be careful! If you don't have experience writing forms in Elm, there's a very
+common pitfall you have to be aware of: When taking unconstrained user input,
+you can wind up making it so that the user cannot input freely. This occurs when
+we parse the input into a different type in a lossy manner. For example, if the
+input is through typing in a text field, and we convert that into a custom type,
+the user might not be able to actually finish typing.
+
+Let's imagine we want to display a text field to map a `String` to a `Vegetable`
+type. In the naïve case, our knob's signature could look like this, taking
+`Vegetable` to set the initial value:
 
     vegetableKnob : Vegetable -> Knob Vegetable
 
-It would convert the initial value to a `String`, and set that as the text field's text.
-Then, upon user input, we'd parse the input `String` into our type,
-and use that to construct the updated knob.
+It would convert the initial value to a `String`, and set that as the text
+field's text. Then, upon user input, we'd parse the input `String` into our
+type, and use that to construct the updated knob.
 
-The problem with this situation is that if the conversion from `String` to `Vegetable`
-and then back into `String` is lossy (i.e., the result is not the same as what the user typed,)
-then the user won't be able to type some things, as they'll be changing every time
-they hit a key.
+The problem with this situation is that if the conversion from `String` to
+`Vegetable` and then back into `String` is lossy (i.e., the result is not the
+same as what the user typed,) then the user won't be able to finish typing some
+things, as they won't be valid in their incomplete form.
+
+Say we use this function to parse the raw input into `Vegetable`:
 
     vegetableFromString : String -> Vegetable
     vegetableFromString text =
@@ -789,31 +822,32 @@ they hit a key.
             _ ->
                 Tomato
 
-If we're using the function above to parse user input into `Vegetable`,
-the user may want to type "carrot" and start typing "c",
-but as it's not yet a valid value, it will be parsed as `Tomato`
-and the text field's text will be reset to whatever the string value for `Tomato` is.
+If the user wants to type “carrot”, and starts typing “c”, since `"c"` is not
+(yet) a valid value, it will be parsed as `Tomato` and the text field's text
+will be reset to whatever the string value for `Tomato` is.
 
-In order to prevent this behavior, set the unparsed input text as the text field's `value` property,
-and set the parsed result as the knob's `value`.
-This means that your knob will need to take a `String` as its initial value.
+In order to prevent this behavior, take the raw, unparsed `String` as the text
+field's `value` property, and set the parsed result as the knob's `value`. This
+means that your knob will need to take a `String` as its initial value, and not
+a `Vegetable`!
 
     vegetableKnob : String -> Knob Vegetable
     vegetableKnob initial =
         Knob.custom
-            { value = vegetableFromString initial -- Parse here!
+            { -- Parse here!
+              value = vegetableFromString initial
             , view =
                 \() ->
                     Html.input
                         [ Html.Attributes.type_ "text"
-                        , Html.Attributes.value initial -- No parsing
+
+                        -- No parsing.
+                        , Html.Attributes.value initial
                         , Html.Events.onInput vegetableKnob
                         ]
                         []
+            , serialization = Nothing
             }
-
-Lastly, one final caveat to take into consideration when writing custom knobs is that
-they are not serializable using [`serialize`](Knob#serialize).
 
 -}
 custom :
