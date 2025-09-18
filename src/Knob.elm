@@ -819,6 +819,11 @@ they are not serializable using [`serialize`](Knob#serialize).
 custom :
     { value : a
     , view : () -> Html (Knob a)
+    , serialization :
+        Maybe
+            { encode : () -> Json.Encode.Value
+            , decoder : Json.Decode.Decoder (Knob a)
+            }
     }
     -> Knob a
 custom config =
@@ -826,7 +831,7 @@ custom config =
         { value = config.value
         , keepOpen = False
         , view = SingleView config.view
-        , serialization = Nothing
+        , serialization = config.serialization
         }
 
 
