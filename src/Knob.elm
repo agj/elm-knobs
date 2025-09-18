@@ -766,7 +766,7 @@ function that takes the new “checked” value and with it constructs the knob
 anew. This is how we're transforming the contained value when the user clicks.
 
 
-## Serialization
+## Making it serializable
 
 If you need to [serialize](Knob#serialize) your knob, you'll need to take care
 of that by setting the `serialization` field in the configuration record. You'll
