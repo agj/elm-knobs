@@ -24,7 +24,7 @@
             just
             nodePackages.pnpm
             nodePackages.uglify-js
-            nodejs-slim_21
+            nodejs-slim_24
             nushell
           ];
         };
