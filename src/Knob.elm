@@ -995,10 +995,10 @@ compose constructor =
         , view = StackView []
         , serialization =
             Just
-                { encode = \_ -> Json.Encode.null
+                { encode = \() -> Json.Encode.null
                 , decode =
                     Json.Decode.map
-                        (\_ -> compose constructor)
+                        (\() -> compose constructor)
                         (Json.Decode.succeed ())
                 }
         }
