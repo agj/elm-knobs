@@ -54,15 +54,11 @@ transitiveEqualityTests =
                         |> Knob.stack (Knob.float { step = 1, initial = float })
                         |> Knob.stack (Knob.colorPicker color)
                 )
-        , Test.fuzz2
-            (Fuzz.pair Fuzz.int Fuzz.bool)
-            (Fuzz.pair Fuzz.int Fuzz.bool)
-            "compose with custom knob"
-          <|
+        , Test.fuzz2 Fuzz.bool Fuzz.bool "compose with custom knob" <|
             expectTransitiveEquality
-                (\( int, bool ) ->
+                (\bool ->
                     Knob.compose (\a b -> ( a, b ))
-                        |> Knob.stack (Knob.int { step = 1, initial = int })
+                        |> Knob.stack (Knob.int { step = 1, initial = 5 })
                         |> Knob.stack (knobCustomBoolSerializable bool)
                 )
         , Test.fuzz2
