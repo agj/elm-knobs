@@ -130,8 +130,13 @@ type alias Config a =
     { value : a
     , keepOpen : Bool
     , view : KnobView a
-    , encode : Maybe (() -> Json.Encode.Value)
-    , decode : Maybe (Json.Decode.Decoder (Knob a))
+    , serialization : Maybe (Serialization a)
+    }
+
+
+type alias Serialization a =
+    { encode : () -> Json.Encode.Value
+    , decode : Json.Decode.Decoder (Knob a)
     }
 
 
@@ -179,12 +184,13 @@ floatInternal step initial userInput =
         { value = newValue
         , keepOpen = False
         , view = SingleView input
-        , encode = Just (\() -> Json.Encode.float newValue)
-        , decode =
+        , serialization =
             Just
-                (Json.Decode.map (String.fromFloat >> floatInternal step initial)
-                    Json.Decode.float
-                )
+                { encode = \() -> Json.Encode.float newValue
+                , decode =
+                    Json.Decode.map (String.fromFloat >> floatInternal step initial)
+                        Json.Decode.float
+                }
         }
 
 
@@ -233,13 +239,14 @@ floatConstrainedInternal ( rangeLow, rangeHigh ) step initial userInput =
         { value = newValue
         , keepOpen = False
         , view = SingleView input
-        , encode = Just (\() -> Json.Encode.float newValue)
-        , decode =
+        , serialization =
             Just
-                (Json.Decode.map
-                    (String.fromFloat >> floatConstrainedInternal ( rangeLow, rangeHigh ) step initial)
-                    Json.Decode.float
-                )
+                { encode = \() -> Json.Encode.float newValue
+                , decode =
+                    Json.Decode.map
+                        (String.fromFloat >> floatConstrainedInternal ( rangeLow, rangeHigh ) step initial)
+                        Json.Decode.float
+                }
         }
 
 
@@ -291,13 +298,14 @@ floatSliderInternal ( rangeLow, rangeHigh ) step initial userInput =
         { value = newValue
         , keepOpen = False
         , view = SingleView input
-        , encode = Just (\() -> Json.Encode.float newValue)
-        , decode =
+        , serialization =
             Just
-                (Json.Decode.map
-                    (String.fromFloat >> floatSliderInternal ( rangeLow, rangeHigh ) step initial)
-                    Json.Decode.float
-                )
+                { encode = \() -> Json.Encode.float newValue
+                , decode =
+                    Json.Decode.map
+                        (String.fromFloat >> floatSliderInternal ( rangeLow, rangeHigh ) step initial)
+                        Json.Decode.float
+                }
         }
 
 
@@ -336,12 +344,13 @@ intInternal step initial userInput =
         { value = newValue
         , keepOpen = False
         , view = SingleView input
-        , encode = Just (\() -> Json.Encode.int newValue)
-        , decode =
+        , serialization =
             Just
-                (Json.Decode.map (String.fromInt >> intInternal step initial)
-                    Json.Decode.int
-                )
+                { encode = \() -> Json.Encode.int newValue
+                , decode =
+                    Json.Decode.map (String.fromInt >> intInternal step initial)
+                        Json.Decode.int
+                }
         }
 
 
@@ -389,13 +398,14 @@ intConstrainedInternal ( rangeLow, rangeHigh ) step initial userInput =
         { value = newValue
         , keepOpen = False
         , view = SingleView input
-        , encode = Just (\() -> Json.Encode.int newValue)
-        , decode =
+        , serialization =
             Just
-                (Json.Decode.map
-                    (String.fromInt >> intConstrainedInternal ( rangeLow, rangeHigh ) step initial)
-                    Json.Decode.int
-                )
+                { encode = \() -> Json.Encode.int newValue
+                , decode =
+                    Json.Decode.map
+                        (String.fromInt >> intConstrainedInternal ( rangeLow, rangeHigh ) step initial)
+                        Json.Decode.int
+                }
         }
 
 
@@ -447,13 +457,14 @@ intSliderInternal ( rangeLow, rangeHigh ) step initial userInput =
         { value = newValue
         , keepOpen = False
         , view = SingleView input
-        , encode = Just (\() -> Json.Encode.int newValue)
-        , decode =
+        , serialization =
             Just
-                (Json.Decode.map
-                    (String.fromInt >> intSliderInternal ( rangeLow, rangeHigh ) step initial)
-                    Json.Decode.int
-                )
+                { encode = \() -> Json.Encode.int newValue
+                , decode =
+                    Json.Decode.map
+                        (String.fromInt >> intSliderInternal ( rangeLow, rangeHigh ) step initial)
+                        Json.Decode.int
+                }
         }
 
 
@@ -476,8 +487,11 @@ stringInput initial =
         { value = initial
         , keepOpen = False
         , view = SingleView input
-        , encode = Just (\() -> Json.Encode.string initial)
-        , decode = Just (Json.Decode.map stringInput Json.Decode.string)
+        , serialization =
+            Just
+                { encode = \() -> Json.Encode.string initial
+                , decode = Json.Decode.map stringInput Json.Decode.string
+                }
         }
 
 
@@ -505,13 +519,14 @@ stringTextarea config =
         { value = config.initial
         , keepOpen = False
         , view = SingleView textarea
-        , encode = Just (\() -> Json.Encode.string config.initial)
-        , decode =
+        , serialization =
             Just
-                (Json.Decode.map
-                    (\decodedValue -> stringTextarea { config | initial = decodedValue })
-                    Json.Decode.string
-                )
+                { encode = \() -> Json.Encode.string config.initial
+                , decode =
+                    Json.Decode.map
+                        (\decodedValue -> stringTextarea { config | initial = decodedValue })
+                        Json.Decode.string
+                }
         }
 
 
@@ -534,8 +549,11 @@ boolCheckbox initial =
         { value = initial
         , keepOpen = False
         , view = SingleView checkbox
-        , encode = Just (\() -> Json.Encode.bool initial)
-        , decode = Just (Json.Decode.map boolCheckbox Json.Decode.bool)
+        , serialization =
+            Just
+                { encode = \() -> Json.Encode.bool initial
+                , decode = Json.Decode.map boolCheckbox Json.Decode.bool
+                }
         }
 
 
@@ -624,13 +642,14 @@ selectInternal keepOpen config userInput =
         { value = newValue
         , keepOpen = keepOpen
         , view = SingleView selectElement
-        , encode = Just (\() -> toString newValue |> Json.Encode.string)
-        , decode =
+        , serialization =
             Just
-                (Json.Decode.map
-                    (\decodedValue -> selectInternal False config decodedValue)
-                    Json.Decode.string
-                )
+                { encode = \() -> toString newValue |> Json.Encode.string
+                , decode =
+                    Json.Decode.map
+                        (\decodedValue -> selectInternal False config decodedValue)
+                        Json.Decode.string
+                }
         }
 
 
@@ -682,25 +701,24 @@ colorPickerInternal keepOpen initial userInput =
         { value = newValue
         , keepOpen = keepOpen
         , view = SingleView picker
-        , encode =
+        , serialization =
             Just
-                (\() ->
-                    Json.Encode.object
-                        [ ( "red", Json.Encode.float newValue.red )
-                        , ( "green", Json.Encode.float newValue.green )
-                        , ( "blue", Json.Encode.float newValue.blue )
-                        ]
-                )
-        , decode =
-            Just
-                (Json.Decode.map3
-                    (\red green blue ->
-                        colorPickerInternal False initial (colorToString { red = red, green = green, blue = blue })
-                    )
-                    (Json.Decode.field "red" Json.Decode.float)
-                    (Json.Decode.field "green" Json.Decode.float)
-                    (Json.Decode.field "blue" Json.Decode.float)
-                )
+                { encode =
+                    \() ->
+                        Json.Encode.object
+                            [ ( "red", Json.Encode.float newValue.red )
+                            , ( "green", Json.Encode.float newValue.green )
+                            , ( "blue", Json.Encode.float newValue.blue )
+                            ]
+                , decode =
+                    Json.Decode.map3
+                        (\red green blue ->
+                            colorPickerInternal False initial (colorToString { red = red, green = green, blue = blue })
+                        )
+                        (Json.Decode.field "red" Json.Decode.float)
+                        (Json.Decode.field "green" Json.Decode.float)
+                        (Json.Decode.field "blue" Json.Decode.float)
+                }
         }
 
 
@@ -808,8 +826,7 @@ custom config =
         { value = config.value
         , keepOpen = False
         , view = SingleView config.view
-        , encode = Nothing
-        , decode = Nothing
+        , serialization = Nothing
         }
 
 
@@ -976,13 +993,14 @@ compose constructor =
         { value = constructor
         , keepOpen = False
         , view = StackView []
-        , encode = Just (\_ -> Json.Encode.null)
-        , decode =
+        , serialization =
             Just
-                (Json.Decode.map
-                    (\_ -> compose constructor)
-                    (Json.Decode.succeed ())
-                )
+                { encode = \_ -> Json.Encode.null
+                , decode =
+                    Json.Decode.map
+                        (\_ -> compose constructor)
+                        (Json.Decode.succeed ())
+                }
         }
 
 
@@ -1019,25 +1037,45 @@ stack (Knob config) (Knob pipe) =
                 |> List.concat
                 |> StackView
 
-        encode : () -> Json.Encode.Value
-        encode () =
-            Json.Encode.object
-                [ ( "cur", Maybe.withDefault (always Json.Encode.null) config.encode () )
-                , ( "prev", Maybe.withDefault (always Json.Encode.null) pipe.encode () )
-                ]
+        makeSerialization :
+            (() -> Json.Encode.Value)
+            -> Json.Decode.Decoder (Knob a)
+            -> (() -> Json.Encode.Value)
+            -> Json.Decode.Decoder (Knob (a -> b))
+            -> Serialization b
+        makeSerialization encCur decCur encPrev decPrev =
+            { encode =
+                \() ->
+                    Json.Encode.object
+                        [ ( "cur", encCur () )
+                        , ( "prev", encPrev () )
+                        ]
+            , decode =
+                Json.Decode.map2 (\new newPipe -> stack new newPipe)
+                    (Json.Decode.field "cur" decCur)
+                    (Json.Decode.field "prev" decPrev)
+            }
 
-        decode : Json.Decode.Decoder (Knob b)
-        decode =
-            Json.Decode.map2 (\new newPipe -> stack new newPipe)
-                (Json.Decode.field "cur" (Maybe.withDefault (Json.Decode.fail "err") config.decode))
-                (Json.Decode.field "prev" (Maybe.withDefault (Json.Decode.fail "err") pipe.decode))
+        serialization : Serialization b
+        serialization =
+            let
+                ( encCur, decCur ) =
+                    config.serialization
+                        |> Maybe.map (\a -> ( a.encode, a.decode ))
+                        |> Maybe.withDefault ( always Json.Encode.null, Json.Decode.fail "err" )
+
+                ( encPrev, decPrev ) =
+                    pipe.serialization
+                        |> Maybe.map (\a -> ( a.encode, a.decode ))
+                        |> Maybe.withDefault ( always Json.Encode.null, Json.Decode.fail "err" )
+            in
+            makeSerialization encCur decCur encPrev decPrev
     in
     Knob
         { value = pipe.value config.value
         , keepOpen = pipe.keepOpen || config.keepOpen
         , view = stackedView
-        , encode = Just encode
-        , decode = Just decode
+        , serialization = Just serialization
         }
 
 
@@ -1067,8 +1105,7 @@ label text (Knob config) =
         { value = config.value
         , keepOpen = config.keepOpen
         , view = SingleView labeled
-        , encode = config.encode
-        , decode = config.decode
+        , serialization = config.serialization
         }
 
 
@@ -1109,10 +1146,14 @@ map mapper (Knob a) =
         { value = mapper a.value
         , keepOpen = a.keepOpen
         , view = SingleView (\() -> viewInternal (map mapper) a)
-        , encode = a.encode
-        , decode =
-            a.decode
-                |> Maybe.map (Json.Decode.map (map mapper))
+        , serialization =
+            a.serialization
+                |> Maybe.map
+                    (\{ encode, decode } ->
+                        { encode = encode
+                        , decode = decode |> Json.Decode.map (map mapper)
+                        }
+                    )
         }
 
 
@@ -1138,8 +1179,8 @@ an updated knob.
 -}
 serialize : Knob a -> Json.Encode.Value
 serialize (Knob a) =
-    case a.encode of
-        Just encode ->
+    case a.serialization of
+        Just { encode } ->
             encode ()
 
         Nothing ->
@@ -1170,8 +1211,8 @@ and as a last step use this function to update it with the serialized value.
 -}
 readSerialized : Json.Encode.Value -> Knob a -> Knob a
 readSerialized val ((Knob a) as knob) =
-    case a.decode of
-        Just decode ->
+    case a.serialization of
+        Just { decode } ->
             Json.Decode.decodeValue decode val
                 |> Result.withDefault knob
 
