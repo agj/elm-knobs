@@ -3,7 +3,7 @@ module BasicTests exposing (..)
 import Expect
 import Fuzz exposing (Fuzzer)
 import Knob
-import Test
+import Test exposing (Test)
 import Util.TestKnob
     exposing
         ( Vegetable(..)
@@ -19,6 +19,7 @@ import Util.TestKnob
         )
 
 
+floatTests : Test
 floatTests =
     Test.describe "float"
         [ Test.fuzz Fuzz.niceFloat "Can input valid values" <|
@@ -39,6 +40,7 @@ floatTests =
         ]
 
 
+floatConstrainedTests : Test
 floatConstrainedTests =
     Test.describe "floatConstrained"
         [ Test.fuzz fuzzFloatRangeInputs "Can input valid values" <|
@@ -68,6 +70,7 @@ floatConstrainedTests =
         ]
 
 
+floatSliderTests : Test
 floatSliderTests =
     Test.describe "floatSlider"
         [ Test.fuzz fuzzFloatRangeInputs "Can input valid values" <|
@@ -97,6 +100,7 @@ floatSliderTests =
         ]
 
 
+intTests : Test
 intTests =
     Test.describe "int"
         [ Test.fuzz Fuzz.int "Can input valid values" <|
@@ -117,6 +121,7 @@ intTests =
         ]
 
 
+intConstrainedTests : Test
 intConstrainedTests =
     Test.describe "intConstrained"
         [ Test.fuzz fuzzIntRangeInputs "Can input valid values" <|
@@ -146,6 +151,7 @@ intConstrainedTests =
         ]
 
 
+intSliderTests : Test
 intSliderTests =
     Test.describe "intSlider"
         [ Test.fuzz fuzzIntRangeInputs "Can input valid values" <|
@@ -175,6 +181,7 @@ intSliderTests =
         ]
 
 
+stringInputTests : Test
 stringInputTests =
     Test.describe "stringInput"
         [ Test.fuzz2 Fuzz.string Fuzz.string "Can input" <|
@@ -185,6 +192,7 @@ stringInputTests =
         ]
 
 
+stringTextareaTests : Test
 stringTextareaTests =
     Test.describe "stringTextarea"
         [ Test.fuzz2 Fuzz.string Fuzz.string "Can input" <|
@@ -195,6 +203,7 @@ stringTextareaTests =
         ]
 
 
+boolCheckboxTests : Test
 boolCheckboxTests =
     Test.describe "boolCheckbox"
         [ Test.fuzz2 Fuzz.bool Fuzz.bool "Can input" <|
@@ -205,6 +214,7 @@ boolCheckboxTests =
         ]
 
 
+selectTests : Test
 selectTests =
     Test.describe "select"
         [ Test.fuzz2
@@ -243,6 +253,7 @@ selectTests =
         ]
 
 
+colorPickerTests : Test
 colorPickerTests =
     let
         colors =
@@ -319,10 +330,12 @@ fuzzNonEmptyNonNumericString =
             )
 
 
+fuzzFloatRangeInputs : Fuzzer { lowest : Float, low : Float, mid : Float, high : Float, highest : Float, any : Float, any2 : Float }
 fuzzFloatRangeInputs =
     fuzzRangeInputs Fuzz.niceFloat
 
 
+fuzzIntRangeInputs : Fuzzer { lowest : Int, low : Int, mid : Int, high : Int, highest : Int, any : Int, any2 : Int }
 fuzzIntRangeInputs =
     fuzzRangeInputs Fuzz.int
 

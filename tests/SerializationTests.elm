@@ -3,10 +3,11 @@ module SerializationTests exposing (..)
 import Expect exposing (Expectation)
 import Fuzz
 import Knob exposing (Knob)
-import Test
+import Test exposing (Test)
 import Util.TestKnob exposing (fuzzColor, knobCustomBoolSerializable, knobSelect, vegetables)
 
 
+transitiveEqualityTests : Test
 transitiveEqualityTests =
     Test.describe "Given nice values, equality of two serialized knobs is the same as the equality of their values"
         [ Test.fuzz2 Fuzz.niceFloat Fuzz.niceFloat "float" <|
@@ -85,6 +86,7 @@ transitiveEqualityTests =
         ]
 
 
+roundTripSerializationTests : Test
 roundTripSerializationTests =
     Test.describe "Knobs should serialize and then deserialize into the same original value"
         [ Test.fuzz2 Fuzz.niceFloat Fuzz.niceFloat "float" <|
