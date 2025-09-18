@@ -1037,39 +1037,35 @@ stack (Knob config) (Knob pipe) =
                 |> List.concat
                 |> StackView
 
-        makeSerialization :
-            (() -> Json.Encode.Value)
-            -> Json.Decode.Decoder (Knob a)
-            -> (() -> Json.Encode.Value)
-            -> Json.Decode.Decoder (Knob (a -> b))
-            -> Serialization b
-        makeSerialization encCur decCur encPrev decPrev =
-            { encode =
-                \() ->
-                    Json.Encode.object
-                        [ ( "cur", encCur () )
-                        , ( "prev", encPrev () )
-                        ]
-            , decode =
-                Json.Decode.map2 (\new newPipe -> stack new newPipe)
-                    (Json.Decode.field "cur" decCur)
-                    (Json.Decode.field "prev" decPrev)
-            }
-
         serialization : Serialization b
         serialization =
             let
-                ( encCur, decCur ) =
-                    config.serialization
-                        |> Maybe.map (\a -> ( a.encode, a.decode ))
-                        |> Maybe.withDefault ( always Json.Encode.null, Json.Decode.fail "err" )
+                cur : Serialization a
+                cur =
+                    serializationWithDefault config.serialization
 
-                ( encPrev, decPrev ) =
-                    pipe.serialization
-                        |> Maybe.map (\a -> ( a.encode, a.decode ))
-                        |> Maybe.withDefault ( always Json.Encode.null, Json.Decode.fail "err" )
+                prev : Serialization (a -> b)
+                prev =
+                    serializationWithDefault pipe.serialization
             in
-            makeSerialization encCur decCur encPrev decPrev
+            { encode =
+                \() ->
+                    Json.Encode.object
+                        [ ( "cur", cur.encode () )
+                        , ( "prev", prev.encode () )
+                        ]
+            , decode =
+                Json.Decode.map2 (\new newPipe -> stack new newPipe)
+                    (Json.Decode.field "cur" cur.decode)
+                    (Json.Decode.field "prev" prev.decode)
+            }
+
+        serializationWithDefault : Maybe (Serialization x) -> Serialization x
+        serializationWithDefault =
+            Maybe.withDefault
+                { encode = always Json.Encode.null
+                , decode = Json.Decode.fail "err"
+                }
     in
     Knob
         { value = pipe.value config.value
