@@ -185,19 +185,18 @@ roundTripSerializationTests =
 
 customWithoutSerializationTests : Test
 customWithoutSerializationTests =
-    Test.only <|
-        Test.fuzz2 Fuzz.bool Fuzz.bool "Knob.custom without serialization deserializes to the initial value." <|
-            \initial other ->
-                let
-                    knobWithInitial =
-                        knobCustomBoolNonSerializable initial
+    Test.fuzz2 Fuzz.bool Fuzz.bool "Knob.custom without serialization deserializes to the initial value." <|
+        \initial other ->
+            let
+                knobWithInitial =
+                    knobCustomBoolNonSerializable initial
 
-                    serializedWithOther =
-                        Knob.serialize (knobCustomBoolNonSerializable other)
-                in
-                Knob.readSerialized serializedWithOther knobWithInitial
-                    |> Knob.value
-                    |> Expect.equal initial
+                serializedWithOther =
+                    Knob.serialize (knobCustomBoolNonSerializable other)
+            in
+            Knob.readSerialized serializedWithOther knobWithInitial
+                |> Knob.value
+                |> Expect.equal initial
 
 
 
