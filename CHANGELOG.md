@@ -5,9 +5,15 @@ Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Unreleased
 
+### Added
+
+- Each knob type now gets its own specific CSS class, to make it easier
+  to style.
+
 ### Changed
 
-- `view` now takes options as its first parameter, and `viewWithOptions` has been removed.
+- `view` now takes options as its first parameter, replacing the need for
+  `viewWithOptions`.
 - `select` has been simplified to take a `Dict` of options instead of the pair
    of functions `toString` and `fromString`.
 - `custom` now supports serialization.
@@ -19,7 +25,7 @@ Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Removed
 
-- `viewWithOptions` has been removed, and `view` should be used instead.
+- `viewWithOptions` has been removed. Use `view` instead.
 
 ## [1.2.0] (2024-05-04)
 
