@@ -924,30 +924,29 @@ view options toMsg (Knob config) =
                     )
                 |> List.head
 
-        classes : List ( String, Bool )
-        classes =
+        dock : Html msg
+        dock =
+            Html.div [ Html.Attributes.class "knobs-dock" ]
+                [ Html.div [ Html.Attributes.class "knobs-dock-icon" ]
+                    [ Html.text "🎛" ]
+                ]
+
+        panel : Html msg
+        panel =
+            Html.section [ Html.Attributes.class "knobs-panel" ]
+                [ viewInternal toMsg config ]
+    in
+    Html.aside
+        [ Html.Attributes.classList
             [ ( "knobs", True )
             , ( anchorClass maybeAnchor, True )
             , ( Internal.Constants.keepOpenCssClass, config.keepOpen )
             , ( "knobs-detached", isDetached )
             ]
-
-        content : List (Html msg)
-        content =
-            [ showIf (not isDetached) icon
-            , Html.div []
-                [ viewInternal toMsg config ]
-            ]
-
-        icon : Html msg
-        icon =
-            Html.div [ Html.Attributes.class "knobs-icon" ]
-                [ Html.div []
-                    [ Html.text "🎛" ]
-                ]
-    in
-    Html.aside [ Html.Attributes.classList classes ]
-        content
+        ]
+        [ showIf (not isDetached) dock
+        , panel
+        ]
 
 
 viewInternal : (Knob a -> b) -> Config a -> Html b
@@ -1337,86 +1336,95 @@ anchorClass maybeAnchor =
 css : String
 css =
     """
-    /* Main container */
-
     .knobs {
-        --separation: 0.5em;
+        /* Variables */
 
-        color: black;
+        --knobs-background-color: Canvas;
+        --knobs-text-color: CanvasText;
+        --knobs-text-size: 1rem;
+        --knobs-separation: calc(0.5 * var(--knobs-text-size));
+        --knobs-dock-icon-size: calc(3.5 * var(--knobs-text-size));
+        --knobs-shadow:
+            0 0
+            calc(0.4 * var(--knobs-text-size))
+            rgb(0 0 0 / 0.2);
+
+        /* Main container */
+
+        color: var(--knobs-text-color);
         display: flex;
         font-size: 14px;
-        gap: var(--separation);
+        gap: var(--knobs-separation);
         max-height: 100vh;
         z-index: 888;
-    }
 
-    .knobs:not(.knobs-detached) {
-        bottom: 0;
-        left: 0;
-        position: fixed;
-    }
+        /* Attachment */
 
-    .knobs.knobs-anchor-bottom-right:not(.knobs-detached) {
-        bottom: 0;
-        left: unset;
-        right: 0;
-    }
+        &:not(.knobs-detached) {
+            position: fixed;
 
-    .knobs.knobs-anchor-top-left:not(.knobs-detached) {
-        bottom: unset;
-        top: 0;
-    }
+            &.knobs-anchor-bottom-left {
+                bottom: 0;
+                left: 0;
+            }
 
-    .knobs.knobs-anchor-top-right:not(.knobs-detached) {
-        bottom: unset;
-        left: unset;
-        right: 0;
-        top: 0;
-    }
-    
-    /* Panel and icon container */
+            &.knobs-anchor-bottom-right {
+                bottom: 0;
+                right: 0;
+            }
 
-    .knobs > * {
-        background-color: white;
-        box-shadow: 0 0 0.4em rgba(0, 0, 0, 0.2);
-    }
+            &.knobs-anchor-top-left {
+                left: 0;
+                top: 0;
+            }
 
-    /* Panel */
+            &.knobs-anchor-top-right {
+                right: 0;
+                top: 0;
+            }
+        }
 
-    .knobs > :not(.knobs-icon) {
-        display: none;
-        padding: calc(3 * var(--separation));
-        overflow-y: auto;
-    }
+        /* Dock */
 
-    .knobs.knobs-detached > :not(.knobs-icon),
-    .knobs:hover > :not(.knobs-icon),
-    .knobs.knobs-keep-open > :not(.knobs-icon) {
-        display: block;
-    }
+        .knobs-dock {
+            align-items: center;
+            background-color: var(--knobs-background-color);
+            border-radius: 50%;
+            box-shadow: var(--knobs-shadow);
+            display: flex;
+            height: var(--knobs-dock-icon-size);
+            justify-content: center;
+            line-height: 1;
+            margin: calc(1 * var(--knobs-separation));
+            width: var(--knobs-dock-icon-size);
 
-    /* Icon container */
+            > * {
+                font-size: 2em;
+            }
+        }
 
-    .knobs .knobs-icon {
-        --size: 3.5em;
+        /* Panel */
 
-        align-items: center;
-        border-radius: 50%;
-        display: flex;
-        height: var(--size);
-        justify-content: center;
-        line-height: 1;
-        margin: calc(1 * var(--separation));
-        width: var(--size);
-    }
+        .knobs-panel {
+            background-color: var(--knobs-background-color);
+            box-shadow: var(--knobs-shadow);
+            display: none;
+            overflow-y: auto;
+            padding: calc(3 * var(--knobs-separation));
+        }
 
-    .knobs .knobs-icon > * {
-        font-size: 2em;
-    }
+        /* Show and hide */
 
-    .knobs:hover > .knobs-icon,
-    .knobs.knobs-keep-open > .knobs-icon {
-        display: none;
+        &:hover,
+        &.knobs-keep-open {
+            .knobs-dock {
+                display: none;
+            }
+
+            .knobs-panel {
+                display: block;
+            }
+        }
     }
 
     /* Knobs */
@@ -1424,13 +1432,13 @@ css =
     .knobs .knobs-stack {
         display: flex;
         flex-direction: column;
-        gap: calc(2 * var(--separation));
+        gap: calc(2 * var(--knobs-separation));
     }
 
     .knobs label {
         display: flex;
         flex-direction: column;
-        gap: var(--separation);
+        gap: var(--knobs-separation);
     }
 
     .knobs label:has(> input[type="checkbox"]) {
