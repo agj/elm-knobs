@@ -1422,36 +1422,33 @@ css =
                 display: block;
             }
         }
-    }
 
-    /* Knobs */
+        /* Knobs */
 
-    .knobs .knobs-stack {
-        display: flex;
-        flex-direction: column;
-        gap: calc(2 * var(--knobs-separation));
-    }
+        .knobs-stack {
+            display: flex;
+            flex-direction: column;
+            gap: calc(2 * var(--knobs-separation));
+        }
 
-    .knobs label {
-        display: flex;
-        flex-direction: column;
-        gap: var(--knobs-separation);
-    }
+        label {
+            display: flex;
+            flex-direction: column;
+            gap: var(--knobs-separation);
+        }
 
-    .knobs label:has(> input[type="checkbox"]) {
-        flex-direction: row;
-        align-items: center;
-    }
+        label:has(> input[type="checkbox"]) {
+            align-items: center;
+            flex-direction: row;
 
-    /* The following use of `:has()` is so that browsers that don't support that
-       selector may ignore this block.
-     */
-    .knobs label:has(> input) > input[type="checkbox"] {
-        order: -1;
-    }
+            > input[type="checkbox"] {
+                order: -1;
+            }
+        }
 
-    .knobs input[type="range"] + * {
-        color: darkgray;
-        text-align: center;
+        input[type="range"] + * {
+            color: darkgray;
+            text-align: center;
+        }
     }
     """
