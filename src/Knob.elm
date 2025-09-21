@@ -1423,6 +1423,7 @@ css =
 
         /* Show and hide */
 
+        &.knobs-detached,
         &:hover,
         &.knobs-keep-open {
             .knobs-dock {
