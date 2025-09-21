@@ -1,9 +1,7 @@
 module BasicTests exposing (..)
 
-import Dict
 import Expect
 import Fuzz exposing (Fuzzer)
-import Internal.Utils exposing (expectAll)
 import Knob
 import Test exposing (Test)
 import Test.Html.Query as Query
@@ -11,6 +9,7 @@ import Test.Html.Selector as Selector
 import Util.TestKnob
     exposing
         ( Vegetable(..)
+        , expectAll
         , knobSelect
         , queryView
         , simulateCheckInput

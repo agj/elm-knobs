@@ -13,6 +13,13 @@ import Test.Html.Query as Query
 import Test.Html.Selector as Selector exposing (Selector)
 
 
+expectAll : List Expectation -> Expectation
+expectAll expectations =
+    Expect.all
+        (expectations |> List.map (\expectation _ -> expectation))
+        ()
+
+
 
 -- KNOB PRODUCTION
 
