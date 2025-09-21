@@ -14,8 +14,8 @@ Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - `view` now takes options as its first parameter, replacing the need for
   `viewWithOptions`.
-- `select` has been simplified to take a `Dict` of options instead of the pair
-   of functions `toString` and `fromString`.
+- `select` has been simplified to only take a list of options. The functions
+   `toString` and `fromString` are no longer needed.
 - `custom` now supports serialization.
 - HTML for the panel was changed slightly, mostly in the tags and CSS classes
   used.
