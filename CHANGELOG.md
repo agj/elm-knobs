@@ -10,6 +10,16 @@ Changelog](https://keepachangelog.com/en/1.1.0/).
 - `view` now takes options as its first parameter, and `viewWithOptions` has been removed.
 - `select` has been simplified to take a `Dict` of options instead of the pair
    of functions `toString` and `fromString`.
+- `custom` now supports serialization.
+- HTML for the panel was changed slightly, mostly in the tags and CSS classes
+  used.
+- Default CSS styles (provided by `Knob.styles`) were changed to use system
+  colors and root element font size. Also added CSS variables that make it
+  easier to customize.
+
+### Removed
+
+- `viewWithOptions` has been removed, and `view` should be used instead.
 
 ## [1.2.0] (2024-05-04)
 
