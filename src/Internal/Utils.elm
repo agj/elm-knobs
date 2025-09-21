@@ -1,6 +1,7 @@
-module Internal.Utils exposing (listFind, showIf)
+module Internal.Utils exposing (listFind, noAttribute, showIf)
 
 import Html exposing (Html)
+import Html.Attributes
 
 
 listFind : (a -> Bool) -> List a -> Maybe a
@@ -24,3 +25,8 @@ showIf condition element =
 
     else
         Html.text ""
+
+
+noAttribute : Html.Attribute msg
+noAttribute =
+    Html.Attributes.classList []

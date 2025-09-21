@@ -110,7 +110,7 @@ import Html.Attributes
 import Html.Events
 import Internal.Constants
 import Internal.Option exposing (Anchor(..), Option(..))
-import Internal.Utils exposing (showIf)
+import Internal.Utils exposing (noAttribute, showIf)
 import Json.Decode
 import Json.Encode
 import Knob.Option exposing (Option)
@@ -1316,11 +1316,6 @@ colorToString color =
             toHex red ++ toHex green ++ toHex blue
     in
     "#" ++ colorHex
-
-
-noAttribute : Html.Attribute msg
-noAttribute =
-    Html.Attributes.classList []
 
 
 anchorClass : Maybe Anchor -> String
