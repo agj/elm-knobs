@@ -1,7 +1,15 @@
-module Internal.Utils exposing (listFind, noAttribute, showIf)
+module Internal.Utils exposing (expectAll, listFind, noAttribute, showIf)
 
+import Expect exposing (Expectation)
 import Html exposing (Html)
 import Html.Attributes
+
+
+expectAll : List Expectation -> Expectation
+expectAll expectations =
+    Expect.all
+        (expectations |> List.map (\expectation _ -> expectation))
+        ()
 
 
 listFind : (a -> Bool) -> List a -> Maybe a

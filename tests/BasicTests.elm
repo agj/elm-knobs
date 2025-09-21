@@ -1,13 +1,18 @@
 module BasicTests exposing (..)
 
+import Dict
 import Expect
 import Fuzz exposing (Fuzzer)
+import Internal.Utils exposing (expectAll)
 import Knob
 import Test exposing (Test)
+import Test.Html.Query as Query
+import Test.Html.Selector as Selector
 import Util.TestKnob
     exposing
         ( Vegetable(..)
         , knobSelect
+        , queryView
         , simulateCheckInput
         , simulateInput
         , simulateInputs
@@ -250,6 +255,32 @@ selectTests =
                     |> .knob
                     |> simulateSelectInputs input [ invalidInput ]
                     |> Expect.equal (Just initial)
+        , Test.test "Options are displayed in supplied order" <|
+            \_ ->
+                let
+                    options =
+                        [ ( "Z", 1 )
+                        , ( "A", 2 )
+                        , ( "H", 3 )
+                        ]
+
+                    optionElements =
+                        Knob.select
+                            { options = Dict.fromList options
+                            , initial = 1
+                            }
+                            |> queryView
+                            |> Query.findAll [ Selector.tag "option" ]
+                in
+                (options
+                    |> List.indexedMap
+                        (\index ( label, _ ) ->
+                            optionElements
+                                |> Query.index index
+                                |> Query.has [ Selector.exactText label ]
+                        )
+                )
+                    |> expectAll
         ]
 
 
