@@ -28,13 +28,12 @@ init =
         Knob.label "Anchoring"
             (Knob.select
                 { options =
-                    Dict.fromList
-                        [ ( "none", Knob.Option.detached )
-                        , ( "top-left", Knob.Option.anchorTopLeft )
-                        , ( "top-right", Knob.Option.anchorTopRight )
-                        , ( "bottom-left", Knob.Option.anchorBottomLeft )
-                        , ( "bottom-right", Knob.Option.anchorBottomRight )
-                        ]
+                    [ ( "none", Knob.Option.detached )
+                    , ( "top-left", Knob.Option.anchorTopLeft )
+                    , ( "top-right", Knob.Option.anchorTopRight )
+                    , ( "bottom-left", Knob.Option.anchorBottomLeft )
+                    , ( "bottom-right", Knob.Option.anchorBottomRight )
+                    ]
                 , initial = Knob.Option.detached
                 }
             )

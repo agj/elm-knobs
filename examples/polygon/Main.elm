@@ -77,10 +77,9 @@ init =
             |> Knob.stackLabel "Sit on"
                 (Knob.select
                     { options =
-                        Dict.fromList
-                            [ ( "Vertex", SitOnVertex )
-                            , ( "Edge", SitOnEdge )
-                            ]
+                        [ ( "Vertex", SitOnVertex )
+                        , ( "Edge", SitOnEdge )
+                        ]
                     , initial = SitOnVertex
                     }
                 )
