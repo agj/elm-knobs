@@ -1353,7 +1353,7 @@ css =
 
         color: var(--knobs-text-color);
         display: flex;
-        font-size: 14px;
+        font-size: var(--knobs-text-size);
         gap: var(--knobs-separation);
         max-height: 100vh;
         z-index: 888;
@@ -1397,10 +1397,7 @@ css =
             line-height: 1;
             margin: calc(1 * var(--knobs-separation));
             width: var(--knobs-dock-icon-size);
-
-            > * {
-                font-size: 2em;
-            }
+            font-size: calc(2 * var(--knobs-text-size));
         }
 
         /* Panel */
