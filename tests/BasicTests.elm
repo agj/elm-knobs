@@ -255,26 +255,24 @@ selectTests =
                     |> .knob
                     |> simulateSelectInputs input [ invalidInput ]
                     |> Expect.equal (Just initial)
-        , Test.test "Options are displayed in supplied order" <|
-            \_ ->
+        , Test.fuzz (Fuzz.listOfLengthBetween 1 100 Fuzz.string) "Options are displayed in supplied order" <|
+            \labels ->
                 let
                     options =
-                        [ ( "Z", 1 )
-                        , ( "A", 2 )
-                        , ( "H", 3 )
-                        ]
+                        labels
+                            |> List.map (\label -> ( label, label ))
 
                     optionElements =
                         Knob.select
                             { options = options
-                            , initial = 1
+                            , initial = ""
                             }
                             |> queryView
                             |> Query.findAll [ Selector.tag "option" ]
                 in
-                (options
+                (labels
                     |> List.indexedMap
-                        (\index ( label, _ ) ->
+                        (\index label ->
                             optionElements
                                 |> Query.index index
                                 |> Query.has [ Selector.exactText label ]
