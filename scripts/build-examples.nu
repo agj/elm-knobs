@@ -16,17 +16,17 @@ getExamples
 
     if ($inputHtmlFile | path exists) {
       dirs add $example.dir
-      (^elm make $inputElmFile --output $outputJsFile --optimize)
+      ^elm make $inputElmFile --output $outputJsFile --optimize
       dirs drop
 
-      (^uglifyjs --compress --mangle -- $outputJsFile)
-        | save --force $outputJsFile
+      let uglifiedJs = ^uglifyjs --compress --mangle -- $outputJsFile
+      $uglifiedJs | save --force $outputJsFile
 
       minifyHtml $inputHtmlFile
         | save --force $outputHtmlFile
     } else {
       dirs add $example.dir
-      (^elm make $inputElmFile --output $outputHtmlFile --optimize)
+      ^elm make $inputElmFile --output $outputHtmlFile --optimize
       dirs drop
 
       minifyHtml $outputHtmlFile

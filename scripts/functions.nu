@@ -12,5 +12,6 @@ export def getExamples [] {
 }
 
 export def minifyHtml [file] {
-  (^pnpm exec html-minifier-terser --collapse-whitespace --remove-comments --remove-tag-whitespace --minify-css=true --minify-js=true $file)
+  let result = ^pnpm exec html-minifier-terser --collapse-whitespace --remove-comments --remove-tag-whitespace --minify-css=true --minify-js=true $file
+  $result
 }
