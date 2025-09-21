@@ -110,7 +110,7 @@ import Html.Attributes
 import Html.Events
 import Internal.Constants
 import Internal.Option exposing (Anchor(..), Option(..))
-import Internal.Utils
+import Internal.Utils exposing (showIf)
 import Json.Decode
 import Json.Encode
 import Knob.Option exposing (Option)
@@ -934,20 +934,17 @@ view options toMsg (Knob config) =
 
         content : List (Html msg)
         content =
-            [ if isDetached then
-                []
-
-              else
-                [ Html.div [ Html.Attributes.class "knobs-icon" ]
-                    [ Html.div []
-                        [ Html.text "🎛" ]
-                    ]
-                ]
-            , [ Html.div []
-                    [ viewInternal toMsg config ]
-              ]
+            [ showIf (not isDetached) icon
+            , Html.div []
+                [ viewInternal toMsg config ]
             ]
-                |> List.concat
+
+        icon : Html msg
+        icon =
+            Html.div [ Html.Attributes.class "knobs-icon" ]
+                [ Html.div []
+                    [ Html.text "🎛" ]
+                ]
     in
     Html.aside [ Html.Attributes.classList classes ]
         content

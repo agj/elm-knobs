@@ -1,4 +1,6 @@
-module Internal.Utils exposing (listFind)
+module Internal.Utils exposing (listFind, showIf)
+
+import Html exposing (Html)
 
 
 listFind : (a -> Bool) -> List a -> Maybe a
@@ -13,3 +15,12 @@ listFind predicate list =
 
         [] ->
             Nothing
+
+
+showIf : Bool -> Html msg -> Html msg
+showIf condition element =
+    if condition then
+        element
+
+    else
+        Html.text ""
