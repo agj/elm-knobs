@@ -130,22 +130,20 @@ selectDoc =
     , init_ =
         Knob.select
             { options =
-                Dict.fromList
-                    [ ( "Carrot", Carrot )
-                    , ( "Lettuce", Lettuce )
-                    , ( "Beet", Beet )
-                    ]
+                [ ( "Carrot", Carrot )
+                , ( "Lettuce", Lettuce )
+                , ( "Beet", Beet )
+                ]
             , initial = Carrot
             }
     , code =
         """
         Knob.select
             { options =
-                Dict.fromList
-                    [ ( "Carrot", Carrot )
-                    , ( "Lettuce", Lettuce )
-                    , ( "Beet", Beet )
-                    ]
+                [ ( "Carrot", Carrot )
+                , ( "Lettuce", Lettuce )
+                , ( "Beet", Beet )
+                ]
             , initial = Carrot
             }
         """
