@@ -173,7 +173,8 @@ floatInternal step initial userInput =
         input : () -> Html (Knob Float)
         input () =
             Html.input
-                [ Html.Attributes.type_ "number"
+                [ Html.Attributes.class "knob-float"
+                , Html.Attributes.type_ "number"
                 , Html.Attributes.value userInput
                 , Html.Attributes.step (String.fromFloat step)
                 , Html.Events.onInput (floatInternal step initial)
@@ -227,7 +228,8 @@ floatConstrainedInternal ( rangeLow, rangeHigh ) step initial userInput =
         input : () -> Html (Knob Float)
         input () =
             Html.input
-                [ Html.Attributes.type_ "number"
+                [ Html.Attributes.class "knob-float-constrained"
+                , Html.Attributes.type_ "number"
                 , Html.Attributes.value userInput
                 , Html.Attributes.step (String.fromFloat step)
                 , Html.Events.onInput (floatConstrainedInternal ( rangeLow, rangeHigh ) step initial)
@@ -283,7 +285,8 @@ floatSliderInternal ( rangeLow, rangeHigh ) step initial userInput =
         input () =
             Html.div []
                 [ Html.input
-                    [ Html.Attributes.type_ "range"
+                    [ Html.Attributes.class "knob-float-slider"
+                    , Html.Attributes.type_ "range"
                     , Html.Attributes.value userInput
                     , Html.Attributes.min (String.fromFloat rangeLow)
                     , Html.Attributes.max (String.fromFloat rangeHigh)
@@ -333,7 +336,8 @@ intInternal step initial userInput =
         input : () -> Html (Knob Int)
         input () =
             Html.input
-                [ Html.Attributes.type_ "number"
+                [ Html.Attributes.class "knob-int"
+                , Html.Attributes.type_ "number"
                 , Html.Attributes.value userInput
                 , Html.Attributes.step (String.fromInt step)
                 , Html.Events.onInput (intInternal step initial)
@@ -386,7 +390,8 @@ intConstrainedInternal ( rangeLow, rangeHigh ) step initial userInput =
         input : () -> Html (Knob Int)
         input () =
             Html.input
-                [ Html.Attributes.type_ "number"
+                [ Html.Attributes.class "knob-int-constrained"
+                , Html.Attributes.type_ "number"
                 , Html.Attributes.value userInput
                 , Html.Attributes.step (String.fromInt step)
                 , Html.Events.onInput (intConstrainedInternal ( rangeLow, rangeHigh ) step initial)
@@ -442,7 +447,8 @@ intSliderInternal ( rangeLow, rangeHigh ) step initial userInput =
         input () =
             Html.div []
                 [ Html.input
-                    [ Html.Attributes.type_ "range"
+                    [ Html.Attributes.class "knob-int-slider"
+                    , Html.Attributes.type_ "range"
                     , Html.Attributes.value userInput
                     , Html.Attributes.min (String.fromInt rangeLow)
                     , Html.Attributes.max (String.fromInt rangeHigh)
@@ -477,7 +483,8 @@ stringInput initial =
         input : () -> Html (Knob String)
         input () =
             Html.input
-                [ Html.Attributes.type_ "text"
+                [ Html.Attributes.class "knob-string"
+                , Html.Attributes.type_ "text"
                 , Html.Attributes.value initial
                 , Html.Events.onInput stringInput
                 ]
@@ -505,7 +512,8 @@ stringTextarea config =
         textarea : () -> Html (Knob String)
         textarea () =
             Html.textarea
-                [ config.rows
+                [ Html.Attributes.class "knob-string-textarea"
+                , config.rows
                     |> Maybe.map Html.Attributes.rows
                     |> Maybe.withDefault noAttribute
                 , config.columns
@@ -539,7 +547,8 @@ boolCheckbox initial =
         checkbox : () -> Html (Knob Bool)
         checkbox () =
             Html.input
-                [ Html.Attributes.type_ "checkbox"
+                [ Html.Attributes.class "knob-bool-checkbox"
+                , Html.Attributes.type_ "checkbox"
                 , Html.Attributes.checked initial
                 , Html.Events.onCheck boolCheckbox
                 ]
@@ -631,7 +640,8 @@ selectInternal keepOpen config userInput =
         selectElement : () -> Html (Knob a)
         selectElement () =
             Html.select
-                [ Html.Events.onInput
+                [ Html.Attributes.class "knob-select"
+                , Html.Events.onInput
                     (\newUserInput -> selectInternal False config newUserInput)
                 , Html.Events.onFocus (selectInternal True config userInput)
                 , Html.Events.onBlur (selectInternal False config userInput)
@@ -689,7 +699,8 @@ colorPickerInternal keepOpen initial userInput =
         picker : () -> Html (Knob Color)
         picker () =
             Html.input
-                [ Html.Attributes.type_ "color"
+                [ Html.Attributes.class "knob-color-picker"
+                , Html.Attributes.type_ "color"
                 , Html.Attributes.value userInput
                 , Html.Events.onInput (colorPickerInternal keepOpen initial)
                 , Html.Events.onFocus (colorPickerInternal True initial userInput)
@@ -1127,7 +1138,7 @@ label text (Knob config) =
     let
         labeled : () -> Html (Knob a)
         labeled () =
-            Html.label []
+            Html.label [ Html.Attributes.class "knob-label" ]
                 [ Html.text text
                 , viewInternal (label text) config
                 ]
