@@ -30,8 +30,6 @@ Changelog](https://keepachangelog.com/en/1.1.0/).
 - Incorrect input in some knobs resulted in the last correct value. Now it
   results in the initial value.
 
-### Other
-
 ## [1.1.0] (2023-07-16)
 
 [1.1.0]: https://github.com/agj/elm-knobs/tree/1.1.0
