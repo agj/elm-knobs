@@ -583,7 +583,7 @@ Here's a simple example mapping `"yes"` and `"no"` options to `Bool` values:
 
 -}
 select :
-    { options : Dict String a
+    { options : List ( String, a )
     , initial : a
     }
     -> Knob a
@@ -594,22 +594,26 @@ select config =
 selectInternal :
     Bool
     ->
-        { options : Dict String a
+        { options : List ( String, a )
         , initial : a
         }
     -> String
     -> Knob a
 selectInternal keepOpen config userInput =
     let
+        optionsDict : Dict String a
+        optionsDict =
+            Dict.fromList config.options
+
         fromString : String -> a
         fromString text =
-            config.options
+            optionsDict
                 |> Dict.get text
                 |> Maybe.withDefault config.initial
 
         toString : a -> String
         toString val =
-            Dict.toList config.options
+            config.options
                 |> Internal.Utils.listFind (\( _, v ) -> v == val)
                 |> Maybe.map (\( k, _ ) -> k)
                 |> Maybe.withDefault ""
@@ -634,7 +638,7 @@ selectInternal keepOpen config userInput =
         optionElements : List (Html (Knob a))
         optionElements =
             config.options
-                |> Dict.keys
+                |> List.map Tuple.first
                 |> List.map optionElement
 
         selectElement : () -> Html (Knob a)

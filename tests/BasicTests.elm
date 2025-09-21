@@ -266,7 +266,7 @@ selectTests =
 
                     optionElements =
                         Knob.select
-                            { options = Dict.fromList options
+                            { options = options
                             , initial = 1
                             }
                             |> queryView

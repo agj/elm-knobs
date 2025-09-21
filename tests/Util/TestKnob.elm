@@ -41,28 +41,34 @@ type Vegetable
     | Beet
 
 
-vegetableOptions : Dict String Vegetable
+vegetableOptions : List ( String, Vegetable )
 vegetableOptions =
     [ ( "Carrot", Carrot )
     , ( "Lettuce", Lettuce )
     , ( "Beet", Beet )
     ]
-        |> Dict.fromList
+
+
+vegetableOptionsDict : Dict String Vegetable
+vegetableOptionsDict =
+    Dict.fromList vegetableOptions
 
 
 vegetables : List Vegetable
 vegetables =
-    Dict.values vegetableOptions
+    vegetableOptions
+        |> List.map Tuple.second
 
 
 vegetableStrings : List String
 vegetableStrings =
-    Dict.keys vegetableOptions
+    vegetableOptions
+        |> List.map Tuple.first
 
 
 vegetableToString : Vegetable -> String
 vegetableToString vegetable =
-    Dict.toList vegetableOptions
+    vegetableOptions
         |> Internal.Utils.listFind (\( _, v ) -> v == vegetable)
         |> Maybe.map (\( k, _ ) -> k)
         |> Maybe.withDefault ""
@@ -70,7 +76,7 @@ vegetableToString vegetable =
 
 vegetableFromString : String -> Maybe Vegetable
 vegetableFromString string =
-    vegetableOptions
+    vegetableOptionsDict
         |> Dict.get string
 
 
