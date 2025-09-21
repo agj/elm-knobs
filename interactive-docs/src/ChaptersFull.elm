@@ -17,6 +17,10 @@ chapters =
       , slug = "polygon"
       , height = "500px"
       }
+    , { name = "Options"
+      , slug = "options"
+      , height = "17em"
+      }
     , { name = "Web Storage API"
       , slug = "web-storage"
       , height = "13em"
