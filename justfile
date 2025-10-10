@@ -13,7 +13,7 @@ docs:
 
 # Preview and develop the interactive documentation.
 intdocs: intdocs-install
-    cd interactive-docs && pnpm exec parcel
+    cd interactive-docs && pnpm exec vite --clearScreen false
 
 # Preview the interactive docs in full.
 intdocs-full: install intdocs-build
@@ -25,8 +25,7 @@ intdocs-update-examples:
 
 # Build the interactive documentation.
 intdocs-build: install intdocs-install intdocs-update-examples
-    rm -rf ./interactive-docs/.parcel-cache # Sad workaround.
-    cd interactive-docs && pnpm exec parcel build --dist-dir "./output/$(shell nu ./scripts/get-current-version.nu)"
+    cd interactive-docs && pnpm exec vite build --outDir "../output/{{shell("nu ./scripts/get-current-version.nu")}}"
     nu ./scripts/build-examples.nu
     nu ./scripts/build-interactive-docs-index.nu
 

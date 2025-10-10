@@ -6,7 +6,6 @@
 elm-stuff/
 node_modules/
 .direnv/
-.parcel-cache/
 
 # Cruft.
 .DS_Store
