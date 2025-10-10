@@ -16,8 +16,7 @@ intdocs: intdocs-install
     cd interactive-docs && pnpm exec parcel
 
 # Preview the interactive docs in full.
-intdocs-full: intdocs-build
-    pnpm install
+intdocs-full: install intdocs-build
     pnpm exec http-server ./interactive-docs/output/
 
 # Update interactive doc example code.
@@ -25,7 +24,7 @@ intdocs-update-examples:
     nu ./scripts/update-example-code-strings.nu
 
 # Build the interactive documentation.
-intdocs-build: intdocs-install intdocs-update-examples
+intdocs-build: install intdocs-install intdocs-update-examples
     rm -rf ./interactive-docs/.parcel-cache # Sad workaround.
     cd interactive-docs && pnpm exec parcel build --dist-dir "./output/$(shell nu ./scripts/get-current-version.nu)"
     nu ./scripts/build-examples.nu
@@ -39,6 +38,10 @@ intdocs-deploy: intdocs-build
 [private]
 intdocs-install:
     cd interactive-docs && pnpm install
+
+[private]
+install:
+    pnpm install
 
 # Updates the example code in the readme.
 readme-update-example:
