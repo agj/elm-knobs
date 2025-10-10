@@ -25,7 +25,7 @@ intdocs-update-examples:
 
 # Build the interactive documentation.
 intdocs-build: install intdocs-install intdocs-update-examples
-    cd interactive-docs && pnpm exec vite build --outDir "../output/{{shell("nu ./scripts/get-current-version.nu")}}"
+    cd interactive-docs && pnpm exec vite build --outDir "./output/{{shell("nu ./scripts/get-current-version.nu")}}"
     nu ./scripts/build-examples.nu
     nu ./scripts/build-interactive-docs-index.nu
 
