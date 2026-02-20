@@ -9,6 +9,7 @@ Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - Each knob type now gets its own specific CSS class, to make it easier
   to style.
+- New example project, demonstrating options that can be passed to `view`.
 
 ### Changed
 
