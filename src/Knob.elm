@@ -891,8 +891,8 @@ custom config =
 [`Knob`](Knob#Knob) value at any which time, so if you need multiple knobs, make
 sure you [`compose`](Knob#compose) them!
 
-Knobs keep track of their state once they're put in the view, but for that
-you need to wire them up with a message, which is the first argument that this
+Knobs keep track of their state once they're put in the view, but for that you
+need to wire them up with a message, which is the second argument that this
 function takes.
 
 This function produces plain HTML with no styles, so make sure you also include
@@ -1232,15 +1232,14 @@ serialize (Knob a) =
             Json.Encode.null
 
 
-{-| After you have used [`serialize`](Knob#serialize) to store your knob's value somewhere,
-the way to get that value back into the knob is this function.
-You'll probably want to use it on `init` with the serialized data you get
-from flags.
+{-| After you have used [`serialize`](Knob#serialize) to store your knob's value
+somewhere, the way to get that value back into the knob is this function. You'll
+probably want to use it on `init` with the serialized data you get from flags.
 
-If this function fails to interpret the passed value,
-the knob will just retain its initial value.
-Also, it works with single, [composed](Knob#compose) or [mapped](Knob#map) knobs,
-however, it sadly won't work for [custom](Knob#custom) knobs, so be warned.
+If this function fails to interpret the passed value, the knob will just
+retain its initial value. It works with single, [composed](Knob#compose) and
+[mapped](Knob#map) knobs. For [custom](Knob#custom) knobs it will only work if
+`serialization` was properly defined when created.
 
 Notice that you need to create your knob with initial values normally,
 and as a last step use this function to update it with the serialized value.
