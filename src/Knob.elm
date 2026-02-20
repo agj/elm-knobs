@@ -567,17 +567,16 @@ boolCheckbox initial =
 
 
 {-| Creates a dropdown select input for a custom type or arbitrary values of any
-type you wish. You'll need to provide a `Dict` mapping unique strings (options
+type you wish. You'll need to provide a `List` mapping unique strings (options
 in the dropdown) to values of your type.
 
 Here's a simple example mapping `"yes"` and `"no"` options to `Bool` values:
 
     Knob.select
         { options =
-            Dict.fromList
-                [ ( "yes", True )
-                , ( "no", False )
-                ]
+            [ ( "yes", True )
+            , ( "no", False )
+            ]
         , initial = False
         }
 
