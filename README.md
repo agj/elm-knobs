@@ -20,9 +20,9 @@ API][webstorage].
 - [Code examples.][examples]
 - [Changelog.][changelog]
 
-[docs]: https://package.elm-lang.org/packages/agj/elm-knobs/1.2.0
-[interactive-docs]: https://agj.github.io/elm-knobs/1.2.0/
-[examples]: https://github.com/agj/elm-knobs/blob/1.2.0/examples/
+[docs]: https://package.elm-lang.org/packages/agj/elm-knobs/2.0.0
+[interactive-docs]: https://agj.github.io/elm-knobs/2.0.0/
+[examples]: https://github.com/agj/elm-knobs/blob/2.0.0/examples/
 [changelog]: https://github.com/agj/elm-knobs/blob/main/CHANGELOG.md
 
 ## Why?
