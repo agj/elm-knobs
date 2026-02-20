@@ -1,7 +1,7 @@
-# elm-knobs basic example
+# elm-knobs options example
 
-The most elemental example of how to wire up your knobs, with comments to guide
-you along. Check the `Main.elm` file.
+This example demonstrates `view` function options you can pass to change how the
+panel is rendered.
 
 ## How to run
 
