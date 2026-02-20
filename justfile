@@ -53,6 +53,10 @@ intdocs-install:
 install:
     pnpm install
 
+# Run all checks and tests.
+[group("checks")]
+check: check-build test check-docs check-lint check-examples check-version
+
 # Run tests.
 [group("checks")]
 test:
@@ -62,10 +66,6 @@ test:
 [group("checks")]
 test-watch:
     elm-test --watch
-
-# Run all checks and tests.
-[group("checks")]
-check: check-build test check-docs check-lint check-examples check-version
 
 # Check for formatting errors.
 [group("checks")]
