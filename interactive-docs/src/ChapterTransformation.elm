@@ -54,8 +54,8 @@ mapDoc =
     { name = "map"
     , link = Nothing
     , description = Just """
-        Using `map` to add a `$` sign in front of the number.
-        The resulting knob is not of type `Knob Int`, but rather `Knob String`.
+        Uses `map` to add a “$” sign in front of the number. The resulting knob
+        is not of type `Knob Int`, but rather `Knob String`.
         """
     , init_ =
         Knob.int { step = 10, initial = 0 }
@@ -76,7 +76,7 @@ customDoc =
     { name = "custom"
     , link = Nothing
     , description = Just """
-        A custom knob consisting of three buttons which each emits a different
+        A custom knob consisting of three buttons, each emitting a different
         string value.
 
         We're making a serializable knob here, but notice that it's an optional
