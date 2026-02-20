@@ -3,7 +3,7 @@
     "name": "agj/elm-knobs",
     "summary": "A simple control panel to tweak values interactively.",
     "license": "ISC",
-    "version": "1.2.0",
+    "version": "2.0.0",
     "exposed-modules": [
         "Knob",
         "Knob.Option"
@@ -16,6 +16,6 @@
         "rtfeldman/elm-hex": "1.0.0 <= v < 2.0.0"
     },
     "test-dependencies": {
-        "elm-explorations/test": "2.0.1 <= v < 3.0.0"
+        "elm-explorations/test": "2.2.0 <= v < 3.0.0"
     }
 }

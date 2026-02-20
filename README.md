@@ -2,11 +2,11 @@
 
 [![Elm package](https://img.shields.io/elm-package/v/agj/elm-knobs?style=flat-square&logo=elm&labelColor=white&color=%231293D8)](https://package.elm-lang.org/packages/agj/elm-knobs/latest)
 
-A way to easily tweak values interactively within a running Elm app, using a
-panel of input controls that map to those values, which we call “knobs” here.
-While not in use, they recede to an icon in the lower-left corner. The library
-supports easy serialization, enabling you to persist the values even after a
-page refresh by, for example, interfacing with the [Web Storage
+A way to easily tweak values interactively within a running Elm app, using
+a panel of input controls that map to those values, which we call “knobs”
+here. While not in use, the panel can recede to an icon in the corner. The
+library supports easy serialization, enabling you to persist the values
+even after a page refresh by, for example, interfacing with the [Web Storage
 API][webstorage].
 
 [webstorage]: https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API
@@ -18,10 +18,12 @@ API][webstorage].
 - [API docs (package.elm-lang.org).][docs]
 - [Interactive docs.][interactive-docs]
 - [Code examples.][examples]
+- [Changelog.][changelog]
 
-[docs]: https://package.elm-lang.org/packages/agj/elm-knobs/1.2.0
-[interactive-docs]: https://agj.github.io/elm-knobs/1.2.0/
-[examples]: https://github.com/agj/elm-knobs/blob/1.2.0/examples/
+[docs]: https://package.elm-lang.org/packages/agj/elm-knobs/2.0.0
+[interactive-docs]: https://agj.github.io/elm-knobs/2.0.0/
+[examples]: https://github.com/agj/elm-knobs/blob/2.0.0/examples/
+[changelog]: https://github.com/agj/elm-knobs/blob/main/CHANGELOG.md
 
 ## Why?
 
@@ -91,7 +93,7 @@ view model =
         [ Html.text (String.fromInt (Knob.value model.knob))
 
         -- Display the knob controls:
-        , Knob.view KnobUpdated model.knob
+        , Knob.view [] KnobUpdated model.knob
         , Knob.styles
         ]
 ```

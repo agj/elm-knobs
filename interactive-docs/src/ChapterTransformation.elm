@@ -3,6 +3,8 @@ module ChapterTransformation exposing (Model, chapter, init)
 import ElmBook.Chapter
 import Html exposing (Html)
 import Html.Events
+import Json.Decode
+import Json.Encode
 import Knob exposing (Knob)
 import KnobDoc exposing (KnobDoc)
 
@@ -30,6 +32,7 @@ type alias Model =
     }
 
 
+init : Model
 init =
     { map = mapDoc.init_
     , custom = customDoc.init_
@@ -51,8 +54,8 @@ mapDoc =
     { name = "map"
     , link = Nothing
     , description = Just """
-        Using `map` to add a `$` sign in front of the number.
-        The resulting knob is not of type `Knob Int`, but rather `Knob String`.
+        Uses `map` to add a “$” sign in front of the number. The resulting knob
+        is not of type `Knob Int`, but rather `Knob String`.
         """
     , init_ =
         Knob.int { step = 10, initial = 0 }
@@ -64,7 +67,7 @@ mapDoc =
         """
     , get = .map
     , set = \model knob -> { model | map = knob }
-    , toString = identity
+    , toString = KnobDoc.string
     }
 
 
@@ -73,7 +76,12 @@ customDoc =
     { name = "custom"
     , link = Nothing
     , description = Just """
-        A custom knob consisting of three buttons which each emits a different string value.
+        A custom knob consisting of three buttons, each emitting a different
+        string value.
+
+        We're making a serializable knob here, but notice that it's an optional
+        feature, so feel free to ignore that part and use `serialization =
+        Nothing`.
         """
     , init_ =
         let
@@ -94,8 +102,17 @@ customDoc =
                                 [ Html.Events.onClick (abcKnob "C") ]
                                 [ Html.text "Set C" ]
                             ]
+
+                    serialization =
+                        { encode = \() -> Json.Encode.string initial
+                        , decoder = Json.Decode.map abcKnob Json.Decode.string
+                        }
                 in
-                Knob.custom { value = initial, view = view }
+                Knob.custom
+                    { value = initial
+                    , view = view
+                    , serialization = Just serialization
+                    }
         in
         -- Using the custom knob.
         abcKnob "A"
@@ -119,15 +136,24 @@ customDoc =
                                 [ Html.Events.onClick (abcKnob "C") ]
                                 [ Html.text "Set C" ]
                             ]
+
+                    serialization =
+                        { encode = \\() -> Json.Encode.string initial
+                        , decoder = Json.Decode.map abcKnob Json.Decode.string
+                        }
                 in
-                Knob.custom { value = initial, view = view }
+                Knob.custom
+                    { value = initial
+                    , view = view
+                    , serialization = Just serialization
+                    }
         in
         -- Using the custom knob.
         abcKnob "A"
         """
     , get = .custom
     , set = \model knob -> { model | custom = knob }
-    , toString = identity
+    , toString = KnobDoc.string
     }
 
 

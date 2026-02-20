@@ -2,19 +2,17 @@ module BasicTests exposing (..)
 
 import Expect
 import Fuzz exposing (Fuzzer)
-import Internal.Constants
 import Knob
-import Test
-import Test.Html.Event as Event
+import Test exposing (Test)
+import Test.Html.Query as Query
 import Test.Html.Selector as Selector
 import Util.TestKnob
     exposing
         ( Vegetable(..)
-        , afterEvent
+        , expectAll
         , knobSelect
+        , queryView
         , simulateCheckInput
-        , simulateEvent
-        , simulateEvents
         , simulateInput
         , simulateInputs
         , simulateSelectInput
@@ -22,11 +20,10 @@ import Util.TestKnob
         , simulateTextareaInput
         , vegetableStrings
         , vegetables
-        , viewHas
-        , viewHasNot
         )
 
 
+floatTests : Test
 floatTests =
     Test.describe "float"
         [ Test.fuzz Fuzz.niceFloat "Can input valid values" <|
@@ -47,6 +44,7 @@ floatTests =
         ]
 
 
+floatConstrainedTests : Test
 floatConstrainedTests =
     Test.describe "floatConstrained"
         [ Test.fuzz fuzzFloatRangeInputs "Can input valid values" <|
@@ -76,6 +74,7 @@ floatConstrainedTests =
         ]
 
 
+floatSliderTests : Test
 floatSliderTests =
     Test.describe "floatSlider"
         [ Test.fuzz fuzzFloatRangeInputs "Can input valid values" <|
@@ -105,6 +104,7 @@ floatSliderTests =
         ]
 
 
+intTests : Test
 intTests =
     Test.describe "int"
         [ Test.fuzz Fuzz.int "Can input valid values" <|
@@ -125,6 +125,7 @@ intTests =
         ]
 
 
+intConstrainedTests : Test
 intConstrainedTests =
     Test.describe "intConstrained"
         [ Test.fuzz fuzzIntRangeInputs "Can input valid values" <|
@@ -154,6 +155,7 @@ intConstrainedTests =
         ]
 
 
+intSliderTests : Test
 intSliderTests =
     Test.describe "intSlider"
         [ Test.fuzz fuzzIntRangeInputs "Can input valid values" <|
@@ -183,6 +185,7 @@ intSliderTests =
         ]
 
 
+stringInputTests : Test
 stringInputTests =
     Test.describe "stringInput"
         [ Test.fuzz2 Fuzz.string Fuzz.string "Can input" <|
@@ -193,6 +196,7 @@ stringInputTests =
         ]
 
 
+stringTextareaTests : Test
 stringTextareaTests =
     Test.describe "stringTextarea"
         [ Test.fuzz2 Fuzz.string Fuzz.string "Can input" <|
@@ -203,6 +207,7 @@ stringTextareaTests =
         ]
 
 
+boolCheckboxTests : Test
 boolCheckboxTests =
     Test.describe "boolCheckbox"
         [ Test.fuzz2 Fuzz.bool Fuzz.bool "Can input" <|
@@ -213,47 +218,70 @@ boolCheckboxTests =
         ]
 
 
+selectTests : Test
 selectTests =
     Test.describe "select"
-        [ Test.fuzz3
-            (Fuzz.oneOfValues vegetables)
+        [ Test.fuzz2
             (Fuzz.oneOfValues vegetables)
             (Fuzz.oneOfValues vegetableStrings)
             "Can input valid values"
           <|
-            \default initial input ->
+            \initial input ->
                 let
                     { knob, fromString } =
-                        knobSelect default initial
+                        knobSelect initial
                 in
                 knob
                     |> simulateSelectInput input
                     |> Expect.equal (Just (fromString input))
-        , Test.fuzz3
-            (Fuzz.oneOfValues vegetables)
+        , Test.fuzz2
             (Fuzz.oneOfValues vegetables)
             Fuzz.string
-            "Invalid values result in the fromString default value"
+            "Invalid values result in the initial value"
           <|
-            \default initial invalidInput ->
-                knobSelect default initial
+            \initial invalidInput ->
+                knobSelect initial
                     |> .knob
                     |> simulateSelectInput invalidInput
-                    |> Expect.equal (Just default)
-        , Test.fuzz3
-            (Fuzz.oneOfValues vegetables)
+                    |> Expect.equal (Just initial)
+        , Test.fuzz2
             (Fuzz.oneOfValues vegetables)
             (Fuzz.pair (Fuzz.oneOfValues vegetableStrings) Fuzz.string)
-            "Invalid values after a correct value still result in the fromString default value"
+            "Invalid values after a correct value still result in the initial value"
           <|
-            \default initial ( input, invalidInput ) ->
-                knobSelect default initial
+            \initial ( input, invalidInput ) ->
+                knobSelect initial
                     |> .knob
                     |> simulateSelectInputs input [ invalidInput ]
-                    |> Expect.equal (Just default)
+                    |> Expect.equal (Just initial)
+        , Test.fuzz (Fuzz.listOfLengthBetween 1 100 Fuzz.string) "Options are displayed in supplied order" <|
+            \labels ->
+                let
+                    options =
+                        labels
+                            |> List.map (\label -> ( label, label ))
+
+                    optionElements =
+                        Knob.select
+                            { options = options
+                            , initial = ""
+                            }
+                            |> queryView
+                            |> Query.findAll [ Selector.tag "option" ]
+                in
+                (labels
+                    |> List.indexedMap
+                        (\index label ->
+                            optionElements
+                                |> Query.index index
+                                |> Query.has [ Selector.exactText label ]
+                        )
+                )
+                    |> expectAll
         ]
 
 
+colorPickerTests : Test
 colorPickerTests =
     let
         colors =
@@ -330,10 +358,12 @@ fuzzNonEmptyNonNumericString =
             )
 
 
+fuzzFloatRangeInputs : Fuzzer { lowest : Float, low : Float, mid : Float, high : Float, highest : Float, any : Float, any2 : Float }
 fuzzFloatRangeInputs =
     fuzzRangeInputs Fuzz.niceFloat
 
 
+fuzzIntRangeInputs : Fuzzer { lowest : Int, low : Int, mid : Int, high : Int, highest : Int, any : Int, any2 : Int }
 fuzzIntRangeInputs =
     fuzzRangeInputs Fuzz.int
 

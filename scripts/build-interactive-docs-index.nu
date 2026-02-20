@@ -9,7 +9,7 @@ print "ℹ️ Generating interactive docs version index."
 
 let versions = glob --no-file $"($outputDir)/*"
   | each { parse --regex '/([0-9.]+)$' }
-  | filter { length | $in > 0 }
+  | where { length | $in > 0 }
   | each { get 0 | get capture0 }
   | sort --reverse
 

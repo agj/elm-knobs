@@ -82,13 +82,22 @@ toComponent getModel setModel knobDoc =
             let
                 model =
                     getModel sharedModel
+
+                valueText : String
+                valueText =
+                    model |> knobDoc.get |> Knob.value |> knobDoc.toString
             in
             Html.div [ Html.Attributes.class "component-preview" ]
                 [ knobDoc.get model
-                    |> Knob.viewWithOptions [ Knob.Option.detached ]
+                    |> Knob.view [ Knob.Option.detached ]
                         (ElmBook.Actions.updateStateWith (knobDoc.set model >> setModel))
                 , Html.div []
-                    [ Html.text ("Value: " ++ (model |> knobDoc.get |> Knob.value |> knobDoc.toString)) ]
+                    [ Html.text "Value: "
+                    , Html.span [ Html.Attributes.class "elm-book-md" ]
+                        [ Html.code [ Html.Attributes.class "elm-book-monospace" ]
+                            [ Html.text valueText ]
+                        ]
+                    ]
                 ]
     in
     ( knobDoc.name, knobView )
@@ -131,8 +140,22 @@ apiDocsLink { name, link } =
             links
                 |> List.map
                     (\linkName ->
-                        "- 📦 [API docs for: `$name$`](https://package.elm-lang.org/packages/agj/elm-knobs/$elmKnobsVersion$/Knob#$name$)"
+                        "- 📦 [API docs](https://package.elm-lang.org/packages/agj/elm-knobs/$elmKnobsVersion$/Knob#$name$) for `$name$`."
                             |> String.replace "$name$" linkName
                             |> String.replace "$elmKnobsVersion$" Constants.elmKnobsVersion
                     )
                 |> String.join "\n"
+
+
+{-| Represents a literal string value as Elm syntax, escaping certain characters
+such as `"` and `\n`.
+-}
+string : String -> String
+string value =
+    let
+        escapedValue =
+            value
+                |> String.replace "\"" "\\\""
+                |> String.replace "\n" "\\n"
+    in
+    "\"" ++ escapedValue ++ "\""

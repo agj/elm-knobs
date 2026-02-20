@@ -3,10 +3,11 @@ module SerializationTests exposing (..)
 import Expect exposing (Expectation)
 import Fuzz
 import Knob exposing (Knob)
-import Test
-import Util.TestKnob exposing (fuzzColor, knobSelect, vegetables)
+import Test exposing (Test)
+import Util.TestKnob exposing (boolToString, fuzzColor, knobCustomBoolNonSerializable, knobCustomBoolSerializable, knobSelect, vegetables)
 
 
+transitiveEqualityTests : Test
 transitiveEqualityTests =
     Test.describe "Given nice values, equality of two serialized knobs is the same as the equality of their values"
         [ Test.fuzz2 Fuzz.niceFloat Fuzz.niceFloat "float" <|
@@ -36,10 +37,9 @@ transitiveEqualityTests =
         , Test.fuzz2 Fuzz.bool Fuzz.bool "boolCheckbox" <|
             expectTransitiveEquality
                 Knob.boolCheckbox
-        , Test.fuzz3 (Fuzz.oneOfValues vegetables) (Fuzz.oneOfValues vegetables) (Fuzz.oneOfValues vegetables) "select" <|
-            \default ->
-                expectTransitiveEquality
-                    (knobSelect default >> .knob)
+        , Test.fuzz2 (Fuzz.oneOfValues vegetables) (Fuzz.oneOfValues vegetables) "select" <|
+            expectTransitiveEquality
+                (knobSelect >> .knob)
         , Test.fuzz2 fuzzColor fuzzColor "colorPicker" <|
             expectTransitiveEquality
                 Knob.colorPicker
@@ -54,6 +54,13 @@ transitiveEqualityTests =
                         |> Knob.stack (Knob.int { step = 1, initial = int })
                         |> Knob.stack (Knob.float { step = 1, initial = float })
                         |> Knob.stack (Knob.colorPicker color)
+                )
+        , Test.fuzz2 Fuzz.bool Fuzz.bool "compose with custom knob" <|
+            expectTransitiveEquality
+                (\bool ->
+                    Knob.compose (\a b -> ( a, b ))
+                        |> Knob.stack (Knob.int { step = 1, initial = 5 })
+                        |> Knob.stack (knobCustomBoolSerializable bool)
                 )
         , Test.fuzz2
             (Fuzz.triple Fuzz.int Fuzz.niceFloat fuzzColor)
@@ -73,9 +80,19 @@ transitiveEqualityTests =
                     Knob.int { step = 1, initial = int }
                         |> Knob.map String.fromInt
                 )
+        , Test.fuzz2 Fuzz.bool Fuzz.bool "map with custom" <|
+            expectTransitiveEquality
+                (\bool ->
+                    knobCustomBoolSerializable bool
+                        |> Knob.map boolToString
+                )
+        , Test.fuzz2 Fuzz.bool Fuzz.bool "custom" <|
+            expectTransitiveEquality
+                knobCustomBoolSerializable
         ]
 
 
+roundTripSerializationTests : Test
 roundTripSerializationTests =
     Test.describe "Knobs should serialize and then deserialize into the same original value"
         [ Test.fuzz2 Fuzz.niceFloat Fuzz.niceFloat "float" <|
@@ -105,10 +122,9 @@ roundTripSerializationTests =
         , Test.fuzz2 Fuzz.bool Fuzz.bool "boolCheckbox" <|
             expectRoundTripSerializationToWork
                 Knob.boolCheckbox
-        , Test.fuzz3 (Fuzz.oneOfValues vegetables) (Fuzz.oneOfValues vegetables) (Fuzz.oneOfValues vegetables) "select" <|
-            \default ->
-                expectRoundTripSerializationToWork
-                    (knobSelect default >> .knob)
+        , Test.fuzz2 (Fuzz.oneOfValues vegetables) (Fuzz.oneOfValues vegetables) "select" <|
+            expectRoundTripSerializationToWork
+                (knobSelect >> .knob)
         , Test.fuzz2 fuzzColor fuzzColor "colorPicker" <|
             expectRoundTripSerializationToWork
                 Knob.colorPicker
@@ -123,6 +139,17 @@ roundTripSerializationTests =
                         |> Knob.stack (Knob.int { step = 1, initial = int })
                         |> Knob.stack (Knob.float { step = 1, initial = float })
                         |> Knob.stack (Knob.colorPicker color)
+                )
+        , Test.fuzz2
+            (Fuzz.pair Fuzz.int Fuzz.bool)
+            (Fuzz.pair Fuzz.int Fuzz.bool)
+            "compose with custom knob"
+          <|
+            expectRoundTripSerializationToWork
+                (\( int, bool ) ->
+                    Knob.compose (\a b -> ( a, b ))
+                        |> Knob.stack (Knob.int { step = 1, initial = int })
+                        |> Knob.stack (knobCustomBoolSerializable bool)
                 )
         , Test.fuzz2
             (Fuzz.triple Fuzz.int Fuzz.niceFloat fuzzColor)
@@ -143,7 +170,33 @@ roundTripSerializationTests =
                     Knob.int { step = 1, initial = int }
                         |> Knob.map String.fromInt
                 )
+        , Test.fuzz2 Fuzz.bool Fuzz.bool "map with custom" <|
+            expectMappedRoundTripSerializationToWork
+                boolToString
+                (\bool ->
+                    knobCustomBoolSerializable bool
+                        |> Knob.map boolToString
+                )
+        , Test.fuzz2 Fuzz.bool Fuzz.bool "custom" <|
+            expectRoundTripSerializationToWork
+                knobCustomBoolSerializable
         ]
+
+
+customWithoutSerializationTests : Test
+customWithoutSerializationTests =
+    Test.fuzz2 Fuzz.bool Fuzz.bool "Knob.custom without serialization deserializes to the initial value." <|
+        \initial other ->
+            let
+                knobWithInitial =
+                    knobCustomBoolNonSerializable initial
+
+                serializedWithOther =
+                    Knob.serialize (knobCustomBoolNonSerializable other)
+            in
+            Knob.readSerialized serializedWithOther knobWithInitial
+                |> Knob.value
+                |> Expect.equal initial
 
 
 

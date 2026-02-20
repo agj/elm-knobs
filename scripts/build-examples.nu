@@ -1,3 +1,4 @@
+use std/dirs
 use functions.nu [getExamples, getCurrentVersion, minifyHtml]
 
 let version = getCurrentVersion
@@ -14,19 +15,19 @@ getExamples
     let outputJsFile = $"($outputDir)/main.js"
 
     if ($inputHtmlFile | path exists) {
-      enter $example.dir
-      (^elm make $inputElmFile --output $outputJsFile --optimize)
-      dexit
+      dirs add $example.dir
+      ^elm make $inputElmFile --output $outputJsFile --optimize
+      dirs drop
 
-      (^uglifyjs --compress --mangle -- $outputJsFile)
-        | save --force $outputJsFile
+      let uglifiedJs = ^uglifyjs --compress --mangle -- $outputJsFile
+      $uglifiedJs | save --force $outputJsFile
 
       minifyHtml $inputHtmlFile
         | save --force $outputHtmlFile
     } else {
-      enter $example.dir
-      (^elm make $inputElmFile --output $outputHtmlFile --optimize)
-      dexit
+      dirs add $example.dir
+      ^elm make $inputElmFile --output $outputHtmlFile --optimize
+      dirs drop
 
       minifyHtml $outputHtmlFile
         | save --force $outputHtmlFile

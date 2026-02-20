@@ -82,7 +82,7 @@ view model =
                 ]
             ]
         , Html.p [] [ Html.text "After you refresh the page, the values should remain the same." ]
-        , Knob.view KnobUpdated model.knob
+        , Knob.view [] KnobUpdated model.knob
         , Knob.styles
         ]
     }

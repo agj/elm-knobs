@@ -1,5 +1,6 @@
 module ChapterOtherTypes exposing (Model, chapter, init)
 
+import Dict
 import ElmBook.Chapter exposing (Chapter)
 import Knob exposing (Knob)
 import KnobDoc exposing (KnobDoc)
@@ -59,11 +60,15 @@ stringInputDoc =
     { name = "stringInput"
     , link = Nothing
     , description = Nothing
-    , init_ = Knob.stringInput "Enter text here"
-    , code = "Knob.stringInput \"Enter text here\""
+    , init_ =
+        Knob.stringInput "Enter text here"
+    , code =
+        """
+        Knob.stringInput "Enter text here"
+        """
     , get = \model -> model.stringInput
     , set = \model new -> { model | stringInput = new }
-    , toString = identity
+    , toString = KnobDoc.string
     }
 
 
@@ -88,7 +93,7 @@ stringTextareaDoc =
         """
     , get = \model -> model.stringTextarea
     , set = \model new -> { model | stringTextarea = new }
-    , toString = identity
+    , toString = KnobDoc.string
     }
 
 
@@ -97,8 +102,12 @@ boolCheckboxDoc =
     { name = "boolCheckbox"
     , link = Nothing
     , description = Nothing
-    , init_ = Knob.boolCheckbox False
-    , code = "Knob.boolCheckbox False"
+    , init_ =
+        Knob.boolCheckbox False
+    , code =
+        """
+        Knob.boolCheckbox False
+        """
     , get = \model -> model.boolCheckbox
     , set = \model new -> { model | boolCheckbox = new }
     , toString =
@@ -120,49 +129,23 @@ selectDoc =
         """
     , init_ =
         Knob.select
-            { options = [ "Carrot", "Lettuce", "Beet" ]
-            , toString = vegetableToString
-            , fromString = vegetableFromString
+            { options =
+                [ ( "Carrot", Carrot )
+                , ( "Lettuce", Lettuce )
+                , ( "Beet", Beet )
+                ]
             , initial = Carrot
             }
     , code =
         """
         Knob.select
-            { options = [ "Carrot", "Lettuce", "Beet" ]
-            , toString = vegetableToString
-            , fromString = vegetableFromString
+            { options =
+                [ ( "Carrot", Carrot )
+                , ( "Lettuce", Lettuce )
+                , ( "Beet", Beet )
+                ]
             , initial = Carrot
             }
-
-
-        type Vegetable
-            = Carrot
-            | Lettuce
-            | Beet
-
-
-        vegetableToString vegetable =
-            case vegetable of
-                Carrot ->
-                    "Carrot"
-
-                Lettuce ->
-                    "Lettuce"
-
-                Beet ->
-                    "Beet"
-
-
-        vegetableFromString string =
-            case string of
-                "Lettuce" ->
-                    Lettuce
-
-                "Beet" ->
-                    Beet
-
-                _ ->
-                    Carrot
         """
     , get = \model -> model.select
     , set = \model new -> { model | select = new }
@@ -176,6 +159,7 @@ type Vegetable
     | Beet
 
 
+vegetableToString : Vegetable -> String
 vegetableToString vegetable =
     case vegetable of
         Carrot ->
@@ -188,25 +172,17 @@ vegetableToString vegetable =
             "Beet"
 
 
-vegetableFromString string =
-    case string of
-        "Lettuce" ->
-            Lettuce
-
-        "Beet" ->
-            Beet
-
-        _ ->
-            Carrot
-
-
 colorPickerDoc : KnobDoc Knob.Color Model
 colorPickerDoc =
     { name = "colorPicker"
     , link = Nothing
     , description = Nothing
-    , init_ = Knob.colorPicker { red = 1, green = 1, blue = 1 }
-    , code = "Knob.colorPicker { red = 1, green = 1, blue = 1 }"
+    , init_ =
+        Knob.colorPicker { red = 1, green = 1, blue = 1 }
+    , code =
+        """
+        Knob.colorPicker { red = 1, green = 1, blue = 1 }
+        """
     , get = \model -> model.colorPicker
     , set = \model new -> { model | colorPicker = new }
     , toString =

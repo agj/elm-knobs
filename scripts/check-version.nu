@@ -19,7 +19,7 @@ def checkHasCurrentVersion [place versions errors] {
 
 def checkHasOutdatedVersion [place versions errors] {
   let outdatedVersions = $versions
-    | filter { $in != $currentVersion }
+    | where { $in != $currentVersion }
   print $"🔍 Checking if outdated versions remain in ($place)…"
   if ($outdatedVersions | length | $in > 0) {
     print $"❌ Outdated versions found in ($place)."
@@ -31,11 +31,15 @@ def checkHasOutdatedVersion [place versions errors] {
 }
 
 def getVersionsUsedInLinks [filesGlob] {
-  open $filesGlob
-    | split row "\n"
-    | each { parse --regex 'elm-knobs/([a-z0-9]+/)?([0-9.]+)' }
-    | filter { length | $in > 0 }
-    | each { get 0 | get capture1 }
+  glob $filesGlob
+    | each {|filename|
+      open $filename
+        | split row "\n"
+        | each { parse --regex 'elm-knobs/([a-z0-9]+/)?([0-9.]+)' }
+        | where { length | $in > 0 }
+        | each { get 0 | get capture1 }
+    }
+    | flatten
 }
 
 # Changelog
@@ -43,7 +47,7 @@ def getVersionsUsedInLinks [filesGlob] {
 let allVersionsInChangelog = open CHANGELOG.md
   | split row "\n"
   | each { parse --regex '^## \[([0-9.]+)\]' }
-  | filter { length | $in > 0 }
+  | where { length | $in > 0 }
   | each { get 0 | get capture0 }
 
 $errors = (checkHasCurrentVersion "changelog" $allVersionsInChangelog $errors)
@@ -51,8 +55,8 @@ $errors = (checkHasCurrentVersion "changelog" $allVersionsInChangelog $errors)
 # Git tags
 
 let allVersionsInGitTags = (^git tag)
-  | split row "\n"
-  | find --regex '^[0-9.]+$'
+  | lines
+  | each { $in | str trim }
 
 $errors = (checkHasCurrentVersion "git tags" $allVersionsInGitTags $errors)
 

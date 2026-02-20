@@ -30,6 +30,7 @@ type alias Model =
     }
 
 
+init : Model
 init =
     { label = labelDoc.init_
     , compose = composeDoc.init_
@@ -54,9 +55,10 @@ type alias Compose =
     }
 
 
+composeToString : { name : String, credits : Float } -> String
 composeToString compose =
-    """{ name = "$name$", credits = $float$ }"""
-        |> String.replace "$name$" compose.name
+    """{ name = $name$, credits = $float$ }"""
+        |> String.replace "$name$" (KnobDoc.string compose.name)
         |> String.replace "$float$" (String.fromFloat compose.credits)
 
 

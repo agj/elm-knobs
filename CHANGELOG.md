@@ -3,6 +3,33 @@
 Details on all elm-knobs releases. The format is roughly based on [Keep a
 Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2.0.0] (2026-02-20)
+
+[2.0.0]: https://github.com/agj/elm-knobs/tree/2.0.0
+
+### Added
+
+- Each knob type now gets its own specific CSS class, to make it easier
+  to style.
+- New example project, demonstrating options that can be passed to `view`.
+
+### Changed
+
+- `view` now takes options as its first parameter, replacing the need for
+  `viewWithOptions`.
+- `select` has been simplified to only take a list of options. The functions
+   `toString` and `fromString` are no longer needed.
+- `custom` now supports serialization.
+- HTML for the panel was changed slightly, mostly in the tags and CSS classes
+  used.
+- Default CSS styles (provided by `Knob.styles`) were changed to use system
+  colors and root element font size. Also added CSS variables that make it
+  easier to customize.
+
+### Removed
+
+- `viewWithOptions` has been removed. Use `view` instead.
+
 ## [1.2.0] (2024-05-04)
 
 [1.2.0]: https://github.com/agj/elm-knobs/tree/1.2.0
@@ -21,8 +48,6 @@ Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - Incorrect input in some knobs resulted in the last correct value. Now it
   results in the initial value.
-
-### Other
 
 ## [1.1.0] (2023-07-16)
 

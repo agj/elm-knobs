@@ -1,12 +1,23 @@
 module Util.TestKnob exposing (..)
 
+import Dict exposing (Dict)
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer)
+import Html
+import Internal.Utils
 import Json.Decode exposing (Value)
+import Json.Encode
 import Knob exposing (Knob)
 import Test.Html.Event as Event
 import Test.Html.Query as Query
 import Test.Html.Selector as Selector exposing (Selector)
+
+
+expectAll : List Expectation -> Expectation
+expectAll expectations =
+    Expect.all
+        (expectations |> List.map (\expectation _ -> expectation))
+        ()
 
 
 
@@ -15,21 +26,18 @@ import Test.Html.Selector as Selector exposing (Selector)
 
 knobSelect :
     Vegetable
-    -> Vegetable
     ->
         { knob : Knob Vegetable
         , fromString : String -> Vegetable
         , toString : Vegetable -> String
         }
-knobSelect default initial =
+knobSelect initial =
     { knob =
         Knob.select
-            { options = vegetableStrings
-            , toString = vegetableToString
-            , fromString = vegetableFromString >> Maybe.withDefault default
+            { options = vegetableOptions
             , initial = initial
             }
-    , fromString = vegetableFromString >> Maybe.withDefault default
+    , fromString = vegetableFromString >> Maybe.withDefault initial
     , toString = vegetableToString
     }
 
@@ -40,41 +48,74 @@ type Vegetable
     | Beet
 
 
+vegetableOptions : List ( String, Vegetable )
+vegetableOptions =
+    [ ( "Carrot", Carrot )
+    , ( "Lettuce", Lettuce )
+    , ( "Beet", Beet )
+    ]
+
+
+vegetableOptionsDict : Dict String Vegetable
+vegetableOptionsDict =
+    Dict.fromList vegetableOptions
+
+
+vegetables : List Vegetable
 vegetables =
-    [ Carrot, Lettuce, Beet ]
+    vegetableOptions
+        |> List.map Tuple.second
 
 
+vegetableStrings : List String
 vegetableStrings =
-    vegetables
-        |> List.map vegetableToString
+    vegetableOptions
+        |> List.map Tuple.first
 
 
+vegetableToString : Vegetable -> String
 vegetableToString vegetable =
-    case vegetable of
-        Carrot ->
-            "Carrot"
-
-        Lettuce ->
-            "Lettuce"
-
-        Beet ->
-            "Beet"
+    vegetableOptions
+        |> Internal.Utils.listFind (\( _, v ) -> v == vegetable)
+        |> Maybe.map (\( k, _ ) -> k)
+        |> Maybe.withDefault ""
 
 
 vegetableFromString : String -> Maybe Vegetable
 vegetableFromString string =
-    case string of
-        "Carrot" ->
-            Just Carrot
+    vegetableOptionsDict
+        |> Dict.get string
 
-        "Lettuce" ->
-            Just Lettuce
 
-        "Beet" ->
-            Just Beet
+knobCustomBoolSerializable : Bool -> Knob Bool
+knobCustomBoolSerializable initial =
+    Knob.custom
+        { value = initial
+        , view = \() -> Html.text ""
+        , serialization =
+            Just
+                { encode = \() -> Json.Encode.bool initial
+                , decoder = Json.Decode.map knobCustomBoolSerializable Json.Decode.bool
+                }
+        }
 
-        _ ->
-            Nothing
+
+knobCustomBoolNonSerializable : Bool -> Knob Bool
+knobCustomBoolNonSerializable initial =
+    Knob.custom
+        { value = initial
+        , view = \() -> Html.text ""
+        , serialization = Nothing
+        }
+
+
+boolToString : Bool -> String
+boolToString bool =
+    if bool then
+        "True"
+
+    else
+        "False"
 
 
 
@@ -163,7 +204,7 @@ simulateSelectInputs firstInputString restInputStrings knob =
 simulateEvent : String -> ( String, Value ) -> Knob a -> Maybe (Knob a)
 simulateEvent tag event knob =
     knob
-        |> Knob.view identity
+        |> Knob.view [] identity
         |> Query.fromHtml
         |> Query.find [ Selector.tag tag ]
         |> Event.simulate event
@@ -197,7 +238,7 @@ viewHasNot selectors =
 queryView : Knob a -> Query.Single (Knob a)
 queryView knob =
     knob
-        |> Knob.view identity
+        |> Knob.view [] identity
         |> Query.fromHtml
 
 

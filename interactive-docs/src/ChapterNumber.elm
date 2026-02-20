@@ -33,6 +33,7 @@ type alias Model =
     }
 
 
+init : Model
 init =
     { float = floatDoc.init_
     , floatConstrained = floatConstrainedDoc.init_
@@ -62,8 +63,12 @@ floatDoc =
     { name = "float"
     , link = Nothing
     , description = Nothing
-    , init_ = Knob.float { step = 0.01, initial = 0 }
-    , code = "Knob.float { step = 0.01, initial = 0 }"
+    , init_ =
+        Knob.float { step = 0.01, initial = 0 }
+    , code =
+        """
+        Knob.float { step = 0.01, initial = 0 }
+        """
     , get = \model -> model.float
     , set = \model new -> { model | float = new }
     , toString = String.fromFloat
@@ -113,8 +118,12 @@ intDoc =
     { name = "int"
     , link = Nothing
     , description = Nothing
-    , init_ = Knob.int { step = 1, initial = 0 }
-    , code = "Knob.int { step = 1, initial = 0 }"
+    , init_ =
+        Knob.int { step = 1, initial = 0 }
+    , code =
+        """
+        Knob.int { step = 1, initial = 0 }
+        """
     , get = \model -> model.int
     , set = \model new -> { model | int = new }
     , toString = String.fromInt

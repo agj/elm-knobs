@@ -1,6 +1,4 @@
 {
-  description = "elm-knobs";
-
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
     flake-utils.url = "github:numtide/flake-utils";
@@ -23,9 +21,10 @@
             elmPackages.elm-json
             elmPackages.elm-review
             elmPackages.elm-test
-            nodejs-slim_21
+            just
             nodePackages.pnpm
             nodePackages.uglify-js
+            nodejs-slim_24
             nushell
           ];
         };

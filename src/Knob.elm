@@ -5,7 +5,7 @@ module Knob exposing
     , stringInput, stringTextarea
     , boolCheckbox
     , select, Color, colorPicker
-    , view, viewWithOptions, styles
+    , view, styles
     , value
     , compose, stack
     , label, stackLabel
@@ -41,7 +41,7 @@ single value.
 👀 Tip: Check the [**interactive documentation**][interactive-docs] to see
 working examples of these!
 
-[interactive-docs]: https://agj.github.io/elm-knobs/1.2.0/
+[interactive-docs]: https://agj.github.io/elm-knobs/2.0.0/
 
 @docs float, floatConstrained, floatSlider
 @docs int, intConstrained, intSlider
@@ -54,7 +54,7 @@ working examples of these!
 
 The next step is to actually display our knob in the page.
 
-@docs view, viewWithOptions, styles
+@docs view, styles
 
 
 # Retrieving the value
@@ -91,7 +91,7 @@ them does, so let's make sure we do!
 The value of your knobs will be reset every time you refresh the page, unless
 you persist their value somehow. Knob serialization is a way to make it easier
 to do this using the Web Storage API or other such techniques. Check [this
-example](https://github.com/agj/elm-knobs/blob/1.2.0/examples/web-storage/) to
+example](https://github.com/agj/elm-knobs/blob/2.0.0/examples/web-storage/) to
 see how to do it.
 
 @docs serialize, readSerialized
@@ -103,12 +103,14 @@ see how to do it.
 
 -}
 
+import Dict exposing (Dict)
 import Hex
 import Html exposing (Html)
 import Html.Attributes
 import Html.Events
 import Internal.Constants
 import Internal.Option exposing (Anchor(..), Option(..))
+import Internal.Utils exposing (noAttribute, showIf)
 import Json.Decode
 import Json.Encode
 import Knob.Option exposing (Option)
@@ -128,8 +130,13 @@ type alias Config a =
     { value : a
     , keepOpen : Bool
     , view : KnobView a
-    , encode : Maybe (() -> Json.Encode.Value)
-    , decode : Maybe (Json.Decode.Decoder (Knob a))
+    , serialization : Maybe (Serialization a)
+    }
+
+
+type alias Serialization a =
+    { encode : () -> Json.Encode.Value
+    , decoder : Json.Decode.Decoder (Knob a)
     }
 
 
@@ -166,7 +173,8 @@ floatInternal step initial userInput =
         input : () -> Html (Knob Float)
         input () =
             Html.input
-                [ Html.Attributes.type_ "number"
+                [ Html.Attributes.class "knob-float"
+                , Html.Attributes.type_ "number"
                 , Html.Attributes.value userInput
                 , Html.Attributes.step (String.fromFloat step)
                 , Html.Events.onInput (floatInternal step initial)
@@ -177,12 +185,13 @@ floatInternal step initial userInput =
         { value = newValue
         , keepOpen = False
         , view = SingleView input
-        , encode = Just (\() -> Json.Encode.float newValue)
-        , decode =
+        , serialization =
             Just
-                (Json.Decode.map (String.fromFloat >> floatInternal step initial)
-                    Json.Decode.float
-                )
+                { encode = \() -> Json.Encode.float newValue
+                , decoder =
+                    Json.Decode.map (String.fromFloat >> floatInternal step initial)
+                        Json.Decode.float
+                }
         }
 
 
@@ -219,7 +228,8 @@ floatConstrainedInternal ( rangeLow, rangeHigh ) step initial userInput =
         input : () -> Html (Knob Float)
         input () =
             Html.input
-                [ Html.Attributes.type_ "number"
+                [ Html.Attributes.class "knob-float-constrained"
+                , Html.Attributes.type_ "number"
                 , Html.Attributes.value userInput
                 , Html.Attributes.step (String.fromFloat step)
                 , Html.Events.onInput (floatConstrainedInternal ( rangeLow, rangeHigh ) step initial)
@@ -231,13 +241,14 @@ floatConstrainedInternal ( rangeLow, rangeHigh ) step initial userInput =
         { value = newValue
         , keepOpen = False
         , view = SingleView input
-        , encode = Just (\() -> Json.Encode.float newValue)
-        , decode =
+        , serialization =
             Just
-                (Json.Decode.map
-                    (String.fromFloat >> floatConstrainedInternal ( rangeLow, rangeHigh ) step initial)
-                    Json.Decode.float
-                )
+                { encode = \() -> Json.Encode.float newValue
+                , decoder =
+                    Json.Decode.map
+                        (String.fromFloat >> floatConstrainedInternal ( rangeLow, rangeHigh ) step initial)
+                        Json.Decode.float
+                }
         }
 
 
@@ -274,7 +285,8 @@ floatSliderInternal ( rangeLow, rangeHigh ) step initial userInput =
         input () =
             Html.div []
                 [ Html.input
-                    [ Html.Attributes.type_ "range"
+                    [ Html.Attributes.class "knob-float-slider"
+                    , Html.Attributes.type_ "range"
                     , Html.Attributes.value userInput
                     , Html.Attributes.min (String.fromFloat rangeLow)
                     , Html.Attributes.max (String.fromFloat rangeHigh)
@@ -289,13 +301,14 @@ floatSliderInternal ( rangeLow, rangeHigh ) step initial userInput =
         { value = newValue
         , keepOpen = False
         , view = SingleView input
-        , encode = Just (\() -> Json.Encode.float newValue)
-        , decode =
+        , serialization =
             Just
-                (Json.Decode.map
-                    (String.fromFloat >> floatSliderInternal ( rangeLow, rangeHigh ) step initial)
-                    Json.Decode.float
-                )
+                { encode = \() -> Json.Encode.float newValue
+                , decoder =
+                    Json.Decode.map
+                        (String.fromFloat >> floatSliderInternal ( rangeLow, rangeHigh ) step initial)
+                        Json.Decode.float
+                }
         }
 
 
@@ -323,7 +336,8 @@ intInternal step initial userInput =
         input : () -> Html (Knob Int)
         input () =
             Html.input
-                [ Html.Attributes.type_ "number"
+                [ Html.Attributes.class "knob-int"
+                , Html.Attributes.type_ "number"
                 , Html.Attributes.value userInput
                 , Html.Attributes.step (String.fromInt step)
                 , Html.Events.onInput (intInternal step initial)
@@ -334,12 +348,13 @@ intInternal step initial userInput =
         { value = newValue
         , keepOpen = False
         , view = SingleView input
-        , encode = Just (\() -> Json.Encode.int newValue)
-        , decode =
+        , serialization =
             Just
-                (Json.Decode.map (String.fromInt >> intInternal step initial)
-                    Json.Decode.int
-                )
+                { encode = \() -> Json.Encode.int newValue
+                , decoder =
+                    Json.Decode.map (String.fromInt >> intInternal step initial)
+                        Json.Decode.int
+                }
         }
 
 
@@ -375,7 +390,8 @@ intConstrainedInternal ( rangeLow, rangeHigh ) step initial userInput =
         input : () -> Html (Knob Int)
         input () =
             Html.input
-                [ Html.Attributes.type_ "number"
+                [ Html.Attributes.class "knob-int-constrained"
+                , Html.Attributes.type_ "number"
                 , Html.Attributes.value userInput
                 , Html.Attributes.step (String.fromInt step)
                 , Html.Events.onInput (intConstrainedInternal ( rangeLow, rangeHigh ) step initial)
@@ -387,13 +403,14 @@ intConstrainedInternal ( rangeLow, rangeHigh ) step initial userInput =
         { value = newValue
         , keepOpen = False
         , view = SingleView input
-        , encode = Just (\() -> Json.Encode.int newValue)
-        , decode =
+        , serialization =
             Just
-                (Json.Decode.map
-                    (String.fromInt >> intConstrainedInternal ( rangeLow, rangeHigh ) step initial)
-                    Json.Decode.int
-                )
+                { encode = \() -> Json.Encode.int newValue
+                , decoder =
+                    Json.Decode.map
+                        (String.fromInt >> intConstrainedInternal ( rangeLow, rangeHigh ) step initial)
+                        Json.Decode.int
+                }
         }
 
 
@@ -430,7 +447,8 @@ intSliderInternal ( rangeLow, rangeHigh ) step initial userInput =
         input () =
             Html.div []
                 [ Html.input
-                    [ Html.Attributes.type_ "range"
+                    [ Html.Attributes.class "knob-int-slider"
+                    , Html.Attributes.type_ "range"
                     , Html.Attributes.value userInput
                     , Html.Attributes.min (String.fromInt rangeLow)
                     , Html.Attributes.max (String.fromInt rangeHigh)
@@ -445,13 +463,14 @@ intSliderInternal ( rangeLow, rangeHigh ) step initial userInput =
         { value = newValue
         , keepOpen = False
         , view = SingleView input
-        , encode = Just (\() -> Json.Encode.int newValue)
-        , decode =
+        , serialization =
             Just
-                (Json.Decode.map
-                    (String.fromInt >> intSliderInternal ( rangeLow, rangeHigh ) step initial)
-                    Json.Decode.int
-                )
+                { encode = \() -> Json.Encode.int newValue
+                , decoder =
+                    Json.Decode.map
+                        (String.fromInt >> intSliderInternal ( rangeLow, rangeHigh ) step initial)
+                        Json.Decode.int
+                }
         }
 
 
@@ -464,7 +483,8 @@ stringInput initial =
         input : () -> Html (Knob String)
         input () =
             Html.input
-                [ Html.Attributes.type_ "text"
+                [ Html.Attributes.class "knob-string"
+                , Html.Attributes.type_ "text"
                 , Html.Attributes.value initial
                 , Html.Events.onInput stringInput
                 ]
@@ -474,8 +494,11 @@ stringInput initial =
         { value = initial
         , keepOpen = False
         , view = SingleView input
-        , encode = Just (\() -> Json.Encode.string initial)
-        , decode = Just (Json.Decode.map stringInput Json.Decode.string)
+        , serialization =
+            Just
+                { encode = \() -> Json.Encode.string initial
+                , decoder = Json.Decode.map stringInput Json.Decode.string
+                }
         }
 
 
@@ -489,7 +512,8 @@ stringTextarea config =
         textarea : () -> Html (Knob String)
         textarea () =
             Html.textarea
-                [ config.rows
+                [ Html.Attributes.class "knob-string-textarea"
+                , config.rows
                     |> Maybe.map Html.Attributes.rows
                     |> Maybe.withDefault noAttribute
                 , config.columns
@@ -503,13 +527,14 @@ stringTextarea config =
         { value = config.initial
         , keepOpen = False
         , view = SingleView textarea
-        , encode = Just (\() -> Json.Encode.string config.initial)
-        , decode =
+        , serialization =
             Just
-                (Json.Decode.map
-                    (\decodedValue -> stringTextarea { config | initial = decodedValue })
-                    Json.Decode.string
-                )
+                { encode = \() -> Json.Encode.string config.initial
+                , decoder =
+                    Json.Decode.map
+                        (\decodedValue -> stringTextarea { config | initial = decodedValue })
+                        Json.Decode.string
+                }
         }
 
 
@@ -522,7 +547,8 @@ boolCheckbox initial =
         checkbox : () -> Html (Knob Bool)
         checkbox () =
             Html.input
-                [ Html.Attributes.type_ "checkbox"
+                [ Html.Attributes.class "knob-bool-checkbox"
+                , Html.Attributes.type_ "checkbox"
                 , Html.Attributes.checked initial
                 , Html.Events.onCheck boolCheckbox
                 ]
@@ -532,61 +558,75 @@ boolCheckbox initial =
         { value = initial
         , keepOpen = False
         , view = SingleView checkbox
-        , encode = Just (\() -> Json.Encode.bool initial)
-        , decode = Just (Json.Decode.map boolCheckbox Json.Decode.bool)
+        , serialization =
+            Just
+                { encode = \() -> Json.Encode.bool initial
+                , decoder = Json.Decode.map boolCheckbox Json.Decode.bool
+                }
         }
 
 
-{-| Creates a dropdown select input for a custom type or any arbitrary value you wish.
-You'll need to provide a list of `String`s that represent each selectable option.
-You'll also need a `fromString` function that maps these strings to your type,
-and the reverse `toString` which converts a value of your type to one of the option strings.
+{-| Creates a dropdown select input for a custom type or arbitrary values of any
+type you wish. You'll need to provide a `List` mapping unique strings (options
+in the dropdown) to values of your type.
 
-Here's a simple example mapping "yes" and "no" options to `Bool` values:
+Here's a simple example mapping `"yes"` and `"no"` options to `Bool` values:
 
     Knob.select
-        { options = [ "yes", "no" ]
-        , toString =
-            \bool ->
-                case bool of
-                    True ->
-                        "yes"
-
-                    False ->
-                        "no"
-        , fromString = \string -> string == "yes"
+        { options =
+            [ ( "yes", True )
+            , ( "no", False )
+            ]
         , initial = False
         }
 
 -}
 select :
-    { options : List String
-    , toString : a -> String
-    , fromString : String -> a
+    { options : List ( String, a )
     , initial : a
     }
     -> Knob a
 select config =
-    selectInternal False config
+    selectInternal False config ""
 
 
 selectInternal :
     Bool
     ->
-        { options : List String
-        , toString : a -> String
-        , fromString : String -> a
+        { options : List ( String, a )
         , initial : a
         }
+    -> String
     -> Knob a
-selectInternal keepOpen config =
+selectInternal keepOpen config userInput =
     let
+        optionsDict : Dict String a
+        optionsDict =
+            Dict.fromList config.options
+
+        fromString : String -> a
+        fromString text =
+            optionsDict
+                |> Dict.get text
+                |> Maybe.withDefault config.initial
+
+        toString : a -> String
+        toString val =
+            config.options
+                |> Internal.Utils.listFind (\( _, v ) -> v == val)
+                |> Maybe.map (\( k, _ ) -> k)
+                |> Maybe.withDefault ""
+
+        newValue : a
+        newValue =
+            fromString userInput
+
         optionElement : String -> Html (Knob a)
         optionElement text =
             let
                 parsed : a
                 parsed =
-                    config.fromString text
+                    fromString text
             in
             Html.option
                 [ Html.Attributes.value text
@@ -597,33 +637,32 @@ selectInternal keepOpen config =
         optionElements : List (Html (Knob a))
         optionElements =
             config.options
+                |> List.map Tuple.first
                 |> List.map optionElement
 
         selectElement : () -> Html (Knob a)
         selectElement () =
             Html.select
-                [ Html.Events.onInput
-                    (\selectionString ->
-                        selectInternal False { config | initial = config.fromString selectionString }
-                    )
-                , Html.Events.onFocus (selectInternal True config)
-                , Html.Events.onBlur (selectInternal False config)
+                [ Html.Attributes.class "knob-select"
+                , Html.Events.onInput
+                    (\newUserInput -> selectInternal False config newUserInput)
+                , Html.Events.onFocus (selectInternal True config userInput)
+                , Html.Events.onBlur (selectInternal False config userInput)
                 ]
                 optionElements
     in
     Knob
-        { value = config.initial
+        { value = newValue
         , keepOpen = keepOpen
         , view = SingleView selectElement
-        , encode = Just (\() -> config.initial |> config.toString |> Json.Encode.string)
-        , decode =
+        , serialization =
             Just
-                (Json.Decode.map
-                    (\decodedValue ->
-                        selectInternal False { config | initial = config.fromString decodedValue }
-                    )
-                    Json.Decode.string
-                )
+                { encode = \() -> toString newValue |> Json.Encode.string
+                , decoder =
+                    Json.Decode.map
+                        (\decodedValue -> selectInternal False config decodedValue)
+                        Json.Decode.string
+                }
         }
 
 
@@ -640,7 +679,7 @@ type alias Color =
 {-| Creates a color picker input.
 Colors are represented using a type alias `Color`,
 which is easily [`map`](#map)pable into other color formats for your convenience.
-Below is an example mapping it into [avh4/elm-color](/packages/avh4/elm-color/1.0.0/) format.
+Below is an example mapping it into [avh4/elm-color](https://package.elm-lang.org/packages/avh4/elm-color/1.0.0/) format.
 
     -- We set magenta as the initial color.
     Knob.colorPicker { red = 1, green = 0, blue = 1 }
@@ -663,7 +702,8 @@ colorPickerInternal keepOpen initial userInput =
         picker : () -> Html (Knob Color)
         picker () =
             Html.input
-                [ Html.Attributes.type_ "color"
+                [ Html.Attributes.class "knob-color-picker"
+                , Html.Attributes.type_ "color"
                 , Html.Attributes.value userInput
                 , Html.Events.onInput (colorPickerInternal keepOpen initial)
                 , Html.Events.onFocus (colorPickerInternal True initial userInput)
@@ -675,39 +715,40 @@ colorPickerInternal keepOpen initial userInput =
         { value = newValue
         , keepOpen = keepOpen
         , view = SingleView picker
-        , encode =
+        , serialization =
             Just
-                (\() ->
-                    Json.Encode.object
-                        [ ( "red", Json.Encode.float newValue.red )
-                        , ( "green", Json.Encode.float newValue.green )
-                        , ( "blue", Json.Encode.float newValue.blue )
-                        ]
-                )
-        , decode =
-            Just
-                (Json.Decode.map3
-                    (\red green blue ->
-                        colorPickerInternal False initial (colorToString { red = red, green = green, blue = blue })
-                    )
-                    (Json.Decode.field "red" Json.Decode.float)
-                    (Json.Decode.field "green" Json.Decode.float)
-                    (Json.Decode.field "blue" Json.Decode.float)
-                )
+                { encode =
+                    \() ->
+                        Json.Encode.object
+                            [ ( "red", Json.Encode.float newValue.red )
+                            , ( "green", Json.Encode.float newValue.green )
+                            , ( "blue", Json.Encode.float newValue.blue )
+                            ]
+                , decoder =
+                    Json.Decode.map3
+                        (\red green blue ->
+                            colorPickerInternal False initial (colorToString { red = red, green = green, blue = blue })
+                        )
+                        (Json.Decode.field "red" Json.Decode.float)
+                        (Json.Decode.field "green" Json.Decode.float)
+                        (Json.Decode.field "blue" Json.Decode.float)
+                }
         }
 
 
 {-| Creates a knob for any type, using a custom HTML view that you supply.
-You can use this function if there is some kind of knob you need
-that is not available in this package, and can't be created by using [`map`](#map)
-over a predefined knob.
+You can use this function if there is some kind of knob you need that is not
+available in this package, and can't be created by using [`map`](#map) over a
+predefined knob.
 
-Knobs are comprised of a `value` of the appropriate type,
-and a `view` which listens to user input
-(typically the `Html.Events.onInput` event)
-and emits the updated knob, instead of a regular message like is normally done.
-In this sense, knobs are recursive, as their view needs to construct a new knob,
-typically by calling the very same constructor function that created it in the first place.
+Knobs are comprised of a `value` of the appropriate type, and a `view` which
+listens to user input (typically the `Html.Events.onInput` event) and emits the
+updated knob, instead of a regular message like is normally done. In this sense,
+knobs are recursive, as their view needs to construct a new knob, typically by
+calling the very same constructor function that created it in the first place.
+
+
+## Basic use
 
 Here's how the `boolCheckbox` knob would be created using `custom`:
 
@@ -726,34 +767,65 @@ Here's how the `boolCheckbox` knob would be created using `custom`:
         Knob.custom
             { value = initial
             , view = view
+            , serialization = Nothing
             }
 
-Notice how `view` is a thunk—that is, a function that takes `()` (a placeholder value)
-and returns the view.
-The view is just some HTML that emits knobs instead of messages.
-Take a look at the line with `Html.Events.onCheck` and make note of what we're doing:
-We're directly passing in `ourBoolKnob` because it's a function that takes
-the new "checked" value and with it constructs the knob anew.
-This is how we're transforming the contained value when the user clicks.
+(Ignore the `serialization` part for now.)
 
-A thing to keep in mind: For cases in which you're taking unconstrained user input,
-such as a text field, you can wind up making it so that the user cannot input freely.
-This occurs if you're parsing the input into a different type in a lossy manner.
+Notice how `view` is a thunk—that is, a function that takes `()` (a placeholder
+value) and returns the view. The view is just some HTML that emits knobs instead
+of messages. Take a look at the line with `Html.Events.onCheck` and make note
+of what we're doing: We're directly passing in `ourBoolKnob` because it's a
+function that takes the new “checked” value and with it constructs the knob
+anew. This is how we're transforming the contained value when the user clicks.
 
-Let's imagine we want to display a text field to map a `String` to a `Vegetable` type.
-In the naïve case, our knob's signature could look like this, taking `Vegetable`
-to set the initial value:
+
+## Making it serializable
+
+If you need to [serialize](Knob#serialize) your knob, you'll need to take care
+of that by setting the `serialization` field in the configuration record. You'll
+need [`elm/json`](https://package.elm-lang.org/packages/elm/json/latest/) for
+this.
+
+This is a record wrapped in `Maybe`, with an `encode` function which should
+return the current value converted into a `Json.Encode.Value`, and a `decoder`
+of type `Json.Decode.Decoder` that reconstructs the whole knob out of a value
+created by `encode`. It's easy to get this pair wrong, so make sure you test
+serializing and deserializing!
+
+This would work for the above `ourCustomBool` example:
+
+    Just
+        { encode = \() -> Json.Encode.bool initial
+        , decoder = Json.Decode.map ourCustomBool Json.Decode.bool
+        }
+
+
+## Keep raw user input and parsed output values separate!
+
+Be careful! If you don't have experience writing forms in Elm, there's a very
+common pitfall you have to be aware of: When taking unconstrained user input,
+you can wind up making it so that the user cannot input freely. This occurs when
+we parse the input into a different type in a lossy manner. For example, if the
+input is through typing in a text field, and we convert that into a custom type,
+the user might not be able to actually finish typing.
+
+Let's imagine we want to display a text field to map a `String` to a `Vegetable`
+type. In the naïve case, our knob's signature could look like this, taking
+`Vegetable` to set the initial value:
 
     vegetableKnob : Vegetable -> Knob Vegetable
 
-It would convert the initial value to a `String`, and set that as the text field's text.
-Then, upon user input, we'd parse the input `String` into our type,
-and use that to construct the updated knob.
+It would convert the initial value to a `String`, and set that as the text
+field's text. Then, upon user input, we'd parse the input `String` into our
+type, and use that to construct the updated knob.
 
-The problem with this situation is that if the conversion from `String` to `Vegetable`
-and then back into `String` is lossy (i.e., the result is not the same as what the user typed,)
-then the user won't be able to type some things, as they'll be changing every time
-they hit a key.
+The problem with this situation is that if the conversion from `String` to
+`Vegetable` and then back into `String` is lossy (i.e., the result is not the
+same as what the user typed,) then the user won't be able to finish typing some
+things, as they won't be valid in their incomplete form.
+
+Say we use this function to parse the raw input into `Vegetable`:
 
     vegetableFromString : String -> Vegetable
     vegetableFromString text =
@@ -764,36 +836,42 @@ they hit a key.
             _ ->
                 Tomato
 
-If we're using the function above to parse user input into `Vegetable`,
-the user may want to type "carrot" and start typing "c",
-but as it's not yet a valid value, it will be parsed as `Tomato`
-and the text field's text will be reset to whatever the string value for `Tomato` is.
+If the user wants to type “carrot”, and starts typing “c”, since `"c"` is not
+(yet) a valid value, it will be parsed as `Tomato` and the text field's text
+will be reset to whatever the string value for `Tomato` is.
 
-In order to prevent this behavior, set the unparsed input text as the text field's `value` property,
-and set the parsed result as the knob's `value`.
-This means that your knob will need to take a `String` as its initial value.
+In order to prevent this behavior, take the raw, unparsed `String` as the text
+field's `value` property, and set the parsed result as the knob's `value`. This
+means that your knob will need to take a `String` as its initial value, and not
+a `Vegetable`!
 
     vegetableKnob : String -> Knob Vegetable
     vegetableKnob initial =
         Knob.custom
-            { value = vegetableFromString initial -- Parse here!
+            { -- Parse here!
+              value = vegetableFromString initial
             , view =
                 \() ->
                     Html.input
                         [ Html.Attributes.type_ "text"
-                        , Html.Attributes.value initial -- No parsing
+
+                        -- No parsing.
+                        , Html.Attributes.value initial
                         , Html.Events.onInput vegetableKnob
                         ]
                         []
+            , serialization = Nothing
             }
-
-Lastly, one final caveat to take into consideration when writing custom knobs is that
-they are not serializable using [`serialize`](Knob#serialize).
 
 -}
 custom :
     { value : a
     , view : () -> Html (Knob a)
+    , serialization :
+        Maybe
+            { encode : () -> Json.Encode.Value
+            , decoder : Json.Decode.Decoder (Knob a)
+            }
     }
     -> Knob a
 custom config =
@@ -801,8 +879,7 @@ custom config =
         { value = config.value
         , keepOpen = False
         , view = SingleView config.view
-        , encode = Nothing
-        , decode = Nothing
+        , serialization = config.serialization
         }
 
 
@@ -810,44 +887,38 @@ custom config =
 -- VIEW
 
 
-{-| Converts a knob into HTML to put in your view.
-You should display a single [`Knob`](Knob#Knob) value at any which time,
-so if you need multiple knobs, make sure you [`compose`](Knob#compose) them into a single value!
+{-| Converts a knob into HTML to put in your view. You should display a single
+[`Knob`](Knob#Knob) value at any which time, so if you need multiple knobs, make
+sure you [`compose`](Knob#compose) them!
 
-Knobs keep track of their state once they're put in the view,
-but for that you need to wire them up with a message,
-which is the first argument that this function takes.
+Knobs keep track of their state once they're put in the view, but for that you
+need to wire them up with a message, which is the second argument that this
+function takes.
 
-This function produces plain HTML with no styles, so make sure you also include [`styles`](Knob#styles)
-in your page to make it display properly, or provide your own custom styles.
+This function produces plain HTML with no styles, so make sure you also include
+[`styles`](Knob#styles) in your page to make it display properly, or provide
+your own custom styles.
 
     -- Prepare a message for your knob:
     type Msg =
         KnobUpdated (Knob YourType)
 
     -- Put this as an HTML node within your view:
-    Knob.view KnobUpdated yourKnob
+    Knob.view [] KnobUpdated yourKnob
 
-Check [the documentation's readme](/packages/agj/elm-knobs/1.2.0/)
+Check [the documentation's readme](https://package.elm-lang.org/packages/agj/elm-knobs/2.0.0/)
 for a full demonstration on how to wire things up.
 
--}
-view : (Knob a -> msg) -> Knob a -> Html msg
-view =
-    viewWithOptions []
-
-
-{-| The same as [`view`](#view), but you can also specify options that change
-the way the knobs panel is rendered. You may pass a `List` of options you can
-find in the [`Knob.Option`](Knob.Option) module.
-
-Be aware that these options may change the HTML that is produced or only the CSS
-classes that are added to it, so if you don't use [the provided styles](#styles)
-and instead use your own, the effect might not be what you expected.
+By default, it puts the panel in the lower-left corner of the viewport,
+hidden until you hover over its icon. However, `view` takes a list of options
+that change the way the knobs panel is rendered, which you can find in the
+[`Knob.Option`](Knob-Option) module. Be aware that these options may only change
+the CSS classes that are added to the HTML, so if you don't use [the provided
+styles](#styles), the effect might not be what you expected.
 
 -}
-viewWithOptions : List Option -> (Knob a -> msg) -> Knob a -> Html msg
-viewWithOptions options toMsg (Knob config) =
+view : List Option -> (Knob a -> msg) -> Knob a -> Html msg
+view options toMsg (Knob config) =
     let
         isDetached : Bool
         isDetached =
@@ -867,33 +938,29 @@ viewWithOptions options toMsg (Knob config) =
                     )
                 |> List.head
 
-        classes : List ( String, Bool )
-        classes =
+        dock : Html msg
+        dock =
+            Html.div [ Html.Attributes.class "knobs-dock" ]
+                [ Html.div [ Html.Attributes.class "knobs-dock-icon" ]
+                    [ Html.text "🎛" ]
+                ]
+
+        panel : Html msg
+        panel =
+            Html.section [ Html.Attributes.class "knobs-panel" ]
+                [ viewInternal toMsg config ]
+    in
+    Html.aside
+        [ Html.Attributes.classList
             [ ( "knobs", True )
             , ( anchorClass maybeAnchor, True )
             , ( Internal.Constants.keepOpenCssClass, config.keepOpen )
             , ( "knobs-detached", isDetached )
             ]
-
-        content : List (Html msg)
-        content =
-            [ if isDetached then
-                []
-
-              else
-                [ Html.div [ Html.Attributes.class "knobs-icon" ]
-                    [ Html.div []
-                        [ Html.text "🎛" ]
-                    ]
-                ]
-            , [ Html.div []
-                    [ viewInternal toMsg config ]
-              ]
-            ]
-                |> List.concat
-    in
-    Html.aside [ Html.Attributes.classList classes ]
-        content
+        ]
+        [ showIf (not isDetached) dock
+        , panel
+        ]
 
 
 viewInternal : (Knob a -> b) -> Config a -> Html b
@@ -945,7 +1012,7 @@ value (Knob config) =
 {-| Creates a knob that joins multiple knobs to build up a record
 (or actually any data structure you want, depending on the `constructor` argument you pass it!)
 
-Pipe ([`|>`](/packages/elm/core/1.0.5/Basics#%7C%3E)) the knobs into it
+Pipe ([`|>`](https://package.elm-lang.org/packages/elm/core/1.0.5/Basics#%7C%3E)) the knobs into it
 using [`stack`](Knob#stack) or [`stackLabel`](Knob#stackLabel) in order to provide the arguments.
 
     type alias Controls =
@@ -975,13 +1042,14 @@ compose constructor =
         { value = constructor
         , keepOpen = False
         , view = StackView []
-        , encode = Just (\_ -> Json.Encode.null)
-        , decode =
+        , serialization =
             Just
-                (Json.Decode.map
-                    (\_ -> compose constructor)
-                    (Json.Decode.succeed ())
-                )
+                { encode = \() -> Json.Encode.null
+                , decoder =
+                    Json.Decode.map
+                        (\() -> compose constructor)
+                        (Json.Decode.succeed ())
+                }
         }
 
 
@@ -1018,25 +1086,41 @@ stack (Knob config) (Knob pipe) =
                 |> List.concat
                 |> StackView
 
-        encode : () -> Json.Encode.Value
-        encode () =
-            Json.Encode.object
-                [ ( "cur", Maybe.withDefault (always Json.Encode.null) config.encode () )
-                , ( "prev", Maybe.withDefault (always Json.Encode.null) pipe.encode () )
-                ]
+        serialization : Serialization b
+        serialization =
+            let
+                cur : Serialization a
+                cur =
+                    serializationWithDefault config.serialization
 
-        decode : Json.Decode.Decoder (Knob b)
-        decode =
-            Json.Decode.map2 (\new newPipe -> stack new newPipe)
-                (Json.Decode.field "cur" (Maybe.withDefault (Json.Decode.fail "err") config.decode))
-                (Json.Decode.field "prev" (Maybe.withDefault (Json.Decode.fail "err") pipe.decode))
+                prev : Serialization (a -> b)
+                prev =
+                    serializationWithDefault pipe.serialization
+            in
+            { encode =
+                \() ->
+                    Json.Encode.object
+                        [ ( "cur", cur.encode () )
+                        , ( "prev", prev.encode () )
+                        ]
+            , decoder =
+                Json.Decode.map2 (\new newPipe -> stack new newPipe)
+                    (Json.Decode.field "cur" cur.decoder)
+                    (Json.Decode.field "prev" prev.decoder)
+            }
+
+        serializationWithDefault : Maybe (Serialization x) -> Serialization x
+        serializationWithDefault =
+            Maybe.withDefault
+                { encode = always Json.Encode.null
+                , decoder = Json.Decode.fail "err"
+                }
     in
     Knob
         { value = pipe.value config.value
         , keepOpen = pipe.keepOpen || config.keepOpen
         , view = stackedView
-        , encode = Just encode
-        , decode = Just decode
+        , serialization = Just serialization
         }
 
 
@@ -1057,7 +1141,7 @@ label text (Knob config) =
     let
         labeled : () -> Html (Knob a)
         labeled () =
-            Html.label []
+            Html.label [ Html.Attributes.class "knob-label" ]
                 [ Html.text text
                 , viewInternal (label text) config
                 ]
@@ -1066,8 +1150,7 @@ label text (Knob config) =
         { value = config.value
         , keepOpen = config.keepOpen
         , view = SingleView labeled
-        , encode = config.encode
-        , decode = config.decode
+        , serialization = config.serialization
         }
 
 
@@ -1108,10 +1191,14 @@ map mapper (Knob a) =
         { value = mapper a.value
         , keepOpen = a.keepOpen
         , view = SingleView (\() -> viewInternal (map mapper) a)
-        , encode = a.encode
-        , decode =
-            a.decode
-                |> Maybe.map (Json.Decode.map (map mapper))
+        , serialization =
+            a.serialization
+                |> Maybe.map
+                    (\{ encode, decoder } ->
+                        { encode = encode
+                        , decoder = decoder |> Json.Decode.map (map mapper)
+                        }
+                    )
         }
 
 
@@ -1119,7 +1206,7 @@ map mapper (Knob a) =
 -- SERIALIZATION
 
 
-{-| Convert a knob's value into an [`elm/json`](/packages/elm/json/) `Value`.
+{-| Convert a knob's value into an [`elm/json`](https://package.elm-lang.org/packages/elm/json/) `Value`.
 You can then send this out to JavaScript via a port,
 and store it using the browser's [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API),
 for example. You'll want to use in your update function whenever you get
@@ -1137,23 +1224,22 @@ an updated knob.
 -}
 serialize : Knob a -> Json.Encode.Value
 serialize (Knob a) =
-    case a.encode of
-        Just encode ->
+    case a.serialization of
+        Just { encode } ->
             encode ()
 
         Nothing ->
             Json.Encode.null
 
 
-{-| After you have used [`serialize`](Knob#serialize) to store your knob's value somewhere,
-the way to get that value back into the knob is this function.
-You'll probably want to use it on `init` with the serialized data you get
-from flags.
+{-| After you have used [`serialize`](Knob#serialize) to store your knob's value
+somewhere, the way to get that value back into the knob is this function. You'll
+probably want to use it on `init` with the serialized data you get from flags.
 
-If this function fails to interpret the passed value,
-the knob will just retain its initial value.
-Also, it works with single, [composed](Knob#compose) or [mapped](Knob#map) knobs,
-however, it sadly won't work for [custom](Knob#custom) knobs, so be warned.
+If this function fails to interpret the passed value, the knob will just
+retain its initial value. It works with single, [composed](Knob#compose) and
+[mapped](Knob#map) knobs. For [custom](Knob#custom) knobs it will only work if
+`serialization` was properly defined when created.
 
 Notice that you need to create your knob with initial values normally,
 and as a last step use this function to update it with the serialized value.
@@ -1169,9 +1255,9 @@ and as a last step use this function to update it with the serialized value.
 -}
 readSerialized : Json.Encode.Value -> Knob a -> Knob a
 readSerialized val ((Knob a) as knob) =
-    case a.decode of
-        Just decode ->
-            Json.Decode.decodeValue decode val
+    case a.serialization of
+        Just { decoder } ->
+            Json.Decode.decodeValue decoder val
                 |> Result.withDefault knob
 
         Nothing ->
@@ -1244,11 +1330,6 @@ colorToString color =
     "#" ++ colorHex
 
 
-noAttribute : Html.Attribute msg
-noAttribute =
-    Html.Attributes.classList []
-
-
 anchorClass : Maybe Anchor -> String
 anchorClass maybeAnchor =
     case maybeAnchor of
@@ -1268,116 +1349,120 @@ anchorClass maybeAnchor =
 css : String
 css =
     """
-    /* Main container */
-
     .knobs {
-        --separation: 0.5em;
+        /* Variables */
 
-        color: black;
+        --knobs-background-color: Canvas;
+        --knobs-text-color: CanvasText;
+        --knobs-text-size: 1rem;
+        --knobs-separation: calc(0.5 * var(--knobs-text-size));
+        --knobs-dock-icon-size: calc(3.5 * var(--knobs-text-size));
+        --knobs-shadow:
+            0 0
+            calc(0.4 * var(--knobs-text-size))
+            rgb(0 0 0 / 0.2);
+
+        /* Main container */
+
+        color: var(--knobs-text-color);
         display: flex;
-        font-size: 14px;
-        gap: var(--separation);
+        font-size: var(--knobs-text-size);
+        gap: var(--knobs-separation);
         max-height: 100vh;
         z-index: 888;
-    }
 
-    .knobs:not(.knobs-detached) {
-        bottom: 0;
-        left: 0;
-        position: fixed;
-    }
+        /* Attachment */
 
-    .knobs.knobs-anchor-bottom-right:not(.knobs-detached) {
-        bottom: 0;
-        left: unset;
-        right: 0;
-    }
+        &:not(.knobs-detached) {
+            position: fixed;
 
-    .knobs.knobs-anchor-top-left:not(.knobs-detached) {
-        bottom: unset;
-        top: 0;
-    }
+            &.knobs-anchor-bottom-left {
+                bottom: 0;
+                left: 0;
+            }
 
-    .knobs.knobs-anchor-top-right:not(.knobs-detached) {
-        bottom: unset;
-        left: unset;
-        right: 0;
-        top: 0;
-    }
-    
-    /* Panel and icon container */
+            &.knobs-anchor-bottom-right {
+                bottom: 0;
+                right: 0;
+            }
 
-    .knobs > * {
-        background-color: white;
-        box-shadow: 0 0 0.4em rgba(0, 0, 0, 0.2);
-    }
+            &.knobs-anchor-top-left {
+                left: 0;
+                top: 0;
+            }
 
-    /* Panel */
+            &.knobs-anchor-top-right {
+                right: 0;
+                top: 0;
+            }
+        }
 
-    .knobs > :not(.knobs-icon) {
-        display: none;
-        padding: calc(3 * var(--separation));
-        overflow-y: auto;
-    }
+        /* Dock */
 
-    .knobs.knobs-detached > :not(.knobs-icon),
-    .knobs:hover > :not(.knobs-icon),
-    .knobs.knobs-keep-open > :not(.knobs-icon) {
-        display: block;
-    }
+        .knobs-dock {
+            align-items: center;
+            background-color: var(--knobs-background-color);
+            border-radius: 50%;
+            box-shadow: var(--knobs-shadow);
+            display: flex;
+            height: var(--knobs-dock-icon-size);
+            justify-content: center;
+            line-height: 1;
+            margin: calc(1 * var(--knobs-separation));
+            width: var(--knobs-dock-icon-size);
+            font-size: calc(2 * var(--knobs-text-size));
+        }
 
-    /* Icon container */
+        /* Panel */
 
-    .knobs .knobs-icon {
-        --size: 3.5em;
+        .knobs-panel {
+            background-color: var(--knobs-background-color);
+            box-shadow: var(--knobs-shadow);
+            display: none;
+            overflow-y: auto;
+            padding: calc(3 * var(--knobs-separation));
+        }
 
-        align-items: center;
-        border-radius: 50%;
-        display: flex;
-        height: var(--size);
-        justify-content: center;
-        line-height: 1;
-        margin: calc(1 * var(--separation));
-        width: var(--size);
-    }
+        /* Show and hide */
 
-    .knobs .knobs-icon > * {
-        font-size: 2em;
-    }
+        &.knobs-detached,
+        &:hover,
+        &.knobs-keep-open {
+            .knobs-dock {
+                display: none;
+            }
 
-    .knobs:hover > .knobs-icon,
-    .knobs.knobs-keep-open > .knobs-icon {
-        display: none;
-    }
+            .knobs-panel {
+                display: block;
+            }
+        }
 
-    /* Knobs */
+        /* Knobs */
 
-    .knobs .knobs-stack {
-        display: flex;
-        flex-direction: column;
-        gap: calc(2 * var(--separation));
-    }
+        .knobs-stack {
+            display: flex;
+            flex-direction: column;
+            gap: calc(2 * var(--knobs-separation));
+        }
 
-    .knobs label {
-        display: flex;
-        flex-direction: column;
-        gap: var(--separation);
-    }
+        label {
+            display: flex;
+            flex-direction: column;
+            gap: var(--knobs-separation);
+        }
 
-    .knobs label:has(> input[type="checkbox"]) {
-        flex-direction: row;
-        align-items: center;
-    }
+        label:has(> input[type="checkbox"]) {
+            align-items: center;
+            flex-direction: row;
 
-    /* The following use of `:has()` is so that browsers that don't support that
-       selector may ignore this block.
-     */
-    .knobs label:has(> input) > input[type="checkbox"] {
-        order: -1;
-    }
+            > input[type="checkbox"] {
+                order: -1;
+            }
+        }
 
-    .knobs input[type="range"] + * {
-        color: darkgray;
-        text-align: center;
+        input[type="range"] + * {
+            color: darkgray;
+            text-align: center;
+        }
     }
     """
