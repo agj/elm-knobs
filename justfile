@@ -53,58 +53,29 @@ intdocs-install:
 install:
     pnpm install
 
-# Run all checks and tests.
+# Run checks and tests.
 [group("checks")]
-check: check-build test check-docs check-lint check-examples check-version
-
-# Run tests.
-[group("checks")]
-test:
+check:
+    echo "ℹ️ Checking compilation…"
+    elm make --output /dev/null
+    echo "ℹ️ Running tests…"
     elm-test
+    echo "ℹ️ Checking formatting…"
+    elm-format src --validate
+    echo "ℹ️ Linting…"
+    elm-review
+    echo "ℹ️ Checking docs…"
+    elm-doc-preview --output /dev/null
+    nu ./scripts/check-examples.nu
+    nu ./scripts/check-version.nu
 
 # Run tests and watch for changes.
 [group("checks")]
 test-watch:
     elm-test --watch
 
-# Check for formatting errors.
+# Automatically fix formatting and linting errors.
 [group("checks")]
-check-lint:
-    elm-format src --validate
-    elm-review
-
-# Automatically fix formatting errors.
-[group("checks")]
-check-lint-fix:
+fix:
     elm-format src --yes
     elm-review --fix
-
-# Suppress all remaining errors.
-[group("checks")]
-check-lint-suppress:
-    elm-review suppress
-
-# Check suppressed formatting errors.
-[group("checks")]
-check-lint-unsuppress:
-    elm-review --unsuppress
-
-# Make sure it compiles.
-[group("checks")]
-check-build:
-    elm make --output /dev/null
-
-# Make sure the examples compile.
-[group("checks")]
-check-examples:
-    nu ./scripts/check-examples.nu
-
-# Make sure the docs can be generated.
-[group("checks")]
-check-docs:
-    elm-doc-preview --output /dev/null
-
-# Make sure the package version is consistent across.
-[group("checks")]
-check-version:
-    nu ./scripts/check-version.nu
