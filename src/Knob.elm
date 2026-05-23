@@ -572,6 +572,8 @@ in the dropdown) to values of your type.
 
 Here's a simple example mapping `"yes"` and `"no"` options to `Bool` values:
 
+    import Knob exposing (Knob)
+
     Knob.select
         { options =
             [ ( "yes", True )
@@ -579,6 +581,7 @@ Here's a simple example mapping `"yes"` and `"no"` options to `Bool` values:
             ]
         , initial = False
         }
+        --: Knob Bool
 
 -}
 select :
@@ -752,6 +755,11 @@ calling the very same constructor function that created it in the first place.
 
 Here's how the `boolCheckbox` knob would be created using `custom`:
 
+    import Html exposing (Html)
+    import Html.Attributes
+    import Html.Events
+    import Knob exposing (Knob)
+
     ourBoolKnob : Bool -> Knob Bool
     ourBoolKnob initial =
         let
@@ -769,6 +777,8 @@ Here's how the `boolCheckbox` knob would be created using `custom`:
             , view = view
             , serialization = Nothing
             }
+
+    ourBoolKnob True --: Knob Bool
 
 (Ignore the `serialization` part for now.)
 
@@ -899,12 +909,17 @@ This function produces plain HTML with no styles, so make sure you also include
 [`styles`](Knob#styles) in your page to make it display properly, or provide
 your own custom styles.
 
+    import Html exposing (Html)
+    import Knob exposing (Knob)
+
     -- Prepare a message for your knob:
     type Msg =
-        KnobUpdated (Knob YourType)
+        KnobUpdated (Knob Int)
+
+    yourKnob = Knob.int { initial = 0, step = 1 }
 
     -- Put this as an HTML node within your view:
-    Knob.view [] KnobUpdated yourKnob
+    Knob.view [] KnobUpdated yourKnob --: Html Msg
 
 Check [the documentation's readme](https://package.elm-lang.org/packages/agj/elm-knobs/2.0.0/)
 for a full demonstration on how to wire things up.
@@ -996,8 +1011,10 @@ styles =
 {-| Extract the current value out of a knob.
 Use it in your view to affect what you display.
 
+    import Knob exposing (Knob)
+
     Knob.int { step = 1, initial = 5 }
-        |> Knob.value -- Gets `5`.
+        |> Knob.value --> 5
 
 -}
 value : Knob a -> a
@@ -1015,25 +1032,33 @@ value (Knob config) =
 Pipe ([`|>`](https://package.elm-lang.org/packages/elm/core/1.0.5/Basics#%7C%3E)) the knobs into it
 using [`stack`](Knob#stack) or [`stackLabel`](Knob#stackLabel) in order to provide the arguments.
 
+    import Knob exposing (Knob)
+
     type alias Controls =
         { someNumber : Float
         , anInteger : Int
         }
 
-    aKnob =
+    controlsKnob =
         Knob.compose Controls
             -- This knob will map to `someNumber`:
             |> Knob.stack (Knob.float { step = 1, initial = 0 })
             -- This one will map to `anInteger`:
             |> Knob.stack (Knob.int { step = 1, initial = 0 })
 
+    controlsKnob --: Knob Controls
+
 Here's how you use it to build up a different data structure, in this case a tuple.
 Notice that the number of arguments in the function matches the number of “stacks”.
 
-    anotherKnob =
+    import Knob exposing (Knob)
+
+    tupleKnob =
         Knob.compose (\theFloat theInt -> ( theFloat, theInt ))
             |> Knob.stack (Knob.float { step = 1, initial = 0 })
             |> Knob.stack (Knob.int { step = 1, initial = 0 })
+
+    tupleKnob --: Knob ( Float, Int )
 
 -}
 compose : (a -> b) -> Knob (a -> b)
@@ -1132,8 +1157,11 @@ stack (Knob config) (Knob pipe) =
 
 The following example will produce a [`float`](Knob#float) knob described as “x position”.
 
+    import Knob exposing (Knob)
+
     Knob.label "x position"
         (Knob.float { step = 1, initial = 0 })
+        --: Knob Float
 
 -}
 label : String -> Knob a -> Knob a
@@ -1181,8 +1209,11 @@ The following example converts a knob that produces an `Int` (i.e. a `Knob Int`)
 into one that produces a `String` (i.e. a `Knob String`.) This is achieved
 because `String.fromInt` is a function with the type `Int -> String`.
 
+    import Knob exposing (Knob)
+
     Knob.int { step = 1, initial = 0 }
         |> Knob.map String.fromInt
+        --: Knob String
 
 -}
 map : (a -> b) -> Knob a -> Knob b
@@ -1247,7 +1278,7 @@ and as a last step use this function to update it with the serialized value.
     init serializedKnob =
         ( { knob =
                 Knob.int { step = 1, init = 0 }
-                    |> readSerialized serializedKnob
+                    |> Knob.readSerialized serializedKnob
           }
         , Cmd.none
         )

@@ -4,6 +4,10 @@ module DocumentationCodeSnippetTest exposing (tests)
 -}
 
 import Expect
+import Html
+import Html.Attributes
+import Html.Events
+import Knob
 import Test
 
 
@@ -11,7 +15,180 @@ tests : Test.Test
 tests =
     Test.describe
         "documentation code snippets"
-        [ Test.test
-            "currently none. Since having no code snippets is perfectly fine, adding this simple test tells elm-test that everything's good (empty tests fail or throw warnings)"
-            (\() -> Expect.pass)
+        [ Test.describe
+            "Knob"
+            [ Test.describe
+                "compose"
+                [ Test.describe
+                    "code snippet 0"
+                    [ Test.test
+                        "0"
+                        (\() ->
+                            let
+                                unused : Knob.Knob Controls__Knob__compose_0
+                                unused =
+                                    controlsKnob__Knob__compose_0
+                            in
+                            Expect.pass
+                        )
+                    ]
+                , Test.describe
+                    "code snippet 1"
+                    [ Test.test
+                        "0"
+                        (\() ->
+                            let
+                                unused : Knob.Knob ( Basics.Float, Basics.Int )
+                                unused =
+                                    tupleKnob__Knob__compose_1
+                            in
+                            Expect.pass
+                        )
+                    ]
+                ]
+            , Test.describe
+                "custom"
+                [ Test.describe
+                    "code snippet 0"
+                    [ Test.test
+                        "0"
+                        (\() ->
+                            let
+                                unused : Knob.Knob Basics.Bool
+                                unused =
+                                    ourBoolKnob__Knob__custom_0 Basics.True
+                            in
+                            Expect.pass
+                        )
+                    ]
+                ]
+            , Test.describe
+                "label"
+                [ Test.describe
+                    "code snippet 0"
+                    [ Test.test
+                        "0"
+                        (\() ->
+                            let
+                                unused : Knob.Knob Basics.Float
+                                unused =
+                                    Knob.label
+                                        "x position"
+                                        (Knob.float { step = 1, initial = 0 })
+                            in
+                            Expect.pass
+                        )
+                    ]
+                ]
+            , Test.describe
+                "map"
+                [ Test.describe
+                    "code snippet 0"
+                    [ Test.test
+                        "0"
+                        (\() ->
+                            let
+                                unused : Knob.Knob String.String
+                                unused =
+                                    Knob.int { step = 1, initial = 0 }
+                                        |> Knob.map String.fromInt
+                            in
+                            Expect.pass
+                        )
+                    ]
+                ]
+            , Test.describe
+                "select"
+                [ Test.describe
+                    "code snippet 0"
+                    [ Test.test
+                        "0"
+                        (\() ->
+                            let
+                                unused : Knob.Knob Basics.Bool
+                                unused =
+                                    Knob.select
+                                        { options =
+                                            [ ( "yes", Basics.True )
+                                            , ( "no", Basics.False )
+                                            ]
+                                        , initial = Basics.False
+                                        }
+                            in
+                            Expect.pass
+                        )
+                    ]
+                ]
+            , Test.describe
+                "value"
+                [ Test.describe
+                    "code snippet 0"
+                    [ Test.test
+                        "0"
+                        (\() ->
+                            Knob.int { step = 1, initial = 5 }
+                                |> Knob.value
+                                |> Expect.equal 5
+                        )
+                    ]
+                ]
+            , Test.describe
+                "view"
+                [ Test.describe
+                    "code snippet 0"
+                    [ Test.test
+                        "0"
+                        (\() ->
+                            let
+                                unused : Html.Html Msg__Knob__view_0
+                                unused =
+                                    Knob.view
+                                        []
+                                        KnobUpdated__Knob__view_0
+                                        yourKnob__Knob__view_0
+                            in
+                            Expect.pass
+                        )
+                    ]
+                ]
+            ]
         ]
+
+
+type alias Controls__Knob__compose_0 =
+    { someNumber : Basics.Float, anInteger : Basics.Int }
+
+
+controlsKnob__Knob__compose_0 =
+    Knob.compose Controls__Knob__compose_0
+        |> Knob.stack (Knob.float { step = 1, initial = 0 })
+        |> Knob.stack (Knob.int { step = 1, initial = 0 })
+
+
+tupleKnob__Knob__compose_1 =
+    Knob.compose (\theFloat theInt -> ( theFloat, theInt ))
+        |> Knob.stack (Knob.float { step = 1, initial = 0 })
+        |> Knob.stack (Knob.int { step = 1, initial = 0 })
+
+
+ourBoolKnob__Knob__custom_0 : Basics.Bool -> Knob.Knob Basics.Bool
+ourBoolKnob__Knob__custom_0 initial =
+    let
+        view : () -> Html.Html (Knob.Knob Basics.Bool)
+        view () =
+            Html.input
+                [ Html.Attributes.type_ "checkbox"
+                , Html.Attributes.checked initial
+                , Html.Events.onCheck ourBoolKnob__Knob__custom_0
+                ]
+                []
+    in
+    Knob.custom { value = initial, view = view, serialization = Maybe.Nothing }
+
+
+type Msg__Knob__view_0
+    = KnobUpdated__Knob__view_0 (Knob.Knob Basics.Int)
+
+
+yourKnob__Knob__view_0 =
+    Knob.int { initial = 0, step = 1 }

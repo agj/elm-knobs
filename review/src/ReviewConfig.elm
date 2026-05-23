@@ -62,6 +62,7 @@ config =
     , NoPrematureLetComputation.rule
     , NoUnused.CustomTypeConstructors.rule []
     , NoUnused.CustomTypeConstructorArgs.rule
+        |> Rule.ignoreErrorsForDirectories [ "tests/" ]
     , NoUnused.Dependencies.rule
     , NoUnused.Exports.rule
         |> Rule.ignoreErrorsForDirectories [ "tests/" ]
@@ -71,6 +72,6 @@ config =
         |> Rule.ignoreErrorsForDirectories [ "tests/" ]
     , NoUnused.Variables.rule
         |> Rule.ignoreErrorsForDirectories [ "tests/" ]
-    , Review.Documentation.CodeSnippet.checkImplicitlyImportingEverythingFromCurrentModule
+    , Review.Documentation.CodeSnippet.check
     , Simplify.rule Simplify.defaults
     ]
