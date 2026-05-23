@@ -32,6 +32,7 @@ import NoUnused.Exports
 import NoUnused.Parameters
 import NoUnused.Patterns
 import NoUnused.Variables
+import Review.Documentation.CodeSnippet
 import Review.Rule as Rule exposing (Rule)
 import Simplify
 
@@ -70,5 +71,6 @@ config =
         |> Rule.ignoreErrorsForDirectories [ "tests/" ]
     , NoUnused.Variables.rule
         |> Rule.ignoreErrorsForDirectories [ "tests/" ]
+    , Review.Documentation.CodeSnippet.checkImplicitlyImportingEverythingFromCurrentModule
     , Simplify.rule Simplify.defaults
     ]
