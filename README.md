@@ -120,4 +120,4 @@ Please read the [Open Slopware “Why not LLMs?”][why-not-llms] rationale to
 learn about the multitude of externalities that plague the use and development
 of LLMs.
 
-[why-not-llms]: https://codeberg.org/small-hack/open-slopware/src/commit/69475267031ccf609517dfa254f1916cb435e424/README.md#why-not-llms
+[why-not-llms]: https://codeberg.org/ethical-foss/open-slopware/src/commit/32c791abfb842e011cb4d787a37fb3f8c31480a8/why_not_llms.md
