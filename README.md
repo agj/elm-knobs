@@ -116,8 +116,9 @@ in part, for the authoring of its code or any of its related content, and will
 not accept such contributions. This policy does not necessarily reflect on the
 dependencies and tools used herein.
 
-Please read the [Open Slopware “Why not LLMs?”][why-not-llms] rationale to
-learn about the multitude of externalities that plague the use and development
-of LLMs.
+Please read the [Open Slopware “Why not LLMs?”][why-not-llms] rationale to learn
+about the multitude of environmental, societal, political, ethical, cognitive,
+psychological, technical, economic, legal, and other issues that plague the use
+and development of this type of AI technology.
 
 [why-not-llms]: https://codeberg.org/ethical-foss/open-slopware/src/commit/32c791abfb842e011cb4d787a37fb3f8c31480a8/why_not_llms.md
